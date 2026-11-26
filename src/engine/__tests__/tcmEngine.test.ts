@@ -1,0 +1,211 @@
+import { describe, expect, it } from 'vitest';
+import { STORY_CASES, generateProceduralCase } from '../../data/cases';
+import { ACUPOINTS } from '../../data/acupoints';
+import { HERBS } from '../../data/herbs';
+import { apothecaryAudio } from '../audio';
+import { selectExamSession } from '../examEngine';
+import { createDefaultProgress, exportSaveJson, importSaveJson, loadProgress } from '../storage';
+import {
+  assignHerbToSlot,
+  checkContraindications,
+  computeTreatmentPreview,
+  emptySlots,
+  evaluateCaseSubmission,
+  getTyNgoWatch,
+  simulateFiveElements
+} from '../tcmEngine';
+import { PrescriptionSlots } from '../../types/tcm';
+
+describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
+  it('contains 20 herbs and 14 acupoints across 3 chapters', () => {
+    expect(HERBS).toHaveLength(20);
+    expect(ACUPOINTS).toHaveLength(14);
+    expect(STORY_CASES).toHaveLength(10);
+  });
+
+  it('Failure Mode 1: assignHerbToSlot moves herb across pans without duplication', () => {
+    let slots = emptySlots();
+    slots = assignHerbToSlot(slots, 'quan', 'tia-to');
+    slots = assignHerbToSlot(slots, 'than', 'kinh-gioi');
+    // Move tia-to from quan into than
+    slots = assignHerbToSlot(slots, 'than', 'tia-to');
+
+    expect(slots.quan).toBeNull();
+    expect(slots.than).toBe('tia-to');
+    const assigned = Object.values(slots).filter(Boolean);
+    expect(new Set(assigned).size).toBe(assigned.length);
+  });
+
+  it('Failure Mode 2: flags critical pregnancy contraindications for LI4, SP6, Cỏ xước, Đan sâm, and Ngải cứu as Quân', () => {
+    const pregnantCase = STORY_CASES.find((c) => c.id === 'c3-thai-phu-khi-nghich')!;
+    expect(pregnantCase.isPregnant).toBe(true);
+
+    const dangerousSlots: PrescriptionSlots = {
+      quan: 'ngai-cuu',
+      than: 'co-xuoc',
+      ta: 'dan-sam',
+      su: 'cam-thao'
+    };
+    const alerts = checkContraindications(pregnantCase, dangerousSlots, ['hop-coc', 'tam-am-giao']);
+    const criticals = alerts.filter((a) => a.severity === 'critical');
+
+    expect(criticals.length).toBe(5);
+
+    const evalResult = evaluateCaseSubmission(
+      pregnantCase,
+      pregnantCase.targetDiagnosis,
+      dangerousSlots,
+      ['hop-coc', 'tam-am-giao']
+    );
+    expect(evalResult.passed).toBe(false);
+    expect(evalResult.totalScore).toBeLessThanOrEqual(55);
+    expect(evalResult.safetyPenalty).toBeGreaterThan(0);
+  });
+
+  it('Failure Mode 3: every one of the 10 story cases is cleanly solvable (score >= 85, zero contraindications)', () => {
+    const canonicalSolutions: Record<string, { slots: PrescriptionSlots; acupoints: string[] }> = {
+      'c1-phong-han': {
+        slots: { quan: 'tia-to', than: 'kinh-gioi', ta: 'sinh-khuong', su: 'cam-thao' },
+        acupoints: []
+      },
+      'c1-phong-nhiet': {
+        slots: { quan: 'bac-ha', than: 'kim-ngan-hoa', ta: 'cuc-hoa', su: 'cam-thao' },
+        acupoints: []
+      },
+      'c1-thuong-thuc-han': {
+        slots: { quan: 'sinh-khuong', than: 'tia-to', ta: null, su: 'cam-thao' },
+        acupoints: []
+      },
+      'c2-ty-vi-hu-han': {
+        slots: { quan: 'hoai-son', than: 'ngai-cuu', ta: 'tran-bi', su: 'cam-thao' },
+        acupoints: []
+      },
+      'c2-can-khi-uat': {
+        slots: { quan: 'nhan-tran', than: 'lac-tien', ta: 'cuc-hoa', su: 'cam-thao' },
+        acupoints: []
+      },
+      'c2-tam-ty-luong-hu': {
+        slots: { quan: 'hoai-son', than: 'dinh-lang', ta: 'lac-tien', su: 'cam-thao' },
+        acupoints: []
+      },
+      'c2-tam-hoa-vuong': {
+        slots: { quan: 'tam-sen', than: 'lac-tien', ta: 'kim-ngan-hoa', su: 'cam-thao' },
+        acupoints: []
+      },
+      'c3-vai-gay-phong-han': {
+        slots: { quan: 'que-chi', than: 'tia-to', ta: 'la-lot', su: 'cam-thao' },
+        acupoints: ['phong-tri', 'liet-khuyet']
+      },
+      'c3-thai-phu-khi-nghich': {
+        slots: { quan: 'hoai-son', than: 'tia-to', ta: 'lac-tien', su: 'cam-thao' },
+        acupoints: ['noi-quan', 'an-duong']
+      },
+      'c3-than-duong-hu-phong-thap': {
+        slots: { quan: 'ngai-cuu', than: 'la-lot', ta: 'co-xuoc', su: 'ky-tu' },
+        acupoints: ['than-du', 'khi-hai']
+      }
+    };
+
+    STORY_CASES.forEach((storyCase) => {
+      const sol = canonicalSolutions[storyCase.id];
+      expect(sol, `Missing canonical solution for ${storyCase.id}`).toBeDefined();
+
+      // Verify all prescribed items are unlocked by the case's chapter
+      Object.values(sol.slots)
+        .filter(Boolean)
+        .forEach((herbId) => {
+          const herb = HERBS.find((h) => h.id === herbId)!;
+          expect(herb.chapter).toBeLessThanOrEqual(storyCase.chapter);
+        });
+
+      const res = evaluateCaseSubmission(
+        storyCase,
+        storyCase.targetDiagnosis,
+        sol.slots,
+        sol.acupoints
+      );
+
+      expect(res.alerts.filter((a) => a.severity === 'critical'), `${storyCase.id} alerts`).toHaveLength(0);
+      expect(res.totalScore, `${storyCase.id} score (${res.totalScore})`).toBeGreaterThanOrEqual(85);
+      expect(res.passed).toBe(true);
+    });
+  });
+
+  it('procedural case generator creates valid solvable cases per chapter', () => {
+    for (let seed = 0; seed < 5; seed++) {
+      const pCase = generateProceduralCase(3, seed);
+      expect(pCase.isProcedural).toBe(true);
+      const preview = computeTreatmentPreview(
+        pCase,
+        {
+          quan: pCase.idealQuanHerb,
+          than: pCase.keyHerbs[1] ?? null,
+          ta: pCase.keyHerbs[2] ?? null,
+          su: 'cam-thao'
+        },
+        pCase.keyAcupoints
+      );
+      expect(preview.alerts.filter((a) => a.severity === 'critical')).toHaveLength(0);
+    }
+  });
+
+  it('Failure Mode 4: corrupt localStorage and malformed JSON save imports never throw', () => {
+    const brokenStorage = {
+      getItem: () => '{broken json!!!',
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      key: () => null,
+      length: 0
+    } as unknown as Storage;
+
+    const loaded = loadProgress(brokenStorage);
+    expect(loaded.version).toBe(1);
+    expect(loaded.rank).toBe('Y Sinh');
+
+    const badImport1 = importSaveJson('not-json');
+    expect(badImport1.ok).toBe(false);
+
+    const badImport2 = importSaveJson(JSON.stringify({ version: 999 }));
+    expect(badImport2.ok).toBe(false);
+
+    const valid = createDefaultProgress();
+    valid.herbNotes['tia-to'] = 'Rất hay khi cảm lạnh';
+    const roundTrip = importSaveJson(exportSaveJson(valid));
+    expect(roundTrip.ok).toBe(true);
+    if (roundTrip.ok) {
+      expect(roundTrip.progress.herbNotes['tia-to']).toBe('Rất hay khi cảm lạnh');
+    }
+  });
+
+  it('Failure Mode 5: audio synthesizer safely no-ops in headless/muted environments', () => {
+    apothecaryAudio.setEnabled(false);
+    expect(() => apothecaryAudio.playPulseBeat(0.8)).not.toThrow();
+    expect(() => apothecaryAudio.playHerbDrop()).not.toThrow();
+    expect(() => apothecaryAudio.playSealStamp(true)).not.toThrow();
+    expect(() => apothecaryAudio.playPageTurn()).not.toThrow();
+    apothecaryAudio.setEnabled(true);
+    expect(() => apothecaryAudio.playPulseBeat(0.8)).not.toThrow();
+  });
+
+  it('simulates Five Elements Tương Thừa / Tương Vũ and Tý Ngọ Lưu Chú correctly', () => {
+    const woodExcess = simulateFiveElements('moc', 90);
+    expect(woodExcess.levels.tho).toBeLessThan(35); // Mộc thừa Thổ
+    expect(woodExcess.effects.some((e) => e.relation === 'Tương Thừa (Khắc quá)')).toBe(true);
+    expect(woodExcess.effects.some((e) => e.relation === 'Tương Vũ (Phản khắc)')).toBe(true);
+
+    expect(getTyNgoWatch(0).branch).toBe('Giờ Tý');
+    expect(getTyNgoWatch(8).branch).toBe('Giờ Thìn');
+    expect(getTyNgoWatch(12).organ).toContain('Tâm');
+  });
+
+  it('selectExamSession prioritizes missed mastery topics', () => {
+    const prog = createDefaultProgress();
+    prog.mastery['tongue-ty-hu'] = { seen: 3, correct: 3 };
+    prog.mastery['pulse-phu-khan'] = { seen: 3, correct: 0, lastMissedAt: Date.now() };
+
+    const session = selectExamSession(prog, 5);
+    expect(session).toHaveLength(5);
+    expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
+  });
+});
