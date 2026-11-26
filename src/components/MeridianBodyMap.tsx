@@ -57,170 +57,144 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
         )}
 
         <svg
-          width="254"
-          height="422"
-          viewBox="-18 0 256 430"
+          width="284"
+          height="444"
+          viewBox="-18 0 286 444"
           role="img"
           aria-label="Đồ hình Kinh Lạc và Huyệt Đạo cổ họa"
           style={{
             background: 'radial-gradient(circle at 50% 42%, #FAF4E4 0%, #EFE4CA 100%)',
             border: '1.5px solid #2F231A',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            boxShadow: 'inset 0 0 18px rgba(90, 75, 60, 0.14)'
           }}
         >
-          {/* Classical Vietnamese folk scroll figure ("Hình nhân Y thư cổ") */}
-          <g filter="url(#ink-brush-soft)" strokeLinecap="round" strokeLinejoin="round">
-            {/* Subtle woodblock scroll frame lines */}
-            <path d="M12 10 Q110 8 208 10 M12 420 Q110 422 208 420" stroke="#9C6B24" strokeWidth="0.8" opacity="0.45" />
+          {/* Woodblock scroll top & bottom accent lines */}
+          <path d="M-8 10 Q125 7 258 10 M-8 434 Q125 437 258 434" stroke="#9C6B24" strokeWidth="0.9" opacity="0.45" fill="none" />
 
-            {/* Topknot bun (Búi tóc củ hành buộc dải vải) */}
-            <path
-              d="M101 25 C100 17 105 14 110 14 C115 14 120 17 119 25 C115 27 105 27 101 25 Z"
-              fill="#352820"
-              stroke="#2F231A"
-              strokeWidth="1.4"
-            />
-            <path d="M101 24 Q110 26 119 24 M119 24 Q124 27 123 31" stroke="#A62620" strokeWidth="1.3" fill="none" />
-
-            {/* Ears */}
-            <path d="M89 48 C85 48 85 57 90 58" fill="#EBD5BA" stroke="#2F231A" strokeWidth="1.3" />
-            <path d="M131 48 C135 48 135 57 130 58" fill="#EBD5BA" stroke="#2F231A" strokeWidth="1.3" />
-
-            {/* Head & Jawline */}
-            <path
-              d="M90 48 C89 35 97 27 110 27 C123 27 131 35 130 48 C130 62 122 73 110 74 C98 73 90 62 90 48 Z"
-              fill="#EED9BF"
-              stroke="#2F231A"
-              strokeWidth="1.55"
-            />
-
-            {/* Hairline / Facial Features */}
-            {activeSide === 'front' ? (
-              <>
-                <path d="M91 40 C97 31 123 31 129 40 C123 35 97 35 91 40 Z" fill="#352820" />
-                <path d="M97 46 Q102 44 106 46 M114 46 Q118 44 123 46" stroke="#2F231A" strokeWidth="1.1" />
-                <path d="M98 51 Q102 50 105 51 M115 51 Q118 50 122 51" stroke="#2F231A" strokeWidth="1.35" />
-                <path d="M110 51 C110 56 109 58 111 59" stroke="#5A4B3C" strokeWidth="1" />
-                <path d="M105 64 Q110 66 115 64" stroke="#8B493B" strokeWidth="1.15" />
-              </>
-            ) : (
-              <>
-                {/* Back of head hair & nape hairline */}
-                <path
-                  d="M90 48 C89 34 97 27 110 27 C123 27 131 34 130 48 C129 58 124 67 118 71 C113 68 107 68 102 71 C96 67 91 58 90 48 Z"
-                  fill="#352820"
-                  fillOpacity="0.88"
-                  stroke="#2F231A"
-                  strokeWidth="1.4"
-                />
-                <path d="M102 71 L103 77 M118 71 L117 77" stroke="#5A4B3C" strokeWidth="0.9" />
-              </>
-            )}
-
-            {/* Organic Body Silhouette: Neck, Curved Shoulders, Arms, Hands, Torso, Legs & Feet */}
-            <path
-              d="M101 73 C101 81 100 85 95 88
-                 C84 91 71 95 64 104
-                 C56 118 51 142 45 162
-                 C40 179 37 196 34 210
-                 C29 216 26 226 28 235
-                 C30 238 33 238 34 233
-                 C35 239 39 240 40 234
-                 C42 238 45 236 45 229
-                 C46 218 46 213 48 206
-                 C53 190 58 168 65 148
-                 C69 136 73 125 76 121
-                 C76 144 77 166 80 186
-                 C81 200 79 218 76 238
-                 C74 260 76 284 80 308
-                 C82 332 82 362 81 388
-                 C79 397 72 406 72 411
-                 C74 415 84 415 92 412
-                 C96 409 96 398 95 388
-                 C97 360 100 330 102 304
-                 C104 282 106 266 110 262
-                 C114 266 116 282 118 304
-                 C120 330 123 360 125 388
-                 C124 398 124 409 128 412
-                 C136 415 146 415 148 411
-                 C148 406 141 397 139 388
-                 C138 362 138 332 140 308
-                 C144 284 146 260 144 238
-                 C141 218 139 200 140 186
-                 C143 166 144 144 144 121
-                 C147 125 151 136 155 148
-                 C162 168 167 190 172 206
-                 C174 213 174 218 175 229
-                 C175 236 178 238 180 234
-                 C181 240 185 239 186 233
-                 C187 238 190 238 192 235
-                 C194 226 191 216 186 210
-                 C183 196 180 179 175 162
-                 C169 142 164 118 156 104
-                 C149 95 136 91 125 88
-                 C120 85 119 81 119 73"
-              fill="#EAD3B7"
-              stroke="#2F231A"
-              strokeWidth="1.55"
-            />
-
-            {/* Traditional Cloth Waist Wrap ("Khố lụa thắt đai vải" — classical folk chart garment) */}
-            <path
-              d="M77 228 Q110 235 143 228 L145 259 Q127 265 113 262 L110 274 L107 262 Q93 265 75 259 Z"
-              fill="#6C7C6B"
-              fillOpacity="0.62"
-              stroke="#2F231A"
-              strokeWidth="1.4"
-            />
-            <path
-              d="M77 232 Q110 239 143 232 M108 234 C104 248 103 260 100 269 M112 234 C115 247 117 258 119 266"
-              stroke="#2F231A"
-              strokeWidth="1.15"
-              fill="none"
-            />
-
-            {/* Subtle anatomical brush lines */}
-            {activeSide === 'front' ? (
-              <g stroke="#8E6C4E" strokeWidth="1" fill="none" opacity="0.72">
-                <path d="M84 103 Q98 108 107 104 M136 103 Q122 108 113 104" />
-                <path d="M84 134 Q96 141 106 135 M136 134 Q124 141 114 135" />
-                <circle cx="110" cy="195" r="2" fill="#8E6C4E" />
-                <path d="M86 303 Q91 307 96 303 M124 303 Q129 307 134 303" />
+          {activeSide === 'front' ? (
+            <>
+              {/* Master Vietnamese silk-and-ink front figure blended seamlessly into Dó paper */}
+              <image
+                href="/art/meridians/meridian-front.jpg"
+                x="0"
+                y="0"
+                width="250"
+                height="444"
+                preserveAspectRatio="none"
+                style={{ mixBlendMode: 'multiply' }}
+              />
+              {/* Delicate flowing meridian pathways */}
+              <g stroke="#23574C" strokeWidth="1.1" strokeDasharray="4 3" fill="none" opacity="0.58">
+                <path d="M125 68 C125 112 125 168 125 220" />
+                <path d="M102 124 C95 190 94 265 93 333 C92 368 92 392 91 411" />
+                <path d="M148 124 C150 198 148 290 142 377" />
+                <path d="M84 114 C70 152 60 188 55 226 C51 236 48 240 46 244" />
+                <path d="M166 114 C178 152 186 188 190 218 L195 233" />
               </g>
-            ) : (
-              <g stroke="#8E6C4E" strokeWidth="1" fill="none" opacity="0.72">
-                <path d="M110 86 C109 132 111 182 110 225" strokeDasharray="3 3" />
-                <path d="M83 116 C88 134 94 144 98 148 M137 116 C132 134 126 144 122 148" />
-                <path d="M84 305 Q90 303 95 305 M125 305 Q130 303 136 305" />
-              </g>
-            )}
+            </>
+          ) : (
+            /* Hand-drawn brush-ink back figure calibrated to the exact 250x444 scroll proportions */
+            <g filter="url(#ink-brush-soft)" strokeLinecap="round" strokeLinejoin="round">
+              {/* Topknot bun & nape hair */}
+              <path
+                d="M116 34 C115 26 120 22 125 22 C130 22 135 26 134 34 C130 36 120 36 116 34 Z"
+                fill="#352820"
+                stroke="#2F231A"
+                strokeWidth="1.4"
+              />
+              <path d="M116 33 Q125 35 134 33 M134 33 Q139 36 138 40" stroke="#A62620" strokeWidth="1.3" fill="none" />
+              <path d="M104 57 C100 57 100 66 105 67" fill="#EBD5BA" stroke="#2F231A" strokeWidth="1.3" />
+              <path d="M146 57 C150 57 150 66 145 67" fill="#EBD5BA" stroke="#2F231A" strokeWidth="1.3" />
+              <path
+                d="M105 57 C104 43 112 36 125 36 C138 36 146 43 145 57 C144 68 139 77 133 81 C128 78 122 78 117 81 C111 77 106 68 105 57 Z"
+                fill="#352820"
+                fillOpacity="0.9"
+                stroke="#2F231A"
+                strokeWidth="1.5"
+              />
 
-            {/* Flowing Meridian Pathways */}
-            {activeSide === 'front' ? (
-              <g stroke="#23574C" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.72">
-                <path d="M110 49 C110 96 110 165 110 225" />
-                <path d="M88 118 C82 180 80 250 84 318 C85 352 84 378 84 402" />
-                <path d="M132 118 C134 185 130 280 122 374" />
-                <path d="M72 106 C58 142 49 175 44 198 C40 212 36 220 33 226" />
-                <path d="M148 106 C162 142 172 174 177 196 L181 212" />
+              {/* Organic Body Back Silhouette */}
+              <path
+                d="M116 82 C116 90 114 95 109 98
+                   C96 102 82 107 75 117
+                   C67 132 62 156 57 178
+                   C52 195 48 212 45 227
+                   C40 233 37 243 39 252
+                   C41 255 44 255 45 250
+                   C46 256 50 257 51 251
+                   C53 255 56 253 56 246
+                   C57 235 58 228 60 221
+                   C65 204 71 182 78 161
+                   C82 148 86 137 89 133
+                   C89 156 90 178 93 198
+                   C94 212 92 228 89 248
+                   C87 270 89 294 93 318
+                   C95 342 95 372 94 398
+                   C92 407 85 416 85 421
+                   C87 425 97 425 105 422
+                   C109 419 109 408 108 398
+                   C110 370 113 340 115 314
+                   C117 292 120 274 125 270
+                   C130 274 133 292 135 314
+                   C137 340 140 370 142 398
+                   C141 408 141 419 145 422
+                   C153 425 163 425 165 421
+                   C165 416 158 407 156 398
+                   C155 372 155 342 157 318
+                   C161 294 163 270 161 248
+                   C158 228 156 212 157 198
+                   C160 178 161 156 161 133
+                   C164 137 168 148 172 161
+                   C179 182 185 204 190 221
+                   C192 228 193 235 194 246
+                   C194 253 197 255 199 251
+                   C200 257 204 256 205 250
+                   C206 255 209 255 211 252
+                   C213 243 210 233 205 227
+                   C202 212 198 195 193 178
+                   C188 156 183 132 175 117
+                   C168 107 154 102 141 98
+                   C136 95 134 90 134 82"
+                fill="#E4C6A3"
+                stroke="#2F231A"
+                strokeWidth="1.55"
+              />
+
+              {/* Cloth Waist Wrap (Back view) */}
+              <path
+                d="M90 238 Q125 244 160 238 L162 269 Q142 275 125 272 Q108 275 88 269 Z"
+                fill="#6C7C6B"
+                fillOpacity="0.65"
+                stroke="#2F231A"
+                strokeWidth="1.4"
+              />
+              <path d="M90 242 Q125 248 160 242" stroke="#2F231A" strokeWidth="1.1" fill="none" />
+
+              {/* Dorsal spine & scapula ink lines */}
+              <g stroke="#8E6C4E" strokeWidth="1.1" fill="none" opacity="0.72">
+                <path d="M125 94 C124 142 126 190 125 234" />
+                <path d="M97 125 C102 144 108 154 113 158 M153 125 C148 144 142 154 137 158" />
+                <path d="M97 316 Q103 314 109 316 M141 316 Q147 314 153 316" />
               </g>
-            ) : (
-              <g stroke="#274B6D" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.72">
-                <path d="M110 32 C110 92 110 164 110 228" />
-                <path d="M96 73 C94 118 93 158 93 196 C92 252 90 300 90 340" />
-                <path d="M68 106 C54 142 46 172 42 194" />
+
+              {/* Back meridian pathways */}
+              <g stroke="#274B6D" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.7">
+                <path d="M125 42 C125 102 125 174 125 236" />
+                <path d="M111 84 C109 124 108 162 108 196 C107 254 105 304 105 352" />
+                <path d="M82 118 C69 154 61 186 56 214" />
               </g>
-            )}
-          </g>
+            </g>
+          )}
 
           {/* Acupoint Nodes & Crisp Unfiltered Labels */}
           {visiblePoints.map((pt) => {
             const isSelected = selectedIds.includes(pt.id);
             const isDanger = isPregnant && pt.pregnancyForbidden;
 
-            let labelX = pt.x < 110 ? pt.x - 10 : pt.x + 10;
-            let labelY = pt.y + 3;
-            let anchor: 'start' | 'middle' | 'end' = pt.x < 110 ? 'end' : 'start';
+            let labelX = pt.x < 125 ? pt.x - 10 : pt.x + 10;
+            const labelY = pt.y + 3;
+            let anchor: 'start' | 'middle' | 'end' = pt.x < 125 ? 'end' : 'start';
 
             if (
               pt.id === 'an-duong' ||
@@ -246,10 +220,6 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
               anchor = 'end';
             }
 
-            if (pt.id === 'thai-xung') {
-              labelY = pt.y + 4;
-            }
-
             return (
               <g
                 key={pt.id}
@@ -259,21 +229,21 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 <circle
                   cx={pt.x}
                   cy={pt.y}
-                  r={isSelected ? 10 : 7.5}
+                  r={isSelected ? 9.5 : 7}
                   fill={
                     isSelected
                       ? isDanger
                         ? '#A62620'
                         : '#23574C'
-                      : '#FFF8ED'
+                      : 'rgba(255, 248, 237, 0.92)'
                   }
                   stroke={isDanger && !hideDetails ? '#A62620' : '#2F231A'}
-                  strokeWidth={isSelected ? 2 : 1.4}
+                  strokeWidth={isSelected ? 2 : 1.35}
                 />
                 <circle
                   cx={pt.x}
                   cy={pt.y}
-                  r={2.8}
+                  r={2.6}
                   fill={isSelected ? '#FFF8ED' : '#A62620'}
                 />
                 {!hideDetails && (
@@ -285,7 +255,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                     fontWeight="700"
                     fill="#221B15"
                     stroke="#FAF4E4"
-                    strokeWidth="2.4"
+                    strokeWidth="2.6"
                     paintOrder="stroke"
                   >
                     {pt.name}

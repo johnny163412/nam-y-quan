@@ -299,7 +299,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       {/* Main Two-Column Apothecary Desk */}
       <div className="desk-grid">
         {/* LEFT COLUMN: PATIENT & TỨ CHẨN */}
-        <section className="woodblock-sheet" aria-label="Khám bệnh Tứ Chẩn">
+        <section className="woodblock-sheet stitched-binding" aria-label="Khám bệnh Tứ Chẩn">
           <div className="section-heading">
             <span>{selectedCase.title}</span>
             <span className="tag-badge">Chương {selectedCase.chapter}</span>
@@ -506,6 +506,35 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
           {treatTab === 'herbs' ? (
             <>
+              {/* Giá Cân Tiểu Ly Đồng Cổ — dynamically tilts with Cold/Heat balance */}
+              <div className="balance-beam-bar" aria-hidden="true">
+                <svg width="100%" height="34" viewBox="0 0 440 34" fill="none">
+                  <path d="M220 2 V14" stroke="#9C6B24" strokeWidth="2.4" />
+                  <circle cx="220" cy="14" r="4" fill="#D59E49" stroke="#2F231A" strokeWidth="1.2" />
+                  <g
+                    style={{
+                      transformOrigin: '220px 14px',
+                      transform: `rotate(${
+                        hasAssignedTreatment
+                          ? Math.max(-6, Math.min(6, preview.resultingVector.coldHeat / 14))
+                          : 0
+                      }deg)`,
+                      transition: 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)'
+                    }}
+                  >
+                    <path d="M46 14 Q220 10 394 14" stroke="#9C6B24" strokeWidth="3.2" strokeLinecap="round" />
+                    <circle cx="46" cy="14" r="2.8" fill="#2F231A" />
+                    <circle cx="162" cy="13" r="2.6" fill="#2F231A" />
+                    <circle cx="278" cy="13" r="2.6" fill="#2F231A" />
+                    <circle cx="394" cy="14" r="2.8" fill="#2F231A" />
+                    <path d="M46 16 L36 33 M46 16 L56 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
+                    <path d="M162 15 L152 33 M162 15 L172 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
+                    <path d="M278 15 L268 33 M278 15 L288 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
+                    <path d="M394 16 L384 33 M394 16 L404 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
+                  </g>
+                </svg>
+              </div>
+
               {/* 4 Brass Scale Pans: Quân - Thần - Tá - Sứ */}
               <div className="scale-pans-grid">
                 {ROLE_META.map((meta) => {
@@ -538,7 +567,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       {herb ? (
                         <div className="pan-dish-wrap">
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
-                            <BotanicalSvg motif={herb.motif} size={28} />
+                            <BotanicalSvg herbId={herb.id} motif={herb.motif} size={36} />
                             <svg width="92" height="10" viewBox="0 0 92 10" fill="none" aria-hidden="true" style={{ marginTop: '-4px' }}>
                               <path d="M6 2 Q46 11 86 2" stroke="#9C6B24" strokeWidth="2.1" strokeLinecap="round" fill="rgba(156,107,36,0.14)" />
                             </svg>
@@ -576,11 +605,11 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 })}
               </div>
 
-              {/* Herb Drawer */}
+              {/* Tủ Thuốc Bách Tử Drawer */}
               <div style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', marginBottom: '6px' }}>
-                Ngăn kéo Nam dược (Kéo thả hoặc chạm vào vị thuốc để đặt vào ngăn <strong>{ROLE_META.find((r) => r.role === selectedSlot)?.title}</strong>):
+                Tủ Thuốc Bách Tử (Kéo thả hoặc chạm ngăn thuốc để bốc vào ngăn <strong>{ROLE_META.find((r) => r.role === selectedSlot)?.title}</strong>):
               </div>
-              <div className="herb-drawer">
+              <div className="herb-drawer bach-tu-cabinet">
                 {availableHerbs.map((herb) => {
                   const assignedRole = (Object.keys(slots) as RoleSlot[]).find(
                     (r) => slots[r] === herb.id
@@ -606,37 +635,42 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                         selectedHerbId === herb.id ? 'selected' : ''
                       }`}
                     >
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <BotanicalSvg motif={herb.motif} size={30} />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: '0.86rem', lineHeight: 1.2 }}>
-                            {herb.name}
+                      <div className="drawer-pull-ring" aria-hidden="true">
+                        <span className="brass-ring" />
+                      </div>
+                      <div className="drawer-paper-label">
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <BotanicalSvg herbId={herb.id} motif={herb.motif} size={46} />
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, fontSize: '0.86rem', lineHeight: 1.2 }}>
+                              {herb.name}
+                            </div>
+                            <span className={`nature-tag ${natureClass(herb.nature)}`}>
+                              {herb.nature} ({herb.flavors.join(', ')})
+                            </span>
                           </div>
-                          <span className={`nature-tag ${natureClass(herb.nature)}`}>
-                            {herb.nature} ({herb.flavors.join(', ')})
-                          </span>
                         </div>
-                      </div>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--ink-muted)', lineHeight: 1.35 }}>
-                        {herb.summary}
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--herbal-jade)' }}>
-                          {assignedRole
-                            ? `Đang ở: ${ROLE_META.find((r) => r.role === assignedRole)?.title}`
-                            : `Quy: ${herb.meridians.slice(0, 2).join(', ')}`}
-                        </span>
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          style={{ padding: '1px 6px', fontSize: '0.72rem' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenCodexHerb(herb.id);
-                          }}
-                        >
-                          Y thư
-                        </button>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', lineHeight: 1.35 }}>
+                          {herb.summary}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--herbal-jade)' }}>
+                            {assignedRole
+                              ? `Đang ở: ${ROLE_META.find((r) => r.role === assignedRole)?.title}`
+                              : `Quy: ${herb.meridians.slice(0, 2).join(', ')}`}
+                          </span>
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            style={{ padding: '1px 6px', fontSize: '0.72rem' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenCodexHerb(herb.id);
+                            }}
+                          >
+                            Y thư
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );

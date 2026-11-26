@@ -149,8 +149,8 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
                   className={`herb-card ${activeHerb.id === h.id ? 'selected' : ''}`}
                   onClick={() => setSelectedHerbId(h.id)}
                 >
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <BotanicalSvg motif={h.motif} size={34} />
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <BotanicalSvg herbId={h.id} motif={h.motif} size={48} />
                     <div>
                       <div style={{ fontWeight: 700, fontFamily: 'var(--font-serif)' }}>{h.name}</div>
                       <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)' }}>
@@ -173,8 +173,8 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
                 borderRadius: '2px'
               }}
             >
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
-                <BotanicalSvg motif={activeHerb.motif} size={52} />
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '12px' }}>
+                <BotanicalSvg herbId={activeHerb.id} motif={activeHerb.motif} size={112} />
                 <div>
                   <h3 style={{ margin: 0, fontFamily: 'var(--font-serif)', fontSize: '1.2rem' }}>
                     {activeHerb.name} ({activeHerb.traditionalName})

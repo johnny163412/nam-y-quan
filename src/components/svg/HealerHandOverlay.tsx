@@ -17,7 +17,7 @@ interface HealerHandOverlayProps {
 }
 
 /**
- * Hand-drawn traditional healer's sleeve & hand reaching across the desk
+ * Painted silk-and-ink healer's forearm & hand reaching across the apothecary desk
  * to pinch the chosen herb and gently release it into the brass scale pan.
  */
 export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onComplete }) => {
@@ -59,9 +59,9 @@ export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onC
       }}
     >
       <div className="healer-hand-rig">
-        {/* Pinched herb held at fingertips until drop */}
+        {/* Pinched herb held at the painted thumb-index fingertips */}
         <div className={`pinched-herb ${phase === 'drop' ? 'releasing' : ''}`}>
-          <BotanicalSvg motif={scoop.herb.motif} size={30} />
+          <BotanicalSvg herbId={scoop.herb.id} motif={scoop.herb.motif} size={42} />
         </div>
 
         {/* Dropping herb flecks when releasing onto the scale dish */}
@@ -75,58 +75,16 @@ export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onC
           </svg>
         )}
 
-        {/* Hand-drawn Thầy Lang Sleeve + Wrist + Pinching Fingers */}
-        <svg
-          width="175"
-          height="130"
-          viewBox="0 0 175 130"
-          fill="none"
-          style={{ overflow: 'visible' }}
-        >
-          <g filter="url(#ink-brush-soft)" strokeLinecap="round" strokeLinejoin="round">
-            {/* Wide traditional indigo-brown sleeve cuff (Ống tay áo thụng thầy lang) */}
-            <path
-              d="M92 54 C118 52 146 60 172 78 L156 126 C126 114 102 98 84 82 C84 72 87 62 92 54 Z"
-              fill="#2B3D4F"
-              stroke="#2F231A"
-              strokeWidth="1.8"
-            />
-            <path
-              d="M84 82 C90 73 94 64 95 54 M96 89 C104 78 109 67 110 56"
-              stroke="#EFE6D2"
-              strokeWidth="2.2"
-              opacity="0.82"
-            />
-            <path d="M108 75 C124 83 140 94 156 105" stroke="#1E2B38" strokeWidth="1.2" opacity="0.55" />
-
-            {/* Wrist & Back of Hand */}
-            <path
-              d="M90 61 C76 57 62 52 51 44 C43 39 38 35 33 34 C31 37 35 42 42 46
-                 C31 44 22 41 18 44 C17 48 26 52 38 54
-                 C28 56 22 59 23 63 C25 66 36 64 47 62
-                 C41 67 39 71 42 74 C47 76 58 72 67 71
-                 C76 72 82 75 86 78 Z"
-              fill="#EAD0B3"
-              stroke="#2F231A"
-              strokeWidth="1.65"
-            />
-
-            {/* Thumb pinching toward forefinger */}
-            <path
-              d={
-                phase === 'drop'
-                  ? 'M49 58 C41 59 33 57 29 52 C31 49 38 50 45 53'
-                  : 'M49 58 C38 56 30 51 24 44 C26 41 34 44 42 49'
-              }
-              fill="#E5C5A3"
-              stroke="#2F231A"
-              strokeWidth="1.5"
-            />
-
-            {/* Subtle knuckle & tendon ink lines */}
-            <path d="M58 55 Q66 57 74 60 M56 62 Q64 63 72 65" stroke="#9C7A5B" strokeWidth="1" />
-          </g>
-        </svg>
+        <img
+          src="/art/tools/healer-hand.png"
+          width={186}
+          height={186}
+          alt=""
+          style={{
+            display: 'block',
+            filter: 'drop-shadow(0 8px 12px rgba(18, 12, 8, 0.36))'
+          }}
+        />
       </div>
     </div>
   );

@@ -117,6 +117,19 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({ pulse, onDepthInspecte
 
   return (
     <div>
+      {!hideName && (
+        <div className="pulse-pillow-scene">
+          <img
+            src="/art/tools/pulse-pillow.jpg"
+            alt="Gối bắt mạch lụa đỏ và ba ngón Thốn Quan Xích"
+            className="pulse-pillow-img"
+          />
+          <div className="pulse-pillow-caption">
+            Đặt ba ngón tay <strong>Thốn — Quan — Xích</strong> lên gối lụa đỏ, thử hai lực ấn Nông &amp; Sâu
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
         <button
           type="button"

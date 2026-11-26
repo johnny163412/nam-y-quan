@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { STORY_CASES, generateProceduralCase } from '../../data/cases';
 import { ACUPOINTS } from '../../data/acupoints';
@@ -207,5 +209,38 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     const session = selectExamSession(prog, 5);
     expect(session).toHaveLength(5);
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
+  });
+
+  it('verifies all silk-and-ink visual art assets exist on disk and are non-empty', () => {
+    const root = path.resolve(process.cwd(), 'public/art');
+    const requiredAssets = [
+      'meridians/meridian-front.jpg',
+      'tools/healer-hand.png',
+      'tools/pulse-pillow.jpg',
+      'herbs/tia-to.jpg',
+      'herbs/kinh-gioi.jpg',
+      'herbs/cuc-hoa.jpg',
+      'herbs/cat-can.jpg',
+      'herbs/dinh-lang.jpg',
+      'herbs/ngai-cuu.jpg',
+      'herbs/nhan-tran.jpg',
+      'herbs/la-lot.jpg',
+      'patients/c1-phong-han.jpg',
+      'patients/c1-phong-nhiet.jpg',
+      'patients/c1-thuong-thuc-han.jpg',
+      'patients/c2-tam-ty-luong-hu.jpg',
+      'patients/c2-tam-hoa-vuong.jpg',
+      'patients/c3-vai-gay-phong-han.jpg',
+      'patients/c3-thai-phu-khi-nghich.jpg',
+      'patients/c3-than-duong-hu-phong-thap.jpg',
+      'patients/clinic-bg.jpg'
+    ];
+
+    requiredAssets.forEach((rel) => {
+      const fullPath = path.join(root, rel);
+      expect(fs.existsSync(fullPath), `Missing asset: ${rel}`).toBe(true);
+      const stat = fs.statSync(fullPath);
+      expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(5000);
+    });
   });
 });

@@ -33,11 +33,12 @@ body {
   min-height: 100%;
   background-color: var(--wood-desk);
   background-image:
-    radial-gradient(circle at 20% 0%, rgba(156, 107, 36, 0.12), transparent 55%),
+    radial-gradient(circle at 26% 14%, rgba(227, 165, 72, 0.16), transparent 44%),
+    radial-gradient(circle at 78% 18%, rgba(156, 107, 36, 0.13), transparent 48%),
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.015) 0px,
-      rgba(255, 255, 255, 0.015) 2px,
+      rgba(255, 255, 255, 0.014) 0px,
+      rgba(255, 255, 255, 0.014) 2px,
       transparent 2px,
       transparent 22px
     );
@@ -198,15 +199,36 @@ button {
 .woodblock-sheet {
   background-color: var(--paper-do);
   background-image:
-    radial-gradient(circle at 85% 15%, rgba(156, 107, 36, 0.08), transparent 45%),
+    radial-gradient(circle at 85% 12%, rgba(186, 134, 54, 0.12), transparent 48%),
+    radial-gradient(circle at 12% 90%, rgba(120, 82, 42, 0.08), transparent 45%),
     linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-do) 100%);
   border: 2px solid var(--border-ink);
   box-shadow:
     inset 0 0 0 3px var(--paper-do),
-    inset 0 0 0 4px rgba(42, 33, 27, 0.28),
-    0 6px 18px rgba(0, 0, 0, 0.35);
-  border-radius: 2px;
+    inset 0 0 0 4px rgba(42, 33, 27, 0.24),
+    0 8px 24px rgba(0, 0, 0, 0.44);
+  border-radius: 3px;
   padding: 16px;
+}
+
+.stitched-binding {
+  padding-left: 24px;
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 28px,
+      rgba(42, 33, 27, 0.55) 28px,
+      rgba(42, 33, 27, 0.55) 38px,
+      transparent 38px,
+      transparent 54px
+    ),
+    linear-gradient(90deg, rgba(90, 75, 60, 0.12) 0px, rgba(90, 75, 60, 0.12) 14px, transparent 15px),
+    radial-gradient(circle at 85% 12%, rgba(186, 134, 54, 0.12), transparent 48%),
+    linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-do) 100%);
+  background-size: 3px 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 9px 0, 0 0, 0 0, 0 0;
+  background-repeat: repeat-y, no-repeat, no-repeat, no-repeat;
 }
 
 .section-heading {
@@ -301,18 +323,63 @@ button {
   margin-bottom: 14px;
 }
 
-.patient-avatar {
-  width: 78px;
-  height: 86px;
+.patient-avatar-silk {
+  position: relative;
+  width: 126px;
+  height: 162px;
   flex-shrink: 0;
-  border: 1.5px solid #4A3828;
-  background: var(--paper-highlight);
+  border: 2px solid #3A291C;
+  background: #231912;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
-  box-shadow: inset 0 0 8px rgba(90, 75, 60, 0.16);
+  box-shadow:
+    0 4px 12px rgba(24, 15, 8, 0.28),
+    inset 0 0 0 2px rgba(214, 164, 86, 0.32);
+}
+
+.patient-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+}
+
+.silk-frame-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 18px rgba(24, 15, 8, 0.45);
+}
+
+.pulse-pillow-scene {
+  position: relative;
+  margin-bottom: 10px;
+  border: 1.5px solid #3A291C;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #1D1510;
+}
+
+.pulse-pillow-img {
+  width: 100%;
+  height: 118px;
+  object-fit: cover;
+  object-position: center 54%;
+  display: block;
+}
+
+.pulse-pillow-caption {
+  padding: 5px 10px;
+  background: rgba(29, 21, 16, 0.9);
+  color: var(--paper-do);
+  font-size: 0.78rem;
+  border-top: 1px solid rgba(214, 164, 86, 0.35);
+}
+
+.balance-beam-bar {
+  margin: 2px 0 -4px;
+  line-height: 0;
 }
 
 .patient-speech {
@@ -583,8 +650,8 @@ button {
 
 .pinched-herb {
   position: absolute;
-  left: 16px;
-  top: 32px;
+  left: 14px;
+  top: 24px;
   transition: transform 180ms ease, opacity 180ms ease;
 }
 
@@ -657,29 +724,34 @@ button {
   margin: 4px 0 2px;
 }
 
-.herb-drawer {
+.herb-drawer.bach-tu-cabinet {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
   gap: 8px;
-  max-height: 300px;
+  max-height: 332px;
   overflow-y: auto;
-  padding: 4px 2px;
+  padding: 10px;
+  background: linear-gradient(180deg, #271B14 0%, #1C130E 100%);
+  border: 2px solid #4E3727;
+  border-radius: 4px;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 .herb-card {
   background: var(--paper-highlight);
-  border: 1px solid rgba(42, 33, 27, 0.35);
-  border-radius: 2px;
-  padding: 8px;
+  border: 1.5px solid rgba(42, 33, 27, 0.38);
+  border-radius: 3px;
+  padding: 9px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   text-align: left;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.14s ease, transform 0.12s ease;
 }
 
 .herb-card:hover {
   border-color: var(--brass-ochre);
+  transform: translateY(-1px);
 }
 
 .herb-card.selected {
@@ -687,9 +759,55 @@ button {
   background: #fff9ef;
 }
 
-.herb-card.assigned {
-  background: var(--herbal-jade-soft);
-  border-color: var(--herbal-jade);
+.bach-tu-cabinet .herb-card {
+  background: #3A291E;
+  border: 1.5px solid #634632;
+  padding: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.28);
+}
+
+.bach-tu-cabinet .herb-card:hover {
+  border-color: #D59E49;
+}
+
+.bach-tu-cabinet .herb-card.selected {
+  border: 2px solid var(--cinnabar);
+  background: #3A291E;
+}
+
+.bach-tu-cabinet .herb-card.assigned {
+  border-color: #4D8F7F;
+  background: #273D35;
+}
+
+.drawer-pull-ring {
+  display: flex;
+  justify-content: center;
+  padding: 1px 0;
+}
+
+.brass-ring {
+  width: 14px;
+  height: 7px;
+  border: 2px solid #C99443;
+  border-radius: 8px;
+  display: inline-block;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.drawer-paper-label {
+  background: var(--paper-highlight);
+  border: 1px solid rgba(42, 33, 27, 0.4);
+  border-radius: 2px;
+  padding: 6px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.herb-card.assigned .drawer-paper-label {
+  background: #E9F1EC;
 }
 
 .nature-tag {
@@ -845,6 +963,10 @@ button {
   }
   .main-stage {
     padding: 10px 10px 24px;
+  }
+  .patient-avatar-silk {
+    width: 96px;
+    height: 122px;
   }
   .exam-tabs {
     grid-template-columns: repeat(2, 1fr);
