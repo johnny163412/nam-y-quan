@@ -1710,6 +1710,7 @@ button {
 .apothecary-room-viewport {
   width: 100%;
   overflow: hidden;
+  overflow: clip;
   border-radius: 4px;
 }
 
@@ -2833,6 +2834,915 @@ button {
 
 .growth-dot.filled {
   background: #2b6f5e;
+}
+
+/* ==================== ZERO-BOX DECLUTTER & HIGH-CRAFT ANIMATIONS ==================== */
+.header-plaque.slim-header {
+  padding: 6px 16px;
+}
+
+.slim-header-inner {
+  min-height: 44px;
+}
+
+.calligraphy-tabs {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.calligraphy-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 5px 4px;
+  color: var(--sand-muted);
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.94rem;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+
+.calligraphy-tab:hover {
+  color: #fff4dd;
+}
+
+.calligraphy-tab.active {
+  color: #f6cf7c;
+  border-bottom-color: #d94235;
+}
+
+.round-gear-btn {
+  background: radial-gradient(circle, #462f1f 0%, #26180f 100%);
+  border: 1.5px solid #9c6b24;
+  color: #f7e6c4;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.round-gear-btn:hover {
+  border-color: var(--gold-trim);
+}
+
+/* Floating Diegetic HUD */
+.stage-floating-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 4px 2px;
+}
+
+.hud-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hud-scroll-btn {
+  background: linear-gradient(180deg, #3b2617 0%, #24160d 100%);
+  border: 1px solid #8a5e2c;
+  border-radius: 999px;
+  color: #f4e2c0;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-scroll-btn:hover {
+  border-color: var(--gold-trim);
+  color: #fff8e6;
+}
+
+.yduc-badge-mini {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #f5cd74;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(35, 87, 76, 0.65);
+  border: 1px solid #6ab5a1;
+}
+
+.room-medallions-rail {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.room-medallions-rail::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 50%;
+  height: 1px;
+  background: rgba(207, 160, 82, 0.35);
+  z-index: 0;
+}
+
+.room-medallion-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #23150d;
+  border: 1.5px solid #745026;
+  border-radius: 999px;
+  padding: 4px 11px 4px 4px;
+  color: #d6bf97;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: border-color 0.16s ease, transform 0.14s ease, background-color 0.16s ease;
+}
+
+.room-medallion-btn:hover {
+  border-color: var(--gold-trim);
+}
+
+.room-medallion-btn.active {
+  background: linear-gradient(180deg, #982620 0%, #661611 100%);
+  border-color: #f0c26b;
+  color: #fff6e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.medallion-roman {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #170d07;
+  border: 1px solid #b5853b;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f0c26b;
+}
+
+.room-medallion-btn.active .medallion-roman {
+  background: #f6e2b7;
+  color: #6b1510;
+}
+
+.floating-clues-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 85;
+  padding: 12px;
+  background: linear-gradient(180deg, #efe0c0 0%, #dfcaa0 100%);
+  border: 2px solid #4d3119;
+  outline: 1px solid var(--gold-trim);
+  border-radius: 6px;
+  color: var(--ink-primary);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.65);
+}
+
+/* Potion-Craft Edge Carousel Arrows */
+.stage-shell-relative {
+  position: relative;
+}
+
+.room-edge-arrow {
+  position: fixed;
+  top: 52%;
+  transform: translateY(-50%);
+  z-index: 50;
+  width: 34px;
+  height: 76px;
+  border-radius: 6px;
+  background: rgba(34, 20, 12, 0.82);
+  border: 1.5px solid var(--gold-trim);
+  color: #f7deb0;
+  font-size: 1.7rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.room-edge-arrow:hover {
+  background: #8e231d;
+  color: #fff6e1;
+}
+
+.room-edge-arrow.left {
+  left: 6px;
+}
+
+.room-edge-arrow.right {
+  right: 6px;
+}
+
+/* Room 1 Round Instrument Medallions */
+.instrument-tray {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.instrument-coin-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 4px;
+  background: transparent;
+  border: 0;
+  color: var(--ink-primary);
+}
+
+.instrument-glyph {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  background: radial-gradient(circle, #ebd8b4 0%, #c8a66e 100%);
+  border: 2px solid #5c3e1e;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.instrument-coin-btn:hover .instrument-glyph {
+  transform: translateY(-2px);
+  border-color: #a62620;
+}
+
+.instrument-coin-btn.active .instrument-glyph {
+  background: radial-gradient(circle, #be332a 0%, #7d1914 100%);
+  border-color: #f0c26b;
+  box-shadow: 0 0 0 3px rgba(207, 160, 82, 0.35), 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.instrument-name {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.tongue-readout-card {
+  padding: 9px 11px;
+  background: #d5bf96;
+  border-left: 3px solid #a62620;
+  border-radius: 2px;
+  font-size: 0.85rem;
+}
+
+/* Wrist & 3 Fingers Pulse Stage */
+.pulse-wrist-stage {
+  background: linear-gradient(180deg, #e7d5b2 0%, #d4ba8b 100%);
+  border: 1.5px solid #6b4928;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.pulse-wrist-svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+  margin: 0 auto 6px;
+}
+
+.wrist-pulse-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wristBeat 0.85s ease-out infinite;
+}
+
+@keyframes wristBeat {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.wrist-controls-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Compass Knobs & 5 Element Petals */
+.dial-centric-box {
+  padding: 10px 12px;
+}
+
+.dial-orbit-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.compass-knobs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.brass-pair-toggle {
+  display: inline-flex;
+  border: 1.5px solid #8a5e2c;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #23150d;
+}
+
+.knob-half {
+  background: transparent;
+  border: 0;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #d8c096;
+}
+
+.knob-half.active {
+  background: linear-gradient(180deg, #9b2620 0%, #6d1612 100%);
+  color: #fff6e1;
+}
+
+.element-petals-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.element-petal-btn {
+  flex: 1;
+  min-width: 52px;
+  padding: 6px 4px;
+  border-radius: 999px;
+  border: 1.5px solid #755129;
+  background: #281910;
+  color: #e4cfab;
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.element-petal-btn.active {
+  border-color: #f3ca78;
+  color: #fff8e6;
+  box-shadow: 0 0 10px rgba(243, 202, 120, 0.35);
+}
+
+.element-petal-btn.el-moc.active {
+  background: #2b6543;
+}
+.element-petal-btn.el-hoa.active {
+  background: #a32a22;
+}
+.element-petal-btn.el-tho.active {
+  background: #8e611c;
+}
+.element-petal-btn.el-kim.active {
+  background: #776d5d;
+}
+.element-petal-btn.el-thuy.active {
+  background: #264d73;
+}
+
+/* Room 2 Hanging Round Brass Scale Dishes */
+.brass-scale-rig {
+  margin-bottom: 10px;
+}
+
+.brass-dishes-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: -4px;
+}
+
+.round-scale-dish {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-width: 148px;
+  width: 100%;
+  margin: 12px auto 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, #4c331e 0%, #24160c 85%);
+  border: 2.5px dashed #a97b3b;
+  color: #d7be92;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+  transform-origin: top center;
+  transition: border-color 0.16s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.round-scale-dish.is-selected {
+  border-style: solid;
+  border-color: #f3ca78;
+  box-shadow: 0 0 0 3px rgba(243, 202, 120, 0.28), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+.round-scale-dish.is-filled {
+  border-style: solid;
+  border-color: #d6a44e;
+  background: radial-gradient(circle at 35% 30%, #faf0d8 0%, #d8be8f 85%);
+  color: #24160e;
+}
+
+.round-scale-dish.dish-tint-sao-vang.is-filled {
+  background: radial-gradient(circle at 35% 30%, #f9e6b2 0%, #d4a652 88%);
+}
+
+.round-scale-dish.dish-tint-chich-mat.is-filled {
+  background: radial-gradient(circle at 35% 30%, #fce5aa 0%, #d48b35 88%);
+}
+
+.round-scale-dish.dish-pendulum-drop {
+  animation: pendulumSpring 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes pendulumSpring {
+  0% {
+    transform: translateY(-6px) rotate(-6deg) scale(1.06);
+  }
+  35% {
+    transform: translateY(5px) rotate(5deg) scale(0.95);
+  }
+  68% {
+    transform: translateY(-2px) rotate(-2.5deg) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+.dish-chains {
+  position: absolute;
+  top: -14px;
+  left: 24%;
+  right: 24%;
+  height: 14px;
+  pointer-events: none;
+}
+
+.chain-strand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #b58438, #6b4819);
+}
+
+.chain-strand.left {
+  left: 0;
+  transform: rotate(18deg);
+}
+
+.chain-strand.right {
+  right: 0;
+  transform: rotate(-18deg);
+}
+
+.dish-role-badge {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2b1a0f;
+  color: #f4cc76;
+  border: 1px solid #c99443;
+  font-family: var(--font-serif);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0 7px;
+  border-radius: 999px;
+}
+
+.dish-herb-label {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  margin-top: 2px;
+}
+
+.dish-empty-hint {
+  font-size: 0.74rem;
+  opacity: 0.85;
+}
+
+.dish-mini-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0 5px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+.dish-mini-pill.fresh {
+  background: #23574c;
+  color: #fff6df;
+}
+
+.dish-mini-pill.paozhi {
+  background: #8e231d;
+  color: #fff4d8;
+}
+
+.dish-clear-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #6b4928;
+  background: #3b2414;
+  color: #fff2d4;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0;
+}
+
+/* Interactive Workbench Props (Mortar, Wok, Red Packet) */
+.paozhi-props-stage {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  padding: 8px;
+  background: linear-gradient(180deg, #352214 0%, #24160c 100%);
+  border: 1.5px solid #7c562b;
+  border-radius: 6px;
+}
+
+.workbench-prop-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(247, 232, 200, 0.08);
+  border: 1px solid rgba(207, 160, 82, 0.35);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #f4e2c0;
+  text-align: left;
+  transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.14s ease;
+}
+
+.workbench-prop-btn:hover:not(:disabled) {
+  border-color: #f3ca78;
+  background: rgba(247, 232, 200, 0.14);
+  transform: translateY(-1px);
+}
+
+.workbench-prop-btn.is-active {
+  border-color: #f0b649;
+  background: rgba(166, 38, 32, 0.32);
+}
+
+.workbench-prop-btn.packet-prop {
+  background: rgba(166, 38, 32, 0.24);
+  border-color: #d99b52;
+}
+
+.prop-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.prop-label strong {
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  color: #fff4dd;
+}
+
+.prop-label span {
+  font-size: 0.7rem;
+  color: #dcc296;
+}
+
+.pestle-arm {
+  transform-origin: 48px 18px;
+}
+
+.workbench-prop-btn.anim-pounding .pestle-arm {
+  animation: pestleChop 180ms ease-in-out 3;
+}
+
+@keyframes pestleChop {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(8px) rotate(-14deg);
+  }
+}
+
+.mortar-flecks {
+  opacity: 0;
+}
+
+.workbench-prop-btn.anim-pounding .mortar-flecks {
+  opacity: 1;
+  animation: flecksBurst 540ms ease-out forwards;
+}
+
+@keyframes flecksBurst {
+  0% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+}
+
+.wok-flames {
+  opacity: 0.25;
+  transform-origin: 40px 55px;
+}
+
+.wok-flames.burning {
+  opacity: 1;
+  animation: flameFlicker 480ms ease-in-out infinite alternate;
+}
+
+@keyframes flameFlicker {
+  from {
+    transform: scaleY(0.9);
+  }
+  to {
+    transform: scaleY(1.12);
+  }
+}
+
+.workbench-prop-btn.anim-roasting .wok-herbs-toss {
+  animation: herbsToss 300ms ease-in-out 2;
+}
+
+@keyframes herbsToss {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Room 3 Animated Hearth, Spout Steam, Fan & Physical Wood Seal Stamp */
+.live-hearth-stage {
+  border: 2px solid #5a3d26;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1a1009;
+  margin-bottom: 10px;
+}
+
+.hearth-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.hearth-flames-group {
+  transform-origin: 163px 132px;
+  animation: flameFlicker 520ms ease-in-out infinite alternate;
+}
+
+.live-hearth-stage.fire-vu-hoa .hearth-flames-group {
+  transform: scaleY(1.24);
+}
+
+.live-hearth-stage.fire-van-hoa .hearth-flames-group {
+  transform: scaleY(0.62);
+}
+
+.kettle-spout-steam {
+  animation: spoutSteamDrift 1.8s ease-in-out infinite;
+}
+
+@keyframes spoutSteamDrift {
+  0% {
+    transform: translateY(4px);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.92;
+  }
+  100% {
+    transform: translateY(-10px);
+    opacity: 0.35;
+  }
+}
+
+.hearth-bamboo-fan {
+  transform-origin: 274px 146px;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.live-hearth-stage.is-fanning .hearth-bamboo-fan {
+  transform: rotate(-34deg);
+}
+
+.fan-sparks-group {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.live-hearth-stage.is-fanning .fan-sparks-group {
+  opacity: 1;
+  animation: sparksFly 350ms ease-out forwards;
+}
+
+@keyframes sparksFly {
+  0% {
+    transform: translate(16px, 8px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-34px, -18px);
+    opacity: 0;
+  }
+}
+
+.hearth-caption-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  background: #24170f;
+  color: #f3e4c8;
+  font-size: 0.78rem;
+  border-top: 1px solid #6b4928;
+}
+
+.hearth-controls-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.round-choices-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini-group-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.wooden-token-btn {
+  border-radius: 999px;
+  border: 1.5px solid #6b4928;
+  background: #e9d7b3;
+  color: #2e1d11;
+  padding: 4px 11px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wooden-token-btn.active {
+  background: #8e231d;
+  border-color: #f0c26b;
+  color: #fff6e1;
+}
+
+.porcelain-cup-btn {
+  border-radius: 4px 4px 14px 14px;
+  border: 1.5px solid #486b66;
+  background: #eef4ef;
+  color: #1f3c37;
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.porcelain-cup-btn.active {
+  background: #23574c;
+  border-color: #f0c26b;
+  color: #fff6df;
+}
+
+.physical-seal-dock {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wooden-seal-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #9d231c 0%, #6d140f 100%);
+  border: 2px solid #e7b96a;
+  color: #fff6e1;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.96rem;
+  box-shadow: 0 5px 0 #3f0a07, 0 8px 18px rgba(0, 0, 0, 0.45);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.wooden-seal-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.wooden-seal-button.is-slamming {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #3f0a07;
+}
+
+.wooden-seal-button.is-jade {
+  background: linear-gradient(180deg, #256e5f 0%, #17493f 100%);
+}
+
+.seal-knob {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f6d58b 0%, #a57227 100%);
+  border: 1px solid #3c220c;
+}
+
+@media (max-width: 980px) {
+  .room-edge-arrow {
+    display: none;
+  }
+  .dial-orbit-wrap {
+    flex-direction: column;
+  }
+  .room-medallions-rail::before {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .instrument-tray {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .balance-beam-bar {
+    display: none;
+  }
+  .brass-dishes-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .paozhi-props-stage {
+    grid-template-columns: 1fr;
+  }
+  .calligraphy-tabs {
+    gap: 10px;
+  }
+  .calligraphy-tab {
+    font-size: 0.82rem;
+  }
 }
 
 @media (max-width: 980px) {

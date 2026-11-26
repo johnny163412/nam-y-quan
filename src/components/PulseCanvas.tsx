@@ -10,10 +10,10 @@ interface PulseCanvasProps {
   hideName?: boolean;
 }
 
-const FINGER_ZONES: { id: PulseFingerZone; title: string; organ: string }[] = [
-  { id: 'thon', title: 'Ngón Thốn', organ: 'Tâm / Phế' },
-  { id: 'quan', title: 'Ngón Quan', organ: 'Can / Tỳ' },
-  { id: 'xich', title: 'Ngón Xích', organ: 'Thận' }
+const FINGER_ZONES: { id: PulseFingerZone; title: string; organ: string; x: number }[] = [
+  { id: 'thon', title: 'Thốn', organ: 'Tâm/Phế', x: 112 },
+  { id: 'quan', title: 'Quan', organ: 'Can/Tỳ', x: 162 },
+  { id: 'xich', title: 'Xích', organ: 'Thận', x: 212 }
 ];
 
 export const PulseCanvas: React.FC<PulseCanvasProps> = ({
@@ -79,7 +79,6 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
       ctx.lineTo(w, midY);
       ctx.stroke();
 
-      // Highlight active finger column (Thốn / Quan / Xích)
       const activeIdx = activeFinger === 'thon' ? 0 : activeFinger === 'quan' ? 1 : 2;
       if (!hideName) {
         ctx.fillStyle = 'rgba(166, 38, 32, 0.09)';
@@ -145,69 +144,116 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
   }, [pulse, depth, activeFinger, activeStrength, audioPulseOn, hideName]);
 
   const activeZoneNote = pulse.zoneNotes?.[activeFinger];
+  const pressOffset = depth === 'tram' ? 8 : 2;
 
   return (
     <div>
       {!hideName && (
-        <div className="pulse-pillow-scene">
-          <img
-            src="/art/tools/pulse-pillow.jpg"
-            alt="Gối bắt mạch lụa đỏ và ba ngón Thốn Quan Xích"
-            className="pulse-pillow-img"
-          />
-          <div className="pulse-pillow-caption">
-            Nhấn lần lượt ba ngón <strong>Thốn — Quan — Xích</strong> trên gối mạch, thử hai lực ấn Nông &amp; Sâu
+        <div className="pulse-wrist-stage">
+          <svg
+            viewBox="0 0 340 122"
+            className="pulse-wrist-svg"
+            role="group"
+            aria-label="Cổ tay trên gối gấm và ba ngón Thốn Quan Xích"
+          >
+            {/* Crimson silk pulse pillow */}
+            <rect x="44" y="68" width="244" height="44" rx="18" fill="#7D1916" stroke="#D59E49" strokeWidth="1.8" />
+            <ellipse cx="166" cy="72" rx="110" ry="12" fill="#9E241E" />
+
+            {/* Patient Forearm & Wrist */}
+            <path d="M18 54 Q140 50 264 56 L288 76 Q140 84 18 82 Z" fill="#E3C3A3" stroke="#5A3E28" strokeWidth="1.6" />
+            {/* Radial Artery Glow & Pulse Ripple under Active Finger */}
+            <line x1="78" y1="64" x2="236" y2="65" stroke="#B63C34" strokeWidth="2.4" strokeDasharray="5 3" opacity="0.72" />
+            {FINGER_ZONES.map((fz) => {
+              const isAct = activeFinger === fz.id;
+              return (
+                <g
+                  key={fz.id}
+                  onClick={() => switchFinger(fz.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {isAct && (
+                    <circle
+                      cx={fz.x}
+                      cy="64"
+                      r="12"
+                      className="wrist-pulse-ripple"
+                      style={{ animationDuration: `${Math.max(0.45, 60 / pulse.bpm)}s` }}
+                      fill="none"
+                      stroke="#A62620"
+                      strokeWidth="2"
+                    />
+                  )}
+                  {/* Healer's 3 fingers pressing down */}
+                  <g
+                    style={{
+                      transform: `translateY(${pressOffset + (isAct ? 4 : 0)}px)`,
+                      transition: 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)'
+                    }}
+                  >
+                    <path
+                      d={`M ${fz.x - 11} 4 L ${fz.x + 11} 4 L ${fz.x + 9} 48 Q ${fz.x} 58 ${fz.x - 9} 48 Z`}
+                      fill={isAct ? '#ECCBA8' : '#D9B694'}
+                      stroke={isAct ? '#8E231D' : '#5A3E28'}
+                      strokeWidth={isAct ? '2' : '1.4'}
+                    />
+                    <text x={fz.x} y="24" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#2A1B10">
+                      {fz.title}
+                    </text>
+                    <text x={fz.x} y="37" textAnchor="middle" fontSize="7.4" fill="#6E4725">
+                      {fz.organ}
+                    </text>
+                  </g>
+                </g>
+              );
+            })}
+          </svg>
+          <div className="wrist-controls-strip">
+            <div className="brass-pair-toggle">
+              <button
+                type="button"
+                className={`knob-half ${depth === 'phu' ? 'active' : ''}`}
+                onClick={() => switchDepth('phu')}
+              >
+                Phù thủ (Ấn nhẹ)
+              </button>
+              <button
+                type="button"
+                className={`knob-half ${depth === 'tram' ? 'active' : ''}`}
+                onClick={() => switchDepth('tram')}
+              >
+                Trầm thủ (Ấn sâu)
+              </button>
+            </div>
+            <button
+              type="button"
+              className={`wooden-token-btn ${audioPulseOn ? 'active' : ''}`}
+              onClick={() => setAudioPulseOn((v) => !v)}
+            >
+              {audioPulseOn ? 'Đang nghe nhịp mạch' : 'Nghe nhịp mạch'}
+            </button>
           </div>
         </div>
       )}
 
-      {!hideName && (
-        <div className="pulse-finger-row" role="group" aria-label="Chọn bộ mạch Thốn Quan Xích">
-          {FINGER_ZONES.map((fz) => (
-            <button
-              key={fz.id}
-              type="button"
-              className={`toggle-pill ${activeFinger === fz.id ? 'active' : ''}`}
-              onClick={() => switchFinger(fz.id)}
-            >
-              {fz.title} · {fz.organ}
-            </button>
-          ))}
+      {hideName && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+          <button type="button" className={`toggle-pill ${depth === 'phu' ? 'active' : ''}`} onClick={() => switchDepth('phu')}>
+            Phù thủ (Nông)
+          </button>
+          <button type="button" className={`toggle-pill ${depth === 'tram' ? 'active' : ''}`} onClick={() => switchDepth('tram')}>
+            Trầm thủ (Sâu)
+          </button>
         </div>
       )}
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
-        <button
-          type="button"
-          className={`toggle-pill ${depth === 'phu' ? 'active' : ''}`}
-          onClick={() => switchDepth('phu')}
-        >
-          Phù thủ (Ấn nhẹ tầng nông)
-        </button>
-        <button
-          type="button"
-          className={`toggle-pill ${depth === 'tram' ? 'active' : ''}`}
-          onClick={() => switchDepth('tram')}
-        >
-          Trầm thủ (Ấn sâu sát cốt)
-        </button>
-        <button
-          type="button"
-          className="btn-secondary"
-          style={{ padding: '4px 10px', fontSize: '0.8rem' }}
-          onClick={() => setAudioPulseOn((v) => !v)}
-        >
-          {audioPulseOn ? 'Tắt nhịp đập' : 'Nghe nhịp mạch'}
-        </button>
-      </div>
 
       <canvas
         ref={canvasRef}
         width={480}
-        height={118}
+        height={108}
         style={{
           width: '100%',
-          height: '118px',
+          height: '108px',
           border: '2px solid #5A3E28',
           borderRadius: '3px',
           display: 'block'

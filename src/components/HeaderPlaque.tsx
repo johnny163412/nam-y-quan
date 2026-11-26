@@ -26,8 +26,7 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
   onImportProgress,
   onResetProgress
 }) => {
-  const [showSaveModal, setShowSaveModal] = useState(false);
-  const [showAudioPanel, setShowAudioPanel] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [importText, setImportText] = useState('');
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
@@ -58,163 +57,135 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
   };
 
   return (
-    <header className="header-plaque">
-      <div className="header-inner">
+    <header className="header-plaque slim-header">
+      <div className="header-inner slim-header-inner">
         <div className="brand-group">
           <div className="rank-seal" title="Ấn hiệu Y gia hiện tại">
             {progress.rank}
           </div>
           <div>
             <h1 className="brand-title">Nam Y Quán — Tuệ Tâm Đường</h1>
-            <p className="brand-subtitle">Nam dược trị Nam nhân — Y quán học thuật tương tác</p>
+            <p className="brand-subtitle">
+              {activeWatch.branch} ({activeWatch.organ} vượng) · Nam dược trị Nam nhân
+            </p>
           </div>
         </div>
 
-        <nav className="nav-tabs" aria-label="Khu vực chính">
+        <nav className="nav-tabs calligraphy-tabs" aria-label="Khu vực chính">
           <button
             type="button"
-            className={`nav-tab ${activeTab === 'clinic' ? 'active' : ''}`}
+            className={`calligraphy-tab ${activeTab === 'clinic' ? 'active' : ''}`}
             onClick={() => onSelectTab('clinic')}
           >
-            1. Bàn Khám Y Quán
+            Bàn Khám
           </button>
           <button
             type="button"
-            className={`nav-tab ${activeTab === 'codex' ? 'active' : ''}`}
+            className={`calligraphy-tab ${activeTab === 'codex' ? 'active' : ''}`}
             onClick={() => onSelectTab('codex')}
           >
-            2. Tàng Thư Các
+            Tàng Thư Các
           </button>
           <button
             type="button"
-            className={`nav-tab ${activeTab === 'exam' ? 'active' : ''}`}
+            className={`calligraphy-tab ${activeTab === 'exam' ? 'active' : ''}`}
             onClick={() => onSelectTab('exam')}
           >
-            3. Khảo Thí Y Miếu
+            Khảo Thí Y Miếu
           </button>
           <button
             type="button"
-            className={`nav-tab ${activeTab === 'constitution' ? 'active' : ''}`}
+            className={`calligraphy-tab ${activeTab === 'constitution' ? 'active' : ''}`}
             onClick={() => onSelectTab('constitution')}
           >
-            4. Tự Đoán Thể Chất
+            Đoán Thể Chất
           </button>
         </nav>
 
         <div className="header-tools">
           <button
             type="button"
-            className="watch-pill"
-            onClick={() => onSelectTab('codex')}
-            title="Xem bàn xoay 12 Canh Giờ Tý Ngọ Lưu Chú trong Tàng Thư Các"
-          >
-            <span>{activeWatch.branch}</span>
-            <span>({activeWatch.organ} vượng)</span>
-          </button>
-
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={onToggleAmbient}
-            aria-pressed={Boolean(progress.ambientEnabled)}
-            title="Tiếng mưa hiên trúc và chuông ngũ cung thư giãn"
-          >
-            {progress.ambientEnabled ? 'Âm cảnh: Bật' : 'Âm cảnh: Tắt'}
-          </button>
-
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={onToggleSound}
-            aria-pressed={progress.soundEnabled}
-          >
-            {progress.soundEnabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt'}
-          </button>
-
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={() => setShowAudioPanel((v) => !v)}
-              aria-expanded={showAudioPanel}
-              title="Mở bảng chỉnh Nhạc cổ & Tiếng động tay nghề"
-            >
-              Âm lượng
-            </button>
-            {showAudioPanel && (
-              <div className="audio-mixer-popover" role="dialog" aria-label="Điều chỉnh âm thanh y quán">
-                <div className="audio-mixer-row">
-                  <label htmlFor="music-vol-range">
-                    Nhạc &amp; Âm cảnh ({Math.round((progress.musicVolume ?? 0.65) * 100)}%)
-                  </label>
-                  <input
-                    id="music-vol-range"
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={Math.round((progress.musicVolume ?? 0.65) * 100)}
-                    onChange={(e) =>
-                      onChangeVolumes(
-                        progress.sfxVolume ?? 0.8,
-                        Number(e.target.value) / 100
-                      )
-                    }
-                  />
-                </div>
-                <div className="audio-mixer-row">
-                  <label htmlFor="sfx-vol-range">
-                    Tiếng động &amp; Văn chẩn ({Math.round((progress.sfxVolume ?? 0.8) * 100)}%)
-                  </label>
-                  <input
-                    id="sfx-vol-range"
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={Math.round((progress.sfxVolume ?? 0.8) * 100)}
-                    onChange={(e) =>
-                      onChangeVolumes(
-                        Number(e.target.value) / 100,
-                        progress.musicVolume ?? 0.65
-                      )
-                    }
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <button
-            type="button"
-            className="icon-btn"
+            className="round-gear-btn"
             onClick={() => {
               setStatusMsg(null);
-              setShowSaveModal(true);
+              setShowSettingsModal(true);
             }}
+            aria-label="Cài đặt âm thanh và hồ sơ hành y"
+            title="Âm thanh, Nhạc cảnh & Sao lưu Hồ sơ"
           >
-            Hồ sơ lưu
+            ⚙ Cài đặt
           </button>
         </div>
       </div>
 
-      {showSaveModal && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Quản lý hồ sơ hành y">
+      {showSettingsModal && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Cài đặt âm thanh và hồ sơ hành y">
           <div className="woodblock-sheet modal-scroll" style={{ color: 'var(--ink-primary)' }}>
             <div className="section-heading">
-              <span>Hồ sơ Hành y &amp; Sao lưu dữ liệu</span>
+              <span>Cài đặt Âm thanh &amp; Hồ sơ Hành y</span>
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={() => setShowSaveModal(false)}
+                onClick={() => setShowSettingsModal(false)}
               >
                 Đóng lại
               </button>
             </div>
 
-            <p className="muted-note" style={{ marginTop: 0 }}>
-              Tiến trình học tập, ghi chú thảo dược và ấn hiệu được lưu tự động trên trình duyệt. Bạn có thể xuất tệp JSON để mang sang máy khác.
-            </p>
+            <div className="wood-parchment-panel" style={{ marginBottom: '14px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                <button
+                  type="button"
+                  className={`toggle-pill ${progress.ambientEnabled ? 'active' : ''}`}
+                  onClick={onToggleAmbient}
+                  aria-pressed={Boolean(progress.ambientEnabled)}
+                >
+                  {progress.ambientEnabled ? 'Nhạc Đàn Tranh & Mưa: Bật' : 'Nhạc Đàn Tranh & Mưa: Tắt'}
+                </button>
+                <button
+                  type="button"
+                  className={`toggle-pill ${progress.soundEnabled ? 'active' : ''}`}
+                  onClick={onToggleSound}
+                  aria-pressed={progress.soundEnabled}
+                >
+                  {progress.soundEnabled ? 'Tiếng động Tay nghề: Bật' : 'Tiếng động Tay nghề: Tắt'}
+                </button>
+              </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+              <div className="audio-mixer-row">
+                <label htmlFor="music-vol-range">
+                  Âm lượng Nhạc &amp; Âm cảnh ({Math.round((progress.musicVolume ?? 0.65) * 100)}%)
+                </label>
+                <input
+                  id="music-vol-range"
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round((progress.musicVolume ?? 0.65) * 100)}
+                  onChange={(e) =>
+                    onChangeVolumes(progress.sfxVolume ?? 0.8, Number(e.target.value) / 100)
+                  }
+                />
+              </div>
+
+              <div className="audio-mixer-row">
+                <label htmlFor="sfx-vol-range">
+                  Âm lượng Tiếng động &amp; Văn chẩn ({Math.round((progress.sfxVolume ?? 0.8) * 100)}%)
+                </label>
+                <input
+                  id="sfx-vol-range"
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round((progress.sfxVolume ?? 0.8) * 100)}
+                  onChange={(e) =>
+                    onChangeVolumes(Number(e.target.value) / 100, progress.musicVolume ?? 0.65)
+                  }
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
               <button type="button" className="btn-cinnabar" onClick={handleDownloadSave}>
                 Xuất tệp lưu (.json)
               </button>
@@ -234,7 +205,7 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
               Khôi phục từ chuỗi JSON đã sao lưu:
             </label>
             <textarea
-              rows={4}
+              rows={3}
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
               placeholder="Dán nội dung tệp .json vào đây..."

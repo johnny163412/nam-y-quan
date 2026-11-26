@@ -294,30 +294,8 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
             </div>
           )}
 
-          <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.9rem' }}>
-            Danh sách huyệt ({activeSide === 'front' ? 'Mặt Trước' : 'Mặt Sau'})
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
-            {visiblePoints.map((pt) => {
-              const active = selectedIds.includes(pt.id);
-              return (
-                <button
-                  key={pt.id}
-                  type="button"
-                  className={`toggle-pill ${active ? 'active' : ''}`}
-                  style={{
-                    flex: 'none',
-                    fontSize: '0.8rem',
-                    padding: '4px 9px',
-                    background: active ? '#23574C' : undefined,
-                    borderColor: active ? '#23574C' : undefined
-                  }}
-                  onClick={() => handleClickPoint(pt)}
-                >
-                  {pt.name} ({pt.code})
-                </button>
-              );
-            })}
+          <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.84rem', color: '#7C1A14' }}>
+            Chạm trực tiếp vào huyệt trên đồ hình lụa ({activeSide === 'front' ? 'Mặt Trước' : 'Mặt Sau'}) — Đã chọn {selectedIds.length} huyệt
           </div>
 
           {inspected ? (

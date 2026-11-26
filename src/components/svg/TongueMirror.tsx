@@ -320,28 +320,10 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({
       {!hideSummary && (
         <div style={{ flex: 1, minWidth: 185 }}>
           <p style={{ margin: '0 0 8px', fontSize: '0.88rem' }}>{tongue.summary}</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
-            {tongue.zones.map((z) => (
-              <button
-                key={z.zone}
-                type="button"
-                className={`toggle-pill ${activeZone.zone === z.zone ? 'active' : ''}`}
-                style={{ flex: 'none', fontSize: '0.78rem', padding: '4px 8px' }}
-                onClick={() => handleSelect(z.zone)}
-              >
-                {z.label.split(' ')[0]} {z.label.split(' ')[1] ?? ''}
-              </button>
-            ))}
-          </div>
-          <div
-            style={{
-              padding: '8px 10px',
-              background: '#D5BF96',
-              border: '1.5px solid #5A3E28',
-              borderRadius: '3px',
-              fontSize: '0.85rem'
-            }}
-          >
+          <div className="tongue-readout-card">
+            <div style={{ fontSize: '0.74rem', color: '#7C1A14', fontWeight: 700, marginBottom: '2px' }}>
+              Chạm trực tiếp vào các vùng trên mặt gương đồng để soi ({activeZone.label})
+            </div>
             <strong>{activeZone.label}:</strong> {activeZone.finding}
             <div style={{ color: '#23574C', fontWeight: 600, marginTop: '3px' }}>
               Luận đoán: {activeZone.clueTag}
