@@ -17,6 +17,7 @@ export const STORY_CASES: PatientCase[] = [
       'Sắc mặt hơi tái, hai vai co rúm giữ ấm, trán khô ráo không có mồ hôi.',
     audioObservation:
       'Giọng nói hơi nghẹt mũi, thỉnh thoảng hắt hơi và ho tiếng đục nhẹ, không khàn rát họng.',
+    auscultationType: 'cold-sniffle',
     tongue: {
       bodyColor: 'pink',
       bodyShape: 'normal',
@@ -39,7 +40,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'tight',
       summary: 'Đặt nhẹ ngón tay (Phù thủ) đã thấy mạch đập rõ căng như dây thừng xoắn; ấn sâu lại hơi yếu hơn.',
       phuFinding: 'Rất rõ và căng bật đầu ngón tay -> Tà khí đang tranh đấu ở phần Biểu (Phù) và gặp lạnh co rút (Khẩn).',
-      tramFinding: 'Ấn sâu lực trung bình, không sác -> Lý khí chưa nhiệt, chính khí chưa suy.'
+      tramFinding: 'Ấn sâu lực trung bình, không sác -> Lý khí chưa nhiệt, chính khí chưa suy.',
+      zoneNotes: {
+        thon: { label: 'Thốn (Phế — Biểu)', strengthMultiplier: 1.08, finding: 'Bộ Thốn nổi bật căng rõ nhất -> Phong hàn đang bó chặt Phế vệ bên ngoài.' },
+        quan: { label: 'Quan (Can — Tỳ)', strengthMultiplier: 0.92, finding: 'Bộ Quan đều vừa, hơi căng nhẹ.' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.84, finding: 'Bộ Xích bình hòa, chưa tổn thương phần gốc.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Hàn - Nhiệt', question: 'Bác thấy sợ lạnh nhiều hơn hay phát sốt nóng nhiều hơn?', answer: 'Sợ lạnh là chính thầy ạ! Đắp hai lớp chăn bông vẫn thấy gai lạnh sống lưng, sốt chỉ hâm hấp nhẹ.', clueTag: 'Ố hàn trọng, phát nhiệt khinh -> Biểu Hàn' },
@@ -59,7 +65,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Bệnh nhân nhiễm Phong Hàn ở biểu: sợ lạnh nhiều, không mồ hôi, rêu trắng mỏng, mạch Phù Khẩn. Phép trị là Tân ôn giải biểu — lấy Tía tô làm Quân, Kinh giới làm Thần để phát hãn tán hàn, Sinh khương làm Tá ôn trung thông dương, Cam thảo làm Sứ điều hòa.',
     realLifeTakeaway:
-      'Khi mới dính mưa lạnh, gai rét không mồ hôi, một bát cháo nóng nấu với lá tía tô, kinh giới và vài lát gừng tươi giúp ra mồ hôi nhẹ là giải cảm rất nhanh.'
+      'Khi mới dính mưa lạnh, gai rét không mồ hôi, một bát cháo nóng nấu với lá tía tô, kinh giới và vài lát gừng tươi giúp ra mồ hôi nhẹ là giải cảm rất nhanh.',
+    followUpLetters: {
+      good: 'Thư tay từ bến đò Bình Giang: "Thưa thầy, sắc ấm thang tía tô gừng uống xong, tôi trùm chăn rịn được lượt mồ hôi mỏng thì cổ vai nhẹ bẫng, hết hẳn gai rét. Nay tôi đã ra bến chèo đò sớm đón khách, xin biếu thầy cặp cá sông mới kéo lưới!"',
+      partial: 'Thư nhắn qua chú tiểu: "Cơn ớn lạnh của tôi đã dịu đi nhiều sau hai ngày nghỉ, nhưng mũi vẫn còn hơi sụt sịt mỗi sớm gió sương. Tôi sẽ qua xin thầy gia giảm thêm chút giải biểu."',
+      poor: 'Nhắn tin từ bến đò: "Thưa thầy, uống xong chén thuốc tôi thấy bụng hơi lạnh hơn mà mồ hôi vẫn chưa ra nổi, cổ gáy vẫn còn cứng mỏi..."'
+    }
   },
   {
     id: 'c1-phong-nhiet',
@@ -76,6 +87,7 @@ export const STORY_CASES: PatientCase[] = [
       'Gò má hơi ửng hồng, môi khô, cổ họng nhìn qua hơi đỏ sưng, có rịn mồ hôi nhẹ ở trán.',
     audioObservation:
       'Giọng nói khàn, tiếng ho vang nặng và khô rát.',
+    auscultationType: 'wheeze-heat',
     tongue: {
       bodyColor: 'red',
       bodyShape: 'normal',
@@ -98,7 +110,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'rapid-surging',
       summary: 'Ấn nhẹ thấy mạch nảy nổi rõ và đập dồn dập nhanh (~98 nhịp/phút).',
       phuFinding: 'Mạch nổi rõ và đập nhanh -> Nhiệt tà ở Biểu (Phù Sác).',
-      tramFinding: 'Ấn sâu vẫn còn lực -> Chính khí còn khỏe, thuộc Thực chứng.'
+      tramFinding: 'Ấn sâu vẫn còn lực -> Chính khí còn khỏe, thuộc Thực chứng.',
+      zoneNotes: {
+        thon: { label: 'Thốn (Phế — Hầu họng)', strengthMultiplier: 1.12, finding: 'Bộ Thốn nảy nhanh và nổi sát da -> Phong nhiệt đang tụ ở Phế và họng.' },
+        quan: { label: 'Quan (Can — Vị)', strengthMultiplier: 0.96, finding: 'Bộ Quan hơi nhanh theo nhiệt thế.' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.85, finding: 'Bộ Xích êm, tân dịch ở hạ tiêu chưa cạn.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Hàn - Nhiệt', question: 'Cô sợ gió lạnh nhiều hay thấy nóng bức nhiều?', answer: 'Sốt nóng bức là chính ạ, chỉ hơi gai gió chút thôi.', clueTag: 'Phát nhiệt trọng -> Nhiệt chứng' },
@@ -118,7 +135,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Đây là chứng Phong Nhiệt phạm Phế: sốt nóng, rát họng, khát nước mát, đầu lưỡi đỏ rêu vàng mỏng, mạch Phù Sác. Phép trị là Tân lương giải biểu, thanh Phế lợi hầu — dùng Bạc hà / Kim ngân hoa làm Quân-Thần, Cúc hoa hoặc Cát căn làm Tá sinh tân hạ nhiệt, Cam thảo làm Sứ dịu họng.',
     realLifeTakeaway:
-      'Cảm nóng rát họng không nên ăn cháo hành gừng tía tô (vì tính ôn cay sẽ làm tăng hỏa). Trà kim ngân hoa, bạc hà, cúc hoa pha ấm là lựa chọn đúng đắn.'
+      'Cảm nóng rát họng không nên ăn cháo hành gừng tía tô (vì tính ôn cay sẽ làm tăng hỏa). Trà kim ngân hoa, bạc hà, cúc hoa pha ấm là lựa chọn đúng đắn.',
+    followUpLetters: {
+      good: 'Thư viết nắn nót trên giấy ô ly: "Em Lan kính gửi thầy! Uống hết hai ấm thuốc thơm mùi bạc hà, hoa cúc, tối qua em hạ sốt hẳn, cổ họng mát dịu và sáng nay đã đứng lớp đọc bài cùng các cháu được rồi ạ."',
+      partial: 'Thư gửi từ trường làng: "Cơn sốt đã giảm nhưng giọng em vẫn còn hơi khàn khi giảng bài lâu, chắc còn dư nhiệt ở họng ạ."',
+      poor: 'Lời nhắn của người nhà cô Lan: "Thưa thầy, uống xong ấm thuốc thấy họng cô ấy rát khô hơn và người vẫn còn sốt nóng bứt rứt..."'
+    }
   },
   {
     id: 'c1-thuong-thuc-han',
@@ -135,6 +157,7 @@ export const STORY_CASES: PatientCase[] = [
       'Sắc mặt hơi xám, tay ôm vùng thượng vị, hay ợ hơi mùi thức ăn chưa tiêu.',
     audioObservation:
       'Tiếng thở bình thường, không ho, bụng sôi lọc xọc.',
+    auscultationType: 'normal-gurgle',
     tongue: {
       bodyColor: 'pale',
       bodyShape: 'swollen-teeth',
@@ -157,7 +180,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'slippery',
       summary: 'Ấn nhẹ rất mờ, phải ấn sâu (Trầm thủ) mới thấy mạch đập chắc và cuộn trơn.',
       phuFinding: 'Ấn nhẹ mờ yếu -> Bệnh không ở Biểu.',
-      tramFinding: 'Ấn sâu thấy căng chắc và trơn -> Bệnh ở Lý (Trầm), có Hàn (Khẩn) và thực trệ đờm thấp (Hoạt).'
+      tramFinding: 'Ấn sâu thấy căng chắc và trơn -> Bệnh ở Lý (Trầm), có Hàn (Khẩn) và thực trệ đờm thấp (Hoạt).',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm — Phế)', strengthMultiplier: 0.78, finding: 'Bộ Thốn bình lặng, không bị ngoại cảm.' },
+        quan: { label: 'Quan (Tỳ — Vị)', strengthMultiplier: 1.15, finding: 'Bộ Quan bên phải cuộn trơn và căng rõ -> Thức ăn lạnh ứ trệ ngay dạ dày (Trung tiêu).' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.88, finding: 'Bộ Xích ổn định.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Đau bụng', question: 'Chườm khăn nóng hay ấn vào bụng thì dễ chịu hơn hay đau hơn?', answer: 'Chườm ấm vào thấy êm hẳn, chứ đụng nước lạnh là quặn lên ngay.', clueTag: 'Hỷ ôn (thích ấm) -> Lý Hàn' },
@@ -177,7 +205,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Bệnh nhân ăn đồ sống lạnh làm Hàn thấp đình trệ tại trung tiêu (Lý - Hàn - Thực): đau bụng thích ấm, rêu trắng dày ướt, mạch Trầm Khẩn. Cần lấy Sinh khương làm Quân để ôn trung tán hàn chỉ ẩu, phối Tía tô (hành khí giải độc hải sản) làm Thần, Cam thảo làm Sứ hòa vị. Tuyệt đối tránh Kim ngân hoa hay Tâm sen kẻo làm bụng lạnh đau nặng thêm.',
     realLifeTakeaway:
-      'Khi lạnh bụng, buồn nôn do đồ hải sản hay thức ăn lạnh, nước gừng tươi nấu cùng lá tía tô và vài lát cam thảo giúp ấm bụng và cầm nôn rất hiệu quả.'
+      'Khi lạnh bụng, buồn nôn do đồ hải sản hay thức ăn lạnh, nước gừng tươi nấu cùng lá tía tô và vài lát cam thảo giúp ấm bụng và cầm nôn rất hiệu quả.',
+    followUpLetters: {
+      good: 'Thư kèm mảnh gỗ thơm của anh Tư Mộc: "Thầy ơi, chén thuốc gừng tía tô ấm sực bụng! Uống xong một khắc là hết quặn, chiều đó tôi ăn được bát cháo trắng và sáng nay lại cầm đục chạm tiếp kịp đơn đình làng."',
+      partial: 'Nhắn gửi thầy: "Tôi hết buồn nôn rồi nhưng bụng vẫn còn hơi nặng trướng, chắc bữa sau phải chừa đồ sống lạnh."',
+      poor: 'Nhắn gửi gấp: "Thầy ơi, uống xong bụng anh Tư lại sôi mạnh và đi lỏng thêm, chắc trong đơn có vị mát quá..."'
+    }
   },
 
   // ==================== CHƯƠNG 2 ====================
@@ -196,6 +229,7 @@ export const STORY_CASES: PatientCase[] = [
       'Thân hình gầy, sắc mặt vàng úa thiếu tươi, nói chuyện chậm rãi nhỏ nhẹ.',
     audioObservation:
       'Hơi thở ngắn, tiếng nói nhỏ yếu không có lực.',
+    auscultationType: 'weak-breath',
     tongue: {
       bodyColor: 'pale',
       bodyShape: 'swollen-teeth',
@@ -218,7 +252,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'thready',
       summary: 'Cả ấn nhẹ lẫn ấn sâu đều thấy sợi mạch nhỏ mềm, yếu ớt và chậm rãi (~56 nhịp/phút).',
       phuFinding: 'Rất yếu, gần như không thấy ở tầng nông -> Không phải biểu chứng.',
-      tramFinding: 'Ấn sâu thấy yếu mềm và chậm -> Lý - Hư - Hàn (Chính khí và Dương khí đều suy).'
+      tramFinding: 'Ấn sâu thấy yếu mềm và chậm -> Lý - Hư - Hàn (Chính khí và Dương khí đều suy).',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm — Phế)', strengthMultiplier: 0.72, finding: 'Nhịp yếu nhẹ -> Khí hư, hụt hơi.' },
+        quan: { label: 'Quan (Tỳ — Vị)', strengthMultiplier: 0.65, finding: 'Bộ Quan trống rỗng mềm yếu nhất -> Tỳ Vị hư hàn nặng.' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.78, finding: 'Thận dương cũng hơi yếu kèm theo.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Đau bụng', question: 'Đau bụng của bà có thích xoa bóp hay chườm ấm không?', answer: 'Đau âm ỉ thôi thầy, lấy tay xoa nhẹ và chườm ấm thì dễ chịu ngay.', clueTag: 'Hỷ án hỷ ôn -> Hư Hàn' },
@@ -238,7 +277,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Tỳ Vị hư hàn (Lý - Hư - Hàn): lưỡi nhợt bệu hằn răng, mạch Trầm Nhược Trì, đau bụng thích xoa ấm, ăn kém phân lỏng. Phép trị là Ôn trung kiện Tỳ, bổ khí hành trệ — dùng Hoài sơn làm Quân bổ Tỳ Vị, Đinh lăng / Ngải cứu làm Thần bổ khí ôn trung, Trần bì làm Tá lý khí để thuốc bổ không gây đầy bụng, Cam thảo làm Sứ.',
     realLifeTakeaway:
-      'Người Tỳ Vị hư hàn ăn uống kém nên nấu cháo củ mài (Hoài sơn) với vài lát gừng và ít vỏ quýt khô (Trần bì), tránh tuyệt đối trà thanh nhiệt như Tâm sen, Nhân trần hay đồ sống lạnh.'
+      'Người Tỳ Vị hư hàn ăn uống kém nên nấu cháo củ mài (Hoài sơn) với vài lát gừng và ít vỏ quýt khô (Trần bì), tránh tuyệt đối trà thanh nhiệt như Tâm sen, Nhân trần hay đồ sống lạnh.',
+    followUpLetters: {
+      good: 'Gửi thầy buồng thuốc qua cháu ngoại: "Bà Năm ăn hết nửa nồi cháo củ mài gừng trần bì rồi cười móm mém khen ngon. Ba hôm nay bụng bà êm ru, bàn chân hết lạnh ngắt và chiều nay đã xách thúng trầu ra đầu chợ ngồi hóng nắng rồi ạ."',
+      partial: 'Lời nhắn từ chợ huyện: "Bà đỡ sôi bụng nhiều nhưng ăn vẫn còn hơi ít, chắc Tỳ vị suy yếu lâu ngày cần tẩm bổ củ mài từ từ."',
+      poor: 'Cháu bà Năm báo gấp: "Thưa thầy, bà uống xong thấy bụng lạnh quặn và đi phân lỏng nhiều hơn, không dám uống chén thứ hai..."'
+    }
   },
   {
     id: 'c2-can-khi-uat',
@@ -255,6 +299,7 @@ export const STORY_CASES: PatientCase[] = [
       'Chân mày nhíu chặt, mắt hơi đỏ, hay thở dài thườn thượt khi kể bệnh.',
     audioObservation:
       'Giọng nói to nhanh, hơi gắt gỏng, tiếng thở hay kéo dài rồi thở hắt ra.',
+    auscultationType: 'sigh-stagnation',
     tongue: {
       bodyColor: 'red',
       bodyShape: 'normal',
@@ -277,7 +322,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'wiry',
       summary: 'Ấn sâu vào thấy mạch bật thẳng và căng cứng dưới tay như dây đàn tỳ bà, nhịp hơi nhanh.',
       phuFinding: 'Trung bình, không nổi hẳn -> Bệnh ở Lý (Tạng Can).',
-      tramFinding: 'Căng thẳng bật tay (Huyền) và nhanh (Sác) -> Can uất hóa hỏa (Lý - Nhiệt - Thực).'
+      tramFinding: 'Căng thẳng bật tay (Huyền) và nhanh (Sác) -> Can uất hóa hỏa (Lý - Nhiệt - Thực).',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm — Phế)', strengthMultiplier: 0.94, finding: 'Hơi nhanh -> Can hỏa nhiễu lên Tâm khiến khó ngủ.' },
+        quan: { label: 'Quan (Can — Đởm)', strengthMultiplier: 1.18, finding: 'Bộ Quan tay trái căng bật như dây đàn -> Tâm điểm Can khí uất hóa hỏa!' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.85, finding: 'Bộ Xích tương đối điều hòa.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Tình chí & Đau tức', question: 'Vùng ngực sườn tức thế nào, có liên quan tâm trạng không?', answer: 'Hễ bực bội hay lo lắng là hai bên mạng sườn căng tức ngay, thở dài xong thấy nhẹ đi chút.', clueTag: 'Can khí uất kết' },
@@ -297,7 +347,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Can khí uất kết hóa hỏa phạm Tỳ (Lý - Nhiệt - Thực): hai rìa lưỡi đỏ, mạch Huyền Sác, tức mạng sườn, đắng miệng, tiểu vàng. Phép trị là Sơ Can thanh nhiệt, hòa Vị — Nhân trần làm Quân thanh Can Đởm thấp nhiệt, Cúc hoa / Lạc tiên làm Thần bình Can an thần, Trần bì làm Tá hành khí giải uất (hoặc Cam thảo làm Sứ).',
     realLifeTakeaway:
-      'Stress kéo dài làm "Can mộc khắc Tỳ thổ", gây vừa cáu gắt vừa đau tức dạ dày. Trà hoa cúc, nhân trần hoặc lạc tiên ấm cùng hít thở sâu giúp hạ Can hỏa rất tốt.'
+      'Stress kéo dài làm "Can mộc khắc Tỳ thổ", gây vừa cáu gắt vừa đau tức dạ dày. Trà hoa cúc, nhân trần hoặc lạc tiên ấm cùng hít thở sâu giúp hạ Can hỏa rất tốt.',
+    followUpLetters: {
+      good: 'Thư thư sinh viết chữ chân phương: "Kính bái tạ tiên sinh! Ba chén trà nhân trần hoa cúc đã giải tỏa cơn tức sườn bấy lâu. Sáng nay thức dậy miệng hết đắng, đầu óc thanh thản đọc sách rất vào, lòng nhẹ như mây."',
+      partial: 'Thư gửi từ thư phòng: "Ngực sườn đã đỡ tức hơn trước nhưng hễ thức khuya ôn bài lại hơi bốc nóng mắt."',
+      poor: 'Thư từ cậu Minh: "Thưa thầy, uống thuốc xong lòng vẫn nóng bứt rứt, tối qua lại mất ngủ thêm..."'
+    }
   },
   {
     id: 'c2-tam-ty-luong-hu',
@@ -314,6 +369,7 @@ export const STORY_CASES: PatientCase[] = [
       'Sắc mặt hơi vàng nhợt không tươi, quầng mắt thâm nhẹ, môi nhạt màu.',
     audioObservation:
       'Giọng nói đều nhưng thiếu hơi, thỉnh thoảng thở nhẹ.',
+    auscultationType: 'weak-breath',
     tongue: {
       bodyColor: 'pale',
       bodyShape: 'thin',
@@ -336,7 +392,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'thready',
       summary: 'Sợi mạch mảnh như sợi chỉ (Tế), ấn nhẹ mờ và ấn sâu sức đập yếu (Nhược).',
       phuFinding: 'Mờ yếu -> Không phải ngoại cảm.',
-      tramFinding: 'Nhỏ mảnh không lực -> Khí huyết lưỡng hư (Tâm huyết & Tỳ khí đều thiếu).'
+      tramFinding: 'Nhỏ mảnh không lực -> Khí huyết lưỡng hư (Tâm huyết & Tỳ khí đều thiếu).',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm)', strengthMultiplier: 0.72, finding: 'Bộ Thốn mảnh yếu rõ -> Tâm huyết không đủ nuôi dưỡng thần trí.' },
+        quan: { label: 'Quan (Tỳ — Vị)', strengthMultiplier: 0.74, finding: 'Bộ Quan mềm yếu -> Tỳ khí suy giảm sinh huyết kém.' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.85, finding: 'Bộ Xích vừa phải.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Giấc ngủ & Tim', question: 'Mất ngủ kiểu khó vào giấc hay thức sớm, tim có đánh trống ngực?', answer: 'Trằn trọc khó ngủ lắm, ngủ được lại mơ liên miên. Lúc mệt tim đập thình thịch hồi hộp.', clueTag: 'Tâm huyết hư không dưỡng được Thần' },
@@ -356,7 +417,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Tâm Tỳ lưỡng hư (Lý - Hư): mất ngủ, hay quên, hồi hộp, ăn kém, lưỡi nhợt, mạch Tế Nhược. Cần "kiện Tỳ để sinh huyết dưỡng Tâm" — Hoài sơn làm Quân bổ Tỳ, Đinh lăng làm Thần bổ khí hoạt huyết, Lạc tiên / Kỷ tử làm Tá an thần dưỡng huyết, Cam thảo làm Sứ. Lưu ý: nếu dùng Tâm sen (rất hàn) làm Quân sẽ làm Tỳ vị yếu thêm!',
     realLifeTakeaway:
-      'Không phải ai mất ngủ cũng uống Tâm sen! Người gầy yếu, huyết áp thấp, sắc mặt nhợt mất ngủ do Tâm Tỳ hư nên bồi bổ bằng Hoài sơn, Đinh lăng, Kỷ tử và Lạc tiên dịu nhẹ.'
+      'Không phải ai mất ngủ cũng uống Tâm sen! Người gầy yếu, huyết áp thấp, sắc mặt nhợt mất ngủ do Tâm Tỳ hư nên bồi bổ bằng Hoài sơn, Đinh lăng, Kỷ tử và Lạc tiên dịu nhẹ.',
+    followUpLetters: {
+      good: 'Thiếp hoa gửi kèm mảnh lụa hồng: "Cảm ơn thầy nhiều lắm! Ba tối nay tôi ngủ một mạch tới sáng không còn mơ hoảng, sáng dậy đầu óc tỉnh táo, ăn cơm ngon miệng và sắc mặt hồng hào hẳn lên."',
+      partial: 'Nhắn gửi từ tiệm lụa: "Giấc ngủ có sâu hơn trước nhưng chiều tối sổ sách mệt vẫn còn hơi hồi hộp nhẹ."',
+      poor: 'Chị giúp việc nhắn lại: "Cô Ba uống thuốc xong thấy hơi lạnh bụng và choáng nhẹ, đêm vẫn trằn trọc..."'
+    }
   },
   {
     id: 'c2-tam-hoa-vuong',
@@ -373,6 +439,7 @@ export const STORY_CASES: PatientCase[] = [
       'Mặt đỏ ửng, ánh mắt bồn chồn, môi khô nứt nhẹ.',
     audioObservation:
       'Nói năng gấp gáp, giọng vang, hay tặc lưỡi vì rát nhiệt miệng.',
+    auscultationType: 'wheeze-heat',
     tongue: {
       bodyColor: 'crimson',
       bodyShape: 'normal',
@@ -395,7 +462,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'rapid-surging',
       summary: 'Mạch đập to rộng cuồn cuộn như sóng triều dâng (Hồng) và rất nhanh (~102 nhịp/phút).',
       phuFinding: 'Đập mạnh và nhanh -> Hỏa nhiệt bức bách huyết mạch.',
-      tramFinding: 'Ấn sâu lực rất mạnh, không rỗng -> Thực nhiệt ở Lý (Lý - Nhiệt - Thực).'
+      tramFinding: 'Ấn sâu lực rất mạnh, không rỗng -> Thực nhiệt ở Lý (Lý - Nhiệt - Thực).',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm)', strengthMultiplier: 1.2, finding: 'Bộ Thốn bên trái đập cuộn như sóng triều và rất gấp -> Tâm Hỏa kháng thịnh rõ nhất!' },
+        quan: { label: 'Quan (Can — Vị)', strengthMultiplier: 1.0, finding: 'Bộ Quan cũng nảy mạnh theo hỏa thế.' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.76, finding: 'Bộ Xích hơi yếu hơn bộ Thốn -> Thủy bất chế Hỏa.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Tâm & Ngực', question: 'Đêm nằm thấy thế nào?', answer: 'Tim đập dồn, lòng ngực nóng bừng bồn chồn, lăn lộn tới sáng.', clueTag: 'Tâm phiền bất miên' },
@@ -415,7 +487,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Tâm hỏa cang thịnh (Lý - Nhiệt - Thực): đầu lưỡi đỏ thẫm nhiệt miệng, mạch Hồng Sác, bứt rứt mất ngủ, tiểu vàng rát. Đúng chỉ định dùng Tâm sen (Liên tâm) làm Quân để thanh Tâm giáng hỏa, Lạc tiên / Kim ngân hoa làm Thần an thần giải nhiệt, Kỷ tử hoặc Cam thảo làm Tá/Sứ tư âm điều hòa.',
     realLifeTakeaway:
-      'Trà Tâm sen + Lạc tiên rất hợp với người bốc hỏa, nhiệt miệng, tiểu vàng mất ngủ. Nhưng phải phân biệt với mất ngủ do Tâm Tỳ hư ở ca trước để không dùng nhầm thuốc hàn.'
+      'Trà Tâm sen + Lạc tiên rất hợp với người bốc hỏa, nhiệt miệng, tiểu vàng mất ngủ. Nhưng phải phân biệt với mất ngủ do Tâm Tỳ hư ở ca trước để không dùng nhầm thuốc hàn.',
+    followUpLetters: {
+      good: 'Thư từ xưởng rèn đầu làng: "Nói thật với thầy, đêm đầu uống thang tâm sen lạc tiên tôi ngủ một lèo tới gà gáy! Đầu lưỡi hết rát, người mát hẳn, sáng nay tôi rèn xong cho thầy con dao thái thuốc nhỏ."',
+      partial: 'Thư nhắn lại: "Lưỡi bớt rát rồi nhưng đêm vẫn chập chờn đôi chút nếu ban ngày đứng cạnh lò than lâu."',
+      poor: 'Cháu ông Hai báo tin: "Ông uống xong vẫn nóng bức cồn cào, miệng loét đau thêm, mong thầy đổi vị thanh Tâm mát hơn..."'
+    }
   },
 
   // ==================== CHƯƠNG 3: KINH LẠC & TRONG UỐNG NGOÀI CHÂM ====================
@@ -434,6 +511,7 @@ export const STORY_CASES: PatientCase[] = [
       'Đầu nghiêng cứng một bên, không dám ngoái cổ, vai phải co nâng lên để đỡ đau.',
     audioObservation:
       'Thỉnh thoảng rên khẽ khi xoay vai, không ho sốt cao.',
+    auscultationType: 'cold-sniffle',
     tongue: {
       bodyColor: 'purplish',
       bodyShape: 'normal',
@@ -456,7 +534,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'tight',
       summary: 'Tầng nông bật căng do phong hàn bó kinh, dòng mạch đi hơi sượng nhẹ do khí huyết kinh lạc không thông.',
       phuFinding: 'Nổi và căng chắc -> Tà khí phong hàn ở kinh lạc biểu tầng.',
-      tramFinding: 'Ấn sâu có lực -> Thực chứng kinh lạc.'
+      tramFinding: 'Ấn sâu có lực -> Thực chứng kinh lạc.',
+      zoneNotes: {
+        thon: { label: 'Thốn (Phế — Vai gáy)', strengthMultiplier: 1.12, finding: 'Bộ Thốn nổi bật căng như dây -> Kinh lạc vùng cổ vai gáy đang bị gió lạnh bó chặt.' },
+        quan: { label: 'Quan (Can — Gân cơ)', strengthMultiplier: 1.0, finding: 'Hơi căng ở gân mạch.' },
+        xich: { label: 'Xích (Thận)', strengthMultiplier: 0.86, finding: 'Hạ tiêu ổn định.' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Vị trí đau', question: 'Đau lan từ đâu tới đâu?', answer: 'Đau cứng từ hõm sau gáy lan xuống bả vai và tê dọc cánh tay.', clueTag: 'Kinh Đởm (Phong Trì), Thái Dương & Phế/Đại Trường' },
@@ -476,7 +559,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Phong Hàn xâm nhập kinh lạc vùng cổ vai gáy ("Thông tắc bất thống, thống tắc bất thông"). Phối hợp "Trong uống ngoài châm": Quế chi làm Quân ôn thông kinh mạch đưa dương khí ra vai tay, Tía tô / Lá lốt làm Thần-Tá khu phong tán hàn, Cam thảo làm Sứ; kết hợp bấm huyệt Phong Trì + Liệt Khuyết (+ Hợp Cốc) mở cửa kinh lạc sau gáy ngay tức thì.',
     realLifeTakeaway:
-      'Khi bị cứng cổ vai gáy do gió lạnh, hãy giữ ấm vùng gáy, day nhẹ huyệt Phong Trì (hai hõm sau gáy) và Liệt Khuyết (cổ tay) kết hợp uống nước quế gừng ấm.'
+      'Khi bị cứng cổ vai gáy do gió lạnh, hãy giữ ấm vùng gáy, day nhẹ huyệt Phong Trì (hai hõm sau gáy) và Liệt Khuyết (cổ tay) kết hợp uống nước quế gừng ấm.',
+    followUpLetters: {
+      good: 'Nhắn gửi từ bến xe huyện: "Hay quá thầy ơi! Vừa day Phong Trì - Liệt Khuyết xong uống ấm thang quế chi lá lốt, sáng hôm sau tôi quay cổ nhẹ nhàng như thường, kéo xe nhẹ tênh không còn tê buốt cánh tay."',
+      partial: 'Thư nhắn qua bạn nghề: "Cổ đã quay sang được một nửa, nhưng sáng sớm gió lùa vẫn hơi ê ẩm bả vai."',
+      poor: 'Nhắn gấp từ nhà bác Tư: "Cổ bác vẫn cứng đơ và đau giật thêm sau khi gặp lạnh..."'
+    }
   },
   {
     id: 'c3-thai-phu-khi-nghich',
@@ -494,6 +582,7 @@ export const STORY_CASES: PatientCase[] = [
       'Bụng bầu nhẹ tháng thứ 4, sắc mặt hơi mỏi mệt, hay đưa tay vuốt vùng ngực và trán.',
     audioObservation:
       'Thở hơi gấp nhẹ, hay nuốt khan vì cảm giác buồn nôn.',
+    auscultationType: 'sigh-stagnation',
     tongue: {
       bodyColor: 'pink',
       bodyShape: 'normal',
@@ -516,7 +605,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'slippery',
       summary: 'Mạch đi tròn trơn mượt như hạt ngọc lăn trên đĩa (Hoạt mạch đặc trưng của thai kỳ), hơi nhanh nhẹ.',
       phuFinding: 'Vừa phải -> Không phải ngoại cảm nặng.',
-      tramFinding: 'Trơn tròn đều (Hoạt) -> Mạch thai phụ kèm khí nghịch nhẹ ở Vị và Tâm.'
+      tramFinding: 'Trơn tròn đều (Hoạt) -> Mạch thai phụ kèm khí nghịch nhẹ ở Vị và Tâm.',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm)', strengthMultiplier: 0.96, finding: 'Trơn đều hơi nhanh -> Tâm phiền nhẹ khi trời oi.' },
+        quan: { label: 'Quan (Tỳ — Vị)', strengthMultiplier: 1.05, finding: 'Trơn tròn rõ (Hoạt) -> Vị khí thượng nghịch gây buồn nôn.' },
+        xich: { label: 'Xích (Bào cung / Thận)', strengthMultiplier: 1.12, finding: 'Bộ Xích trơn tròn có lực (Mạch Thai rất rõ) -> Thai nhi bình an, tuyệt đối cấm dùng vị/huyệt hoạt huyết hạ hành!' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Thai kỳ & Cơ địa', question: 'Chị mang thai tuần thứ mấy, thai máy và bụng dưới có đau trằn không?', answer: 'Được 16 tuần rồi thầy ạ, bụng dưới hoàn toàn êm, chỉ nghén buồn nôn và khó chịu vùng thượng vị.', clueTag: 'CẢNH BÁO THAI KỲ: Tuyệt đối tránh vị/huyệt hoạt huyết hạ hành!' },
@@ -536,7 +630,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'BÀI HỌC CẤM KỴ Y GIA: Với thai phụ buồn nôn, tức ngực, đau đầu và khó ngủ, tuyệt đối CẤM dùng huyệt Hợp Cốc (LI4), Tam Âm Giao (SP6) và vị thuốc Cỏ xước / Đan sâm / Ngải cứu liều Quân (gây hoạt huyết co bóp tử cung). Hướng trị an toàn là Hoài sơn + Tía tô (vốn là vị an thai chỉ ẩu nổi tiếng!) kết hợp Lạc tiên, Cam thảo; bên ngoài chỉ bấm nhẹ Nội Quan (PC6 - chống nôn an thần) và Ấn Đường (EX-HN3 - dịu căng thẳng vùng trán).',
     realLifeTakeaway:
-      'Huyệt Nội Quan (dưới nếp cổ tay 3 ngón tay) là huyệt vàng an toàn giúp giảm buồn nôn ốm nghén và say tàu xe. Ngược lại, phụ nữ mang thai phải tuyệt đối tránh bấm Hợp Cốc và Tam Âm Giao.'
+      'Huyệt Nội Quan (dưới nếp cổ tay 3 ngón tay) là huyệt vàng an toàn giúp giảm buồn nôn ốm nghén và say tàu xe. Ngược lại, phụ nữ mang thai phải tuyệt đối tránh bấm Hợp Cốc và Tam Âm Giao.',
+    followUpLetters: {
+      good: 'Thư viết bằng mực tím dịu dàng: "Chị Huệ cảm ơn thầy nhiều lắm! Nhờ thang Hoài sơn — Tía tô lành tính và cách bấm huyệt Nội Quan, Ấn Đường, ba hôm nay chị ăn được cơm thơm ngon, không còn buồn nôn và ngủ ngon giấc, thai máy đều khỏe."',
+      partial: 'Thư chồng chị Huệ gửi tới: "Vợ tôi đỡ buồn nôn nhiều nhưng chiều tối vẫn hơi nhức trán nhẹ."',
+      poor: 'CẢNH BÁO TỪ NHÀ CHỊ HUỆ: "Thầy ơi, chị Huệ uống hoặc bấm huyệt xong thấy bụng dưới râm ran tức nặng, gia đình rất lo và phải ngưng ngay!"'
+    }
   },
   {
     id: 'c3-than-duong-hu-phong-thap',
@@ -553,6 +652,7 @@ export const STORY_CASES: PatientCase[] = [
       'Lưng hơi khom khi bước vào, sắc mặt hơi tối xám, quầng mắt thâm.',
     audioObservation:
       'Giọng trầm khàn nhẹ, thở chậm, không ho sốt.',
+    auscultationType: 'weak-breath',
     tongue: {
       bodyColor: 'pale',
       bodyShape: 'swollen-teeth',
@@ -575,7 +675,12 @@ export const STORY_CASES: PatientCase[] = [
       waveStyle: 'thready',
       summary: 'Đặt tay sâu xuống bộ Xích (đại diện cho Thận) thấy mạch chìm sâu, nhỏ và yếu ớt rõ rệt.',
       phuFinding: 'Mờ nhạt -> Không phải cảm mạo cấp ở biểu.',
-      tramFinding: 'Bộ Xích ấn sâu rất yếu và chậm -> Thận Dương hư (Lý - Hư - Hàn).'
+      tramFinding: 'Bộ Xích ấn sâu rất yếu và chậm -> Thận Dương hư (Lý - Hư - Hàn).',
+      zoneNotes: {
+        thon: { label: 'Thốn (Tâm — Phế)', strengthMultiplier: 0.85, finding: 'Hơi trầm tĩnh.' },
+        quan: { label: 'Quan (Can — Tỳ)', strengthMultiplier: 0.82, finding: 'Mềm hơi yếu do Can Thận đồng nguyên.' },
+        xich: { label: 'Xích (Thận — Mệnh Môn)', strengthMultiplier: 0.56, finding: 'Bộ Xích lún sâu và yếu mềm rõ rệt -> Gốc Thận Dương hư suy!' }
+      }
     },
     inquiries: [
       { id: 'q1', topic: 'Lưng & Gối', question: 'Đau lưng gối nặng vào lúc nào và chườm nóng thấy sao?', answer: 'Đau âm ỉ lạnh buốt dọc thắt lưng và hai gối, trời mưa ẩm đau tăng, lấy túi muối rang chườm vào thì khoan khoái hẳn.', clueTag: 'Hàn thấp + Thận dương hư' },
@@ -595,7 +700,12 @@ export const STORY_CASES: PatientCase[] = [
     clinicalExplanation:
       'Thận Dương hư kiêm Phong Hàn Thấp (Lý - Hư - Hàn ở hạ tiêu): đau lưng mỏi gối lạnh buốt, tiểu đêm nhiều, bộ Xích mạch Trầm Tế Nhược. Cần "Bổ Thận ôn dương, khu phong trừ thấp" — Ngải cứu / Quế chi làm Quân ôn ấm hạ tiêu, Lá lốt làm Thần trừ phong thấp, Cỏ xước làm Tá dẫn thuốc xuống mạnh gân cốt (cùng Kỷ tử bổ Can Thận); kết hợp bấm/cứu huyệt Thận Du (BL23), Khí Hải (CV6) và Túc Tam Lý (ST36).',
     realLifeTakeaway:
-      'Ngâm chân nước ấm nấu lá lốt + gừng + muối hột buổi tối và xoa ấm hai huyệt Thận Du sau thắt lưng giúp cải thiện rất tốt chứng lạnh chân, tiểu đêm và đau nhức gối khi trở trời.'
+      'Ngâm chân nước ấm nấu lá lốt + gừng + muối hột buổi tối và xoa ấm hai huyệt Thận Du sau thắt lưng giúp cải thiện rất tốt chứng lạnh chân, tiểu đêm và đau nhức gối khi trở trời.',
+    followUpLetters: {
+      good: 'Thư bọc lá dong từ bìa rừng: "Tốt lắm thầy ạ! Mỗi tối tôi hơ ngải cứu ấm huyệt Thận Du rồi uống chén thuốc ngải cứu lá lốt cỏ xước, đêm ngủ thẳng tới sáng không phải dậy đi tiểu nữa, hai đầu gối ấm hẳn lên!"',
+      partial: 'Nhắn gửi qua người đi chợ phiên: "Đêm giảm tiểu còn một hai lần, nhưng gặp mưa rào lưng gối vẫn còn hơi mỏi."',
+      poor: 'Chú hàng xóm báo tin: "Bác Năm uống xong thấy người vẫn lạnh và đầu gối nhức hơn khi trở gió..."'
+    }
   }
 ];
 
@@ -760,6 +870,12 @@ export function generateProceduralCase(chapter: 1 | 2 | 3, seed: number): Patien
     chiefComplaint: template.chiefComplaint,
     visualAppearance: template.visualAppearance,
     audioObservation: template.audioObservation,
+    auscultationType:
+      template.targetDiagnosis.nature === 'nhiet'
+        ? 'wheeze-heat'
+        : template.targetDiagnosis.state === 'hu'
+        ? 'weak-breath'
+        : 'cold-sniffle',
     tongue: template.tongue,
     pulse: template.pulse,
     inquiries: template.inquiries,
@@ -771,6 +887,11 @@ export function generateProceduralCase(chapter: 1 | 2 | 3, seed: number): Patien
     idealQuanHerb: template.idealQuanHerb,
     keyAcupoints: [...template.keyAcupoints],
     clinicalExplanation: template.clinicalExplanation,
-    realLifeTakeaway: template.realLifeTakeaway
+    realLifeTakeaway: template.realLifeTakeaway,
+    followUpLetters: {
+      good: `Thư tay của ${persona.name}: "Thưa thầy, sau 3 ngày sắc uống đúng thang thuốc thầy cắt, chứng ${template.seasonTag.toLowerCase()} đã lui hẳn. Tôi ăn ngon ngủ yên và đã quay lại công việc thường nhật, xin đa tạ!"`,
+      partial: `${persona.name} gửi lời nhắn: "Triệu chứng đã đỡ nhiều so với hôm mới tới quán, chỉ còn hơi mỏi nhẹ khi gặp gió."`,
+      poor: `${persona.name} nhắn lại: "Uống hết thang thuốc nhưng chứng bệnh chưa thuyên giảm mấy, mong được thầy gia giảm kỹ lại..."`
+    }
   };
 }

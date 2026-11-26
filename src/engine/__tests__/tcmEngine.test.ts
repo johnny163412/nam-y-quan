@@ -5,6 +5,7 @@ import { ACUPOINTS } from '../../data/acupoints';
 import { STORY_CASES, generateProceduralCase } from '../../data/cases';
 import { evaluateConstitution } from '../../data/constitutions';
 import { detectActiveFormulas } from '../../data/formulas';
+import { GLOSSARY_TERMS, segmentTextWithGlossary } from '../../data/glossary';
 import { HERBS } from '../../data/herbs';
 import { apothecaryAudio } from '../audio';
 import { selectExamSession } from '../examEngine';
@@ -184,9 +185,19 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
 
   it('Failure Mode 5: audio synthesizer safely no-ops in headless/muted environments', () => {
     apothecaryAudio.setEnabled(false);
+    apothecaryAudio.setVolumes(0.7, 0.5);
+    apothecaryAudio.setActiveRoom(1);
+    apothecaryAudio.setElementMood('moc');
     expect(() => apothecaryAudio.playPulseBeat(0.8)).not.toThrow();
     expect(() => apothecaryAudio.playHerbDrop()).not.toThrow();
     expect(() => apothecaryAudio.playDrawerSlide(true)).not.toThrow();
+    expect(() => apothecaryAudio.playRoomSlide()).not.toThrow();
+    expect(() => apothecaryAudio.playBambooTally()).not.toThrow();
+    expect(() => apothecaryAudio.playMortarGrind()).not.toThrow();
+    expect(() => apothecaryAudio.playWokSizzle(true)).not.toThrow();
+    expect(() => apothecaryAudio.playPaperFold()).not.toThrow();
+    expect(() => apothecaryAudio.playMoxaWarmth()).not.toThrow();
+    expect(() => apothecaryAudio.playAuscultation('cold-sniffle')).not.toThrow();
     expect(() => apothecaryAudio.playSealStamp(true)).not.toThrow();
     expect(() => apothecaryAudio.playPageTurn()).not.toThrow();
     apothecaryAudio.setEnabled(true);
@@ -214,7 +225,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
   });
 
-  it('verifies all 41 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
+  it('verifies all 47 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
       'meridians/meridian-front.jpg',
@@ -222,7 +233,13 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'tools/healer-hand.png',
       'tools/pulse-pillow.jpg',
       'tools/decoction-stove.jpg',
+      'tools/paozhi-workbench.jpg',
+      'tools/red-herb-packet.jpg',
+      'tools/moxa-stick.jpg',
       'scenes/clinic-hall.jpg',
+      'scenes/room-tien-duong.jpg',
+      'scenes/room-duoc-cac.jpg',
+      'scenes/room-noi-cac.jpg',
       'scenes/tang-thu-library.jpg',
       'scenes/y-mieu-temple.jpg',
       'scenes/duong-sinh-scroll.jpg',
@@ -232,7 +249,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'patients/clinic-bg.jpg'
     ];
 
-    expect(requiredAssets).toHaveLength(41);
+    expect(requiredAssets).toHaveLength(47);
 
     requiredAssets.forEach((rel) => {
       const fullPath = path.join(root, rel);
@@ -240,6 +257,31 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       const stat = fs.statSync(fullPath);
       expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(8000);
     });
+  });
+
+  it('segments Pentiment glossary terms cleanly and awards craft bonuses & follow-up letters', () => {
+    expect(GLOSSARY_TERMS.length).toBeGreaterThanOrEqual(15);
+    const segments = segmentTextWithGlossary('Chứng Biểu Hàn nên dùng Vũ Hỏa và Sao vàng Hoài sơn.');
+    expect(segments.some((s) => s.entry?.id === 'bieu-chung')).toBe(true);
+    expect(segments.some((s) => s.entry?.id === 'vu-van-hoa')).toBe(true);
+    expect(segments.some((s) => s.entry?.id === 'pao-zhi')).toBe(true);
+
+    const case10 = STORY_CASES.find((c) => c.id === 'c3-than-duong-hu-phong-thap')!;
+    const crafted = evaluateCaseSubmission(
+      case10,
+      case10.targetDiagnosis,
+      { quan: 'ngai-cuu', than: 'la-lot', ta: 'co-xuoc', su: 'ky-tu' },
+      ['than-du', 'khi-hai'],
+      {
+        fire: 'van-hoa',
+        dosing: 'am-duong-tang',
+        paoZhi: { ta: 'sao-vang', su: 'chich-mat' },
+        moxaEnabled: true
+      }
+    );
+    expect(crafted.craftBonusScore).toBeGreaterThanOrEqual(3);
+    expect(crafted.followUpLetter).toBeTruthy();
+    expect(crafted.passed).toBe(true);
   });
 
   it('detects classical Dược Đối / Cổ Phương synergies and evaluates decoction fire/dosing', () => {

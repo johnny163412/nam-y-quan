@@ -1623,9 +1623,525 @@ button {
   text-align: center;
 }
 
+/* ==================== 3-ROOM POTION CRAFT WORKBENCH, PENTIMENT GLOSSARY & AUDIO MIXER ==================== */
+.clinic-stage {
+  position: relative;
+}
+
+.clinic-stage.lighting-morning .room-ambient-wash {
+  background: linear-gradient(180deg, rgba(255, 214, 138, 0.16) 0%, rgba(28, 17, 10, 0.78) 100%);
+}
+
+.clinic-stage.lighting-afternoon .room-ambient-wash {
+  background: linear-gradient(180deg, rgba(235, 162, 82, 0.14) 0%, rgba(26, 15, 9, 0.8) 100%);
+}
+
+.clinic-stage.lighting-night .room-ambient-wash {
+  background: linear-gradient(180deg, rgba(36, 48, 72, 0.34) 0%, rgba(18, 10, 6, 0.86) 100%);
+}
+
+.mentor-bamboo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #352315 0%, #26180e 100%);
+  border: 1.5px solid var(--gold-trim);
+  border-radius: 4px;
+  color: var(--ivory-text);
+  font-size: 0.84rem;
+}
+
+.mentor-text {
+  flex: 1;
+  min-width: 240px;
+  line-height: 1.4;
+}
+
+.room-nav-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.room-plaque-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #382416 0%, #24160c 100%);
+  border: 1.5px solid #6b4827;
+  border-radius: 4px;
+  color: var(--sand-muted);
+  transition: border-color 0.16s ease, transform 0.14s ease, box-shadow 0.16s ease;
+}
+
+.room-plaque-tab:hover {
+  border-color: var(--gold-trim);
+}
+
+.room-plaque-tab.active {
+  background: linear-gradient(180deg, #8e231d 0%, #621510 100%);
+  border-color: var(--gold-trim);
+  color: #fff6e1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+
+.room-plaque-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.94rem;
+}
+
+.room-plaque-sub {
+  font-size: 0.74rem;
+  opacity: 0.88;
+}
+
+.apothecary-room-viewport {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.apothecary-room-track {
+  display: flex;
+  width: 300%;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.apothecary-room {
+  flex: 0 0 33.333333%;
+  width: 33.333333%;
+  min-width: 0;
+  padding: 2px;
+}
+
+.room-stage-backdrop {
+  position: relative;
+  min-height: 118px;
+  border: 2px solid var(--gold-trim);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: #1a1009;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 14px;
+}
+
+.room-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.room-ambient-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.room-stage-header {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.room-stage-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
+  color: #fff4dd;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.room-stage-sub {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: #e4cfab;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.room-stage-sub kbd {
+  background: rgba(25, 14, 8, 0.82);
+  border: 1px solid var(--gold-trim);
+  padding: 0 4px;
+  border-radius: 2px;
+  font-size: 0.72rem;
+}
+
+.room-cta-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--paper-aged);
+  border: 1.5px solid #6b4928;
+  border-radius: 3px;
+}
+
+/* Audio Mixer Popover */
+.audio-mixer-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 246px;
+  z-index: 90;
+  background: linear-gradient(180deg, #332114 0%, #21140b 100%);
+  border: 2px solid var(--gold-trim);
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: var(--ivory-text);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7);
+}
+
+.audio-mixer-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+}
+
+.audio-mixer-row:last-child {
+  margin-bottom: 0;
+}
+
+.audio-mixer-row input[type='range'] {
+  width: 100%;
+  accent-color: #d59e49;
+}
+
+/* Auscultation (Văn chẩn) */
+.auscultation-box {
+  padding: 10px 12px;
+  background: var(--paper-aged);
+  border: 1.5px solid #6b4928;
+  border-radius: 3px;
+}
+
+.auscultation-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 24px;
+  padding: 4px 6px;
+  background: rgba(45, 29, 18, 0.1);
+  border-radius: 3px;
+}
+
+.auscultation-wave span {
+  flex: 1;
+  height: 6px;
+  border-radius: 2px;
+  background: #7c562b;
+  transition: height 0.2s ease, background-color 0.2s ease;
+}
+
+.auscultation-wave.is-playing span {
+  background: var(--cinnabar);
+  animation: waveBar 0.45s ease-in-out infinite alternate;
+}
+
+.auscultation-wave.is-playing span:nth-child(even) {
+  animation-delay: 0.16s;
+}
+
+@keyframes waveBar {
+  from {
+    height: 5px;
+  }
+  to {
+    height: 18px;
+  }
+}
+
+/* 3-Finger Pulse Controls */
+.pulse-finger-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pulse-zone-readout {
+  margin-top: 6px;
+  padding: 6px 9px;
+  background: rgba(166, 38, 32, 0.08);
+  border-left: 3px solid var(--cinnabar);
+  border-radius: 2px;
+  font-size: 0.82rem;
+  color: var(--ink-primary);
+}
+
+/* Pao Zhi & Craft Strip */
+.paozhi-mini-bar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  margin-top: 5px;
+}
+
+.paozhi-chip {
+  padding: 2px 4px;
+  font-size: 0.68rem;
+  border-radius: 2px;
+  border: 1px solid #8a6437;
+  background: #e9d7b3;
+  color: #362214;
+  font-weight: 600;
+}
+
+.paozhi-chip.active {
+  background: #8e231d;
+  border-color: #d8a24a;
+  color: #fff5e1;
+}
+
+.craft-bench-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.craft-bench-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: var(--paper-aged);
+  border: 1.5px solid #6b4928;
+  border-radius: 3px;
+}
+
+.craft-bench-item.packet-item.is-wrapped {
+  border-color: var(--cinnabar);
+  background: #f3dcc4;
+  box-shadow: 0 0 0 2px rgba(166, 38, 32, 0.24);
+}
+
+.craft-bench-thumb {
+  width: 72px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid #5a3e28;
+  flex-shrink: 0;
+}
+
+/* Moxa (Ngải cứu) Strip & Aura */
+.moxa-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 10px;
+  background: var(--paper-aged);
+  border: 1.5px solid #6b4928;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.moxa-strip.is-burning {
+  background: linear-gradient(90deg, #4b2313 0%, #34180d 100%);
+  border-color: #f0a444;
+}
+
+.moxa-thumb {
+  width: 64px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid #8a6234;
+  flex-shrink: 0;
+}
+
+/* Pentiment-style Inline Marginalia Glossary */
+.glossary-wrap {
+  position: relative;
+}
+
+.glossary-term {
+  display: inline;
+  background: transparent;
+  border: 0;
+  padding: 0 1px;
+  margin: 0;
+  font: inherit;
+  color: #7c1812;
+  font-weight: 700;
+  border-bottom: 1.5px dotted #a62620;
+  cursor: help;
+}
+
+.glossary-term.is-active,
+.glossary-term:hover {
+  background: rgba(166, 38, 32, 0.12);
+}
+
+.glossary-marginalia {
+  position: absolute;
+  z-index: 60;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  background: #f4e6c8;
+  border: 2px solid #4a2e16;
+  outline: 1px solid var(--gold-trim);
+  border-radius: 4px;
+  box-shadow: 0 10px 24px rgba(10, 6, 3, 0.55);
+  color: var(--ink-primary);
+  text-align: left;
+  overflow: hidden;
+}
+
+.glossary-pop-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 9px;
+  background: #311f13;
+  color: #fff2d4;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.glossary-pop-cat {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  color: #e4be7a;
+}
+
+.glossary-pop-body {
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.78rem;
+  line-height: 1.42;
+}
+
+.glossary-pop-ex {
+  color: var(--herbal-jade);
+  font-weight: 600;
+}
+
+/* Follow-up Letter & Case Ledger */
+.follow-up-letter {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #faf3e2 0%, #ebd8b4 100%);
+  border: 1.5px solid #8a5e2c;
+  border-left: 4px solid #a62620;
+  border-radius: 3px;
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: #291d14;
+}
+
+.letter-stamp {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff3d6;
+  background: #8e231d;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.ledger-entry-card {
+  padding: 10px 12px;
+  background: var(--paper-highlight);
+  border: 1.5px solid #5a3e28;
+  border-radius: 3px;
+}
+
+.ledger-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ledger-letter {
+  margin: 8px 0 0;
+  font-size: 0.84rem;
+}
+
+/* Floating Case Summary Notebook Dock */
+.floating-notebook-dock {
+  margin-top: 12px;
+  background: linear-gradient(180deg, #2e1d12 0%, #1d120b 100%);
+  border: 2px solid #8a5e2c;
+  border-radius: 4px;
+  color: var(--ivory-text);
+  overflow: hidden;
+}
+
+.notebook-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+}
+
+.notebook-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.notebook-body {
+  padding: 10px 12px;
+  background: var(--paper-highlight);
+  color: var(--ink-primary);
+  border-top: 1.5px solid #6b4928;
+}
+
 @media (max-width: 980px) {
   .desk-grid,
-  .sandbox-layout {
+  .sandbox-layout,
+  .craft-bench-strip {
+    grid-template-columns: 1fr;
+  }
+  .apothecary-room-track {
+    display: block;
+    width: 100%;
+    transform: none !important;
+  }
+  .apothecary-room {
+    width: 100%;
+    flex: none;
+  }
+  .apothecary-room:not(.is-active-room) {
+    display: none;
+  }
+  .room-nav-bar {
     grid-template-columns: 1fr;
   }
   .scale-pans-grid {
@@ -1645,8 +2161,13 @@ button {
     padding: 10px 10px 24px;
   }
   .scene-diorama-banner {
-    height: 92px;
+    height: auto;
+    min-height: 92px;
     padding: 8px 12px;
+  }
+  .room-stage-backdrop {
+    min-height: 0;
+    padding: 10px 12px;
   }
   .scene-couplet-group {
     display: none;

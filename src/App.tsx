@@ -8,7 +8,7 @@ import { InkBrushDefs } from './components/svg/InkBrushDefs';
 import { apothecaryAudio } from './engine/audio';
 import { computeRank } from './engine/examEngine';
 import { createDefaultProgress, loadProgress, saveProgress } from './engine/storage';
-import { EvaluationResult, PatientCase, UserProgress } from './types/tcm';
+import { CaseLedgerEntry, DecoctionChoice, EvaluationResult, PatientCase, PrescriptionSlots, UserProgress } from './types/tcm';
 
 export const App: React.FC = () => {
   const [progress, setProgress] = useState<UserProgress>(() => loadProgress());
@@ -17,11 +17,16 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     apothecaryAudio.setEnabled(progress.soundEnabled);
+    apothecaryAudio.setVolumes(progress.sfxVolume ?? 0.8, progress.musicVolume ?? 0.65);
     apothecaryAudio.setAmbientEnabled(Boolean(progress.ambientEnabled));
     saveProgress(progress);
   }, [progress]);
 
-  const handleCaseEvaluated = (patientCase: PatientCase, result: EvaluationResult) => {
+  const handleCaseEvaluated = (
+    patientCase: PatientCase,
+    result: EvaluationResult,
+    meta?: { slots: PrescriptionSlots; acupoints: string[]; decoction?: DecoctionChoice }
+  ) => {
     setProgress((prev) => {
       const next: UserProgress = {
         ...prev,
@@ -61,6 +66,25 @@ export const App: React.FC = () => {
         const formulaSet = new Set(next.discoveredFormulas ?? []);
         result.matchedFormulas.forEach((f) => formulaSet.add(f.id));
         next.discoveredFormulas = Array.from(formulaSet);
+      }
+
+      if (meta) {
+        const ledgerEntry: CaseLedgerEntry = {
+          id: `${patientCase.id}-${Date.now()}`,
+          caseId: patientCase.id,
+          patientName: patientCase.patientName,
+          caseTitle: patientCase.title,
+          totalScore: result.totalScore,
+          grade: result.grade,
+          passed: result.passed,
+          slots: { ...meta.slots },
+          paoZhi: meta.decoction?.paoZhi ? { ...meta.decoction.paoZhi } : undefined,
+          acupoints: [...meta.acupoints],
+          moxaEnabled: Boolean(meta.decoction?.moxaEnabled),
+          followUpLetter: result.followUpLetter ?? result.summaryFeedback,
+          timestamp: Date.now()
+        };
+        next.caseLedger = [ledgerEntry, ...(next.caseLedger ?? [])].slice(0, 50);
       }
 
       next.rank = computeRank(next);
@@ -127,6 +151,9 @@ export const App: React.FC = () => {
         onToggleAmbient={() =>
           setProgress((prev) => ({ ...prev, ambientEnabled: !prev.ambientEnabled }))
         }
+        onChangeVolumes={(sfxVolume, musicVolume) =>
+          setProgress((prev) => ({ ...prev, sfxVolume, musicVolume }))
+        }
         onImportProgress={(imported) => setProgress(imported)}
         onResetProgress={() => setProgress(createDefaultProgress())}
       />
@@ -136,6 +163,11 @@ export const App: React.FC = () => {
           <ClinicDesk
             unlockedChapter={progress.unlockedChapter}
             completedCases={progress.completedCases}
+            caseLedger={progress.caseLedger ?? []}
+            mentorDismissed={Boolean(progress.mentorDismissed)}
+            onDismissMentor={() =>
+              setProgress((prev) => ({ ...prev, mentorDismissed: true }))
+            }
             onCaseEvaluated={handleCaseEvaluated}
             onOpenCodexHerb={(herbId) => {
               setCodexHerbId(herbId);

@@ -14,6 +14,10 @@ export function createDefaultProgress(): UserProgress {
     mastery: {},
     soundEnabled: true,
     ambientEnabled: false,
+    sfxVolume: 0.8,
+    musicVolume: 0.65,
+    mentorDismissed: false,
+    caseLedger: [],
     discoveredFormulas: []
   };
 }

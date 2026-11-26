@@ -94,6 +94,14 @@ export interface TongueProfile {
   zones: TongueZoneDetail[];
 }
 
+export type PulseFingerZone = 'thon' | 'quan' | 'xich';
+
+export interface PulseZoneDetail {
+  label: string;
+  strengthMultiplier: number;
+  finding: string;
+}
+
 export interface PulseProfile {
   name: string;
   bpm: number;
@@ -103,7 +111,15 @@ export interface PulseProfile {
   summary: string;
   phuFinding: string;
   tramFinding: string;
+  zoneNotes?: Record<PulseFingerZone, PulseZoneDetail>;
 }
+
+export type AuscultationType =
+  | 'cold-sniffle'
+  | 'wheeze-heat'
+  | 'normal-gurgle'
+  | 'weak-breath'
+  | 'sigh-stagnation';
 
 export interface InquiryQuestion {
   id: string;
@@ -134,6 +150,7 @@ export interface PatientCase {
   chiefComplaint: string;
   visualAppearance: string;
   audioObservation: string;
+  auscultationType?: AuscultationType;
   tongue: TongueProfile;
   pulse: PulseProfile;
   inquiries: InquiryQuestion[];
@@ -146,6 +163,11 @@ export interface PatientCase {
   keyAcupoints: string[];
   clinicalExplanation: string;
   realLifeTakeaway: string;
+  followUpLetters?: {
+    good: string;
+    partial: string;
+    poor: string;
+  };
 }
 
 export interface ContraindicationAlert {
@@ -163,6 +185,10 @@ export interface TreatmentPreview {
   activeHarmonizer: boolean;
 }
 
+export type PaoZhiMethod = 'sinh-dung' | 'gia-dap' | 'sao-vang' | 'chich-mat';
+
+export type SlotPaoZhi = Partial<Record<RoleSlot, PaoZhiMethod>>;
+
 export type FireType = 'vu-hoa' | 'van-vu' | 'van-hoa';
 
 export type DosingAdvice = 'nong-dap-chan' | 'am-thoang-gio' | 'am-duong-tang';
@@ -170,6 +196,8 @@ export type DosingAdvice = 'nong-dap-chan' | 'am-thoang-gio' | 'am-duong-tang';
 export interface DecoctionChoice {
   fire: FireType;
   dosing: DosingAdvice;
+  paoZhi?: SlotPaoZhi;
+  moxaEnabled?: boolean;
 }
 
 export interface ClassicalFormula {
@@ -201,6 +229,9 @@ export interface EvaluationResult {
   matchedFormulas: ClassicalFormula[];
   decoctionScore: number;
   decoctionFeedback: string;
+  craftBonusScore?: number;
+  craftBonusNotes?: string[];
+  followUpLetter?: string;
   summaryFeedback: string;
   passed: boolean;
 }
@@ -260,6 +291,22 @@ export interface MasteryEntry {
   lastMissedAt?: number;
 }
 
+export interface CaseLedgerEntry {
+  id: string;
+  caseId: string;
+  patientName: string;
+  caseTitle: string;
+  totalScore: number;
+  grade: EvaluationGrade;
+  passed: boolean;
+  slots: PrescriptionSlots;
+  paoZhi?: SlotPaoZhi;
+  acupoints: string[];
+  moxaEnabled?: boolean;
+  followUpLetter: string;
+  timestamp: number;
+}
+
 export interface UserProgress {
   version: number;
   unlockedChapter: 1 | 2 | 3;
@@ -271,6 +318,10 @@ export interface UserProgress {
   mastery: Record<string, MasteryEntry>;
   soundEnabled: boolean;
   ambientEnabled?: boolean;
+  sfxVolume?: number;
+  musicVolume?: number;
+  mentorDismissed?: boolean;
+  caseLedger?: CaseLedgerEntry[];
   discoveredFormulas?: string[];
   savedConstitution?: BodyConstitutionId;
 }

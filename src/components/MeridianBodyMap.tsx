@@ -9,6 +9,8 @@ interface MeridianBodyMapProps {
   forcedSide?: 'front' | 'back';
   isPregnant?: boolean;
   hideDetails?: boolean;
+  moxaEnabled?: boolean;
+  onToggleMoxa?: () => void;
 }
 
 export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
@@ -17,7 +19,9 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
   candidateIds,
   forcedSide,
   isPregnant = false,
-  hideDetails = false
+  hideDetails = false,
+  moxaEnabled = false,
+  onToggleMoxa
 }) => {
   const [side, setSide] = useState<'front' | 'back'>(forcedSide ?? 'front');
   const [inspected, setInspected] = useState<Acupoint | null>(null);
@@ -168,12 +172,26 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                     isSelected
                       ? isDanger
                         ? '#A62620'
+                        : moxaEnabled
+                        ? '#B84418'
                         : '#23574C'
                       : 'rgba(255, 248, 237, 0.92)'
                   }
-                  stroke={isDanger && !hideDetails ? '#A62620' : '#2F231A'}
+                  stroke={isDanger && !hideDetails ? '#A62620' : moxaEnabled && isSelected ? '#F5B552' : '#2F231A'}
                   strokeWidth={isSelected ? 2 : 1.35}
                 />
+                {isSelected && moxaEnabled && !hideDetails && (
+                  <g className="moxa-aura-group" aria-hidden="true">
+                    <circle cx={pt.x} cy={pt.y} r="14" fill="rgba(235, 118, 38, 0.28)" />
+                    <path
+                      d={`M ${pt.x - 2} ${pt.y - 7} Q ${pt.x - 7} ${pt.y - 16} ${pt.x} ${pt.y - 25} Q ${pt.x + 6} ${pt.y - 31} ${pt.x + 1} ${pt.y - 37}`}
+                      stroke="rgba(255, 244, 224, 0.85)"
+                      strokeWidth="1.6"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                )}
                 <circle
                   cx={pt.x}
                   cy={pt.y}
@@ -203,6 +221,33 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
 
       {!hideDetails && (
         <div style={{ flex: 1, minWidth: 210 }}>
+          {onToggleMoxa && (
+            <div className={`moxa-strip ${moxaEnabled ? 'is-burning' : ''}`}>
+              <img
+                src="/art/tools/moxa-stick.jpg"
+                alt="Điếu ngải cứu đang cháy âm ỉ tỏa khói thơm"
+                className="moxa-thumb"
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.84rem', color: moxaEnabled ? '#FFF3D6' : 'var(--ink-primary)' }}>
+                  Hơ Điếu Ngải Cứu (Cứu ấm huyệt)
+                </div>
+                <div style={{ fontSize: '0.75rem', color: moxaEnabled ? '#E5C693' : 'var(--ink-muted)' }}>
+                  Bật khi chứng thiên Hàn / đau buốt lưng gối để dẫn dương khí thấm sâu (+2đ thưởng).
+                </div>
+              </div>
+              <button
+                type="button"
+                className={`toggle-pill ${moxaEnabled ? 'active' : ''}`}
+                style={{ flex: 'none', padding: '5px 10px' }}
+                onClick={onToggleMoxa}
+                aria-pressed={moxaEnabled}
+              >
+                {moxaEnabled ? 'Đang hơ ấm' : 'Châm điếu ngải'}
+              </button>
+            </div>
+          )}
+
           <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.9rem' }}>
             Danh sách huyệt ({activeSide === 'front' ? 'Mặt Trước' : 'Mặt Sau'})
           </div>

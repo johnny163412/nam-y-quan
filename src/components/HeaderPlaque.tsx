@@ -11,6 +11,7 @@ interface HeaderPlaqueProps {
   progress: UserProgress;
   onToggleSound: () => void;
   onToggleAmbient: () => void;
+  onChangeVolumes: (sfxVolume: number, musicVolume: number) => void;
   onImportProgress: (next: UserProgress) => void;
   onResetProgress: () => void;
 }
@@ -21,10 +22,12 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
   progress,
   onToggleSound,
   onToggleAmbient,
+  onChangeVolumes,
   onImportProgress,
   onResetProgress
 }) => {
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showAudioPanel, setShowAudioPanel] = useState(false);
   const [importText, setImportText] = useState('');
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
@@ -127,6 +130,58 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
           >
             {progress.soundEnabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt'}
           </button>
+
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() => setShowAudioPanel((v) => !v)}
+              aria-expanded={showAudioPanel}
+              title="Mở bảng chỉnh Nhạc cổ & Tiếng động tay nghề"
+            >
+              Âm lượng
+            </button>
+            {showAudioPanel && (
+              <div className="audio-mixer-popover" role="dialog" aria-label="Điều chỉnh âm thanh y quán">
+                <div className="audio-mixer-row">
+                  <label htmlFor="music-vol-range">
+                    Nhạc &amp; Âm cảnh ({Math.round((progress.musicVolume ?? 0.65) * 100)}%)
+                  </label>
+                  <input
+                    id="music-vol-range"
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={Math.round((progress.musicVolume ?? 0.65) * 100)}
+                    onChange={(e) =>
+                      onChangeVolumes(
+                        progress.sfxVolume ?? 0.8,
+                        Number(e.target.value) / 100
+                      )
+                    }
+                  />
+                </div>
+                <div className="audio-mixer-row">
+                  <label htmlFor="sfx-vol-range">
+                    Tiếng động &amp; Văn chẩn ({Math.round((progress.sfxVolume ?? 0.8) * 100)}%)
+                  </label>
+                  <input
+                    id="sfx-vol-range"
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={Math.round((progress.sfxVolume ?? 0.8) * 100)}
+                    onChange={(e) =>
+                      onChangeVolumes(
+                        Number(e.target.value) / 100,
+                        progress.musicVolume ?? 0.65
+                      )
+                    }
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             type="button"

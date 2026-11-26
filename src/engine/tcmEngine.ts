@@ -12,6 +12,7 @@ import {
   EvaluationGrade,
   EvaluationResult,
   FireType,
+  PaoZhiMethod,
   PatientCase,
   PrescriptionSlots,
   RoleSlot,
@@ -257,6 +258,38 @@ export function getRecommendedDecoction(patientCase: PatientCase): {
   };
 }
 
+export function getIdealPaoZhi(herbId: string): { method: PaoZhiMethod; reason: string } {
+  switch (herbId) {
+    case 'cam-thao':
+    case 'ky-tu':
+      return {
+        method: 'chich-mat',
+        reason: 'Chích mật ong giúp tăng vị ngọt ấm bổ Tỳ Phế và điều hòa thang thuốc.'
+      };
+    case 'hoai-son':
+    case 'tran-bi':
+    case 'dinh-lang':
+    case 'cat-can':
+    case 'co-xuoc':
+      return {
+        method: 'sao-vang',
+        reason: 'Sao vàng hạ thổ nhẹ giúp rễ củ thơm ấm, kiện Tỳ dễ tiêu và dẫn thuốc êm.'
+      };
+    case 'sinh-khuong':
+    case 'que-chi':
+    case 'dan-sam':
+      return {
+        method: 'gia-dap',
+        reason: 'Giã dập vừa phải giúp tinh dầu và hoạt chất chiết nhanh khi sắc.'
+      };
+    default:
+      return {
+        method: 'sinh-dung',
+        reason: 'Dùng tươi hoặc phơi âm can (Sinh dụng) giữ trọn thanh khí và tinh dầu giải biểu/thanh nhiệt.'
+      };
+  }
+}
+
 export function evaluateCaseSubmission(
   patientCase: PatientCase,
   userDiagnosis: DiagnosisChoice,
@@ -314,9 +347,12 @@ export function evaluateCaseSubmission(
 
   const treatmentScore = Math.round(clamp(vectorPoints + rolePoints + acupointPoints + formulaBonus, 0, 70));
 
-  // 3. Decoction fire & dosing evaluation (optional stage)
+  // 3. Decoction fire, dosing, Pao Zhi & Moxa evaluation (gentle bonus, never penalizes default Sinh Dung)
   let decoctionScore = 0;
   let decoctionFeedback = '';
+  let craftBonusScore = 0;
+  const craftBonusNotes: string[] = [];
+
   if (decoctionChoice) {
     const rec = getRecommendedDecoction(patientCase);
     if (decoctionChoice.fire === rec.fire) {
@@ -333,6 +369,34 @@ export function evaluateCaseSubmission(
       decoctionScore >= 5
         ? `Canh lửa và dặn dò uống thuốc chuẩn xác! ${rec.rationale}`
         : `Lưu ý khi sắc & dùng thuốc: ${rec.rationale}`;
+
+    if (decoctionChoice.paoZhi) {
+      let matchedCraft = 0;
+      (Object.keys(slots) as RoleSlot[]).forEach((role) => {
+        const herbId = slots[role];
+        const chosenMethod = decoctionChoice.paoZhi?.[role];
+        if (!herbId || !chosenMethod || chosenMethod === 'sinh-dung') return;
+        const herb = HERB_MAP[herbId];
+        const ideal = getIdealPaoZhi(herbId);
+        if (chosenMethod === ideal.method) {
+          matchedCraft += 1;
+          craftBonusNotes.push(`${herb?.name ?? herbId}: ${ideal.reason}`);
+        }
+      });
+      if (matchedCraft > 0) {
+        craftBonusScore += Math.min(3, matchedCraft);
+      }
+    }
+
+    if (
+      decoctionChoice.moxaEnabled &&
+      patientCase.allowAcupuncture &&
+      selectedAcupoints.length > 0 &&
+      patientCase.targetDiagnosis.nature === 'han'
+    ) {
+      craftBonusScore += 2;
+      craftBonusNotes.push('Hơ điếu Ngải cứu ấm kinh mạch rất hợp với chứng Hàn / Hư Hàn.');
+    }
   }
 
   // 4. Safety penalties
@@ -340,12 +404,25 @@ export function evaluateCaseSubmission(
   const cautionCount = preview.alerts.filter((a) => a.severity === 'caution').length;
   const safetyPenalty = criticalCount * 35 + cautionCount * 12;
 
-  let rawTotal = clamp(diagnosisScore + treatmentScore + decoctionScore - safetyPenalty, 0, 100);
+  let rawTotal = clamp(
+    diagnosisScore + treatmentScore + decoctionScore + craftBonusScore - safetyPenalty,
+    0,
+    100
+  );
   if (criticalCount > 0) {
     rawTotal = Math.min(rawTotal, 55);
   }
 
   const totalScore = Math.round(rawTotal);
+
+  const followUpLetter =
+    patientCase.followUpLetters
+      ? totalScore >= 80 && criticalCount === 0
+        ? patientCase.followUpLetters.good
+        : totalScore >= 65 && criticalCount === 0
+        ? patientCase.followUpLetters.partial
+        : patientCase.followUpLetters.poor
+      : undefined;
 
   let grade: EvaluationGrade = 'Sai Lệch Y Lý';
   if (totalScore >= 88 && criticalCount === 0) {
@@ -404,6 +481,9 @@ export function evaluateCaseSubmission(
     matchedFormulas,
     decoctionScore,
     decoctionFeedback,
+    craftBonusScore,
+    craftBonusNotes,
+    followUpLetter,
     summaryFeedback,
     passed: totalScore >= 70 && criticalCount === 0
   };
