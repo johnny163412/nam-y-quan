@@ -18,6 +18,16 @@ export function createDefaultProgress(): UserProgress {
     musicVolume: 0.65,
     mentorDismissed: false,
     caseLedger: [],
+    yDucPoints: 0,
+    freshHerbIds: ['tia-to'],
+    gardenGrowth: {
+      'tia-to': 3,
+      'kinh-gioi': 2,
+      'bac-ha': 2,
+      'sinh-khuong': 1,
+      'ngai-cuu': 1,
+      'la-lot': 1
+    },
     discoveredFormulas: []
   };
 }

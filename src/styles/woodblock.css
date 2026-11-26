@@ -1668,6 +1668,10 @@ button {
   margin-bottom: 10px;
 }
 
+.room-nav-bar.four-rooms {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .room-plaque-tab {
   display: flex;
   flex-direction: column;
@@ -1716,11 +1720,20 @@ button {
   will-change: transform;
 }
 
+.apothecary-room-track.four-rooms-track {
+  width: 400%;
+}
+
 .apothecary-room {
   flex: 0 0 33.333333%;
   width: 33.333333%;
   min-width: 0;
   padding: 2px;
+}
+
+.four-rooms-track .apothecary-room {
+  flex: 0 0 25%;
+  width: 25%;
 }
 
 .room-stage-backdrop {
@@ -2123,6 +2136,705 @@ button {
   border-top: 1.5px solid #6b4928;
 }
 
+/* ==================== AAA INDIE UPGRADE: STAGE, DIAL, PARTICLES, 3D FOLD, FAN, SEAL, GARDEN ==================== */
+.unified-compact-bar {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+}
+
+.toolbar-right-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.yduc-relics-pill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  background: #23150c;
+  border: 1px solid #7c562b;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 0.74rem;
+  color: #f3e4c8;
+}
+
+.relic-dot {
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #9e8768;
+}
+
+.relic-dot.unlocked {
+  background: #23574c;
+  color: #fff3d6;
+  border: 1px solid #7ec6b4;
+}
+
+.diorama-hero-stage {
+  position: relative;
+  min-height: 258px;
+  border: 2px solid var(--gold-trim);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: #1a1009;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12px 16px;
+}
+
+.ambient-particles-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.curtain-veil {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(42, 26, 15, 0.92) 0px,
+    rgba(64, 41, 22, 0.92) 5px,
+    rgba(25, 14, 8, 0.95) 6px,
+    rgba(25, 14, 8, 0.95) 8px
+  );
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1), opacity 560ms ease;
+}
+
+.curtain-veil.left {
+  left: 0;
+  transform: translateX(-105%);
+}
+
+.curtain-veil.right {
+  right: 0;
+  transform: translateX(105%);
+}
+
+.diorama-hero-stage.curtain-parting .curtain-veil.left {
+  opacity: 1;
+  transform: translateX(-15%);
+}
+
+.diorama-hero-stage.curtain-parting .curtain-veil.right {
+  opacity: 1;
+  transform: translateX(15%);
+}
+
+.stage-mentor-ribbon {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: rgba(29, 17, 10, 0.86);
+  border: 1px solid var(--gold-trim);
+  border-radius: 3px;
+  padding: 5px 9px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  color: #f7e6c4;
+}
+
+.diorama-stage-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.stage-patient-centerpiece {
+  flex-shrink: 0;
+}
+
+.patient-avatar-silk.is-stage-portrait {
+  width: 156px;
+  height: 200px;
+  border-width: 2.5px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.72);
+}
+
+.scroll-rod-cap.stage-cap {
+  width: 170px;
+}
+
+.portrait-breathe {
+  animation: subtleBreath 4.2s ease-in-out infinite;
+}
+
+.patient-avatar-silk.aura-chilled .portrait-breathe {
+  animation: chillShiver 3.4s ease-in-out infinite;
+}
+
+.patient-avatar-silk.aura-fever {
+  box-shadow: 0 0 18px rgba(196, 60, 40, 0.42), 0 10px 24px rgba(0, 0, 0, 0.72);
+}
+
+@keyframes subtleBreath {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.015) translateY(-1.5px);
+  }
+}
+
+@keyframes chillShiver {
+  0%, 84%, 100% {
+    transform: translateX(0);
+  }
+  88% {
+    transform: translateX(-1.5px);
+  }
+  92% {
+    transform: translateX(1.5px);
+  }
+  96% {
+    transform: translateX(-1px);
+  }
+}
+
+.stage-dialogue-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.stage-case-meta {
+  margin-bottom: 6px;
+}
+
+.wood-speech-bubble.stage-speech {
+  background: rgba(244, 231, 204, 0.96);
+  font-size: 0.92rem;
+}
+
+/* Brass Rotating Compass Dial */
+.compass-brass-layout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.brass-dial-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: 6px;
+  transition: filter 0.25s ease;
+}
+
+.brass-dial-shell.is-harmonized {
+  filter: drop-shadow(0 0 10px rgba(102, 212, 184, 0.55));
+}
+
+.brass-dial-caption {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e7b96a;
+}
+
+/* Pao Zhi animations & tinting on scale pans */
+.scale-pan.paozhi-tint-sao-vang.filled {
+  background: linear-gradient(180deg, #f3dc9f 0%, #e1bd6c 100%);
+}
+
+.scale-pan.paozhi-tint-chich-mat.filled {
+  background: linear-gradient(180deg, #f7dfad 0%, #dda44e 100%);
+}
+
+.scale-pan.paozhi-tint-gia-dap.filled {
+  background: linear-gradient(180deg, #ead7b7 0%, #d3ba91 100%);
+}
+
+.scale-pan.paozhi-anim-gia-dap {
+  animation: mortarPound 240ms ease-in-out 2;
+}
+
+.scale-pan.paozhi-anim-sao-vang,
+.scale-pan.paozhi-anim-chich-mat {
+  box-shadow: 0 0 18px rgba(235, 134, 42, 0.65);
+}
+
+.craft-bench-item.is-crafting-glow {
+  border-color: var(--cinnabar);
+  box-shadow: 0 0 14px rgba(224, 120, 38, 0.45);
+}
+
+@keyframes mortarPound {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+.fresh-leaf-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: #23574c;
+  color: #fff6df;
+  border: 1px solid #82ccb8;
+}
+
+.drawer-fresh-ribbon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: #23574c;
+  color: #fff6df;
+  border: 1px solid #82ccb8;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+/* De Qi (Đắc Khí) meridian ripple */
+.deqi-pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: deQiExpand 920ms ease-out forwards;
+}
+
+@keyframes deQiExpand {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+.meridian-qi-stream {
+  stroke-dasharray: 7 6;
+  animation: qiFlowStream 1.6s linear infinite;
+}
+
+@keyframes qiFlowStream {
+  from {
+    stroke-dashoffset: 26;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Bamboo Fan Meter */
+.fan-heat-box {
+  padding: 9px 11px;
+  background: var(--paper-aged);
+  border: 1.5px solid #6b4928;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+
+.fan-meter-track {
+  position: relative;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3c5d7a 0%, #c88d36 52%, #b83024 100%);
+  border: 1px solid #3a2414;
+}
+
+.fan-meter-target {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  border: 2px solid #fff3d4;
+  background: rgba(255, 245, 212, 0.24);
+  border-radius: 4px;
+}
+
+.fan-meter-needle {
+  position: absolute;
+  top: -4px;
+  width: 6px;
+  height: 18px;
+  transform: translateX(-50%);
+  background: #1d120a;
+  border: 1.5px solid #f7cf78;
+  border-radius: 2px;
+  transition: left 180ms ease;
+}
+
+.stove-scene-frame.fan-gust .stove-ember-glow {
+  filter: brightness(1.35);
+}
+
+.fan-action-btn.is-fanning {
+  transform: rotate(-3deg) scale(1.03);
+}
+
+/* 3D Paper Fold Overlay */
+.paper-fold-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: rgba(14, 9, 5, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paper-fold-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  perspective: 800px;
+}
+
+.fold-sheet {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  background: radial-gradient(circle, #c83328 0%, #9b1d17 100%);
+  border: 2px solid #e6b868;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.fold-herbs-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  max-width: 110px;
+}
+
+.fold-flap {
+  position: absolute;
+  background: linear-gradient(135deg, #be2a21 0%, #851611 100%);
+  border: 1px solid rgba(240, 198, 120, 0.5);
+}
+
+.flap-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  transform-origin: top center;
+  animation: foldTop 650ms ease forwards;
+}
+
+.flap-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  transform-origin: bottom center;
+  animation: foldBottom 650ms 120ms ease forwards;
+}
+
+.flap-left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 55%;
+  transform-origin: center left;
+  animation: foldLeft 650ms 220ms ease forwards;
+}
+
+.flap-right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 55%;
+  transform-origin: center right;
+  animation: foldRight 650ms 300ms ease forwards;
+}
+
+@keyframes foldTop {
+  from {
+    transform: rotateX(120deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateX(0deg);
+    opacity: 0.96;
+  }
+}
+
+@keyframes foldBottom {
+  from {
+    transform: rotateX(-120deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateX(0deg);
+    opacity: 0.96;
+  }
+}
+
+@keyframes foldLeft {
+  from {
+    transform: rotateY(-120deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0deg);
+    opacity: 0.96;
+  }
+}
+
+@keyframes foldRight {
+  from {
+    transform: rotateY(120deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0deg);
+    opacity: 0.96;
+  }
+}
+
+.fold-twine-tie {
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #dcc292 0px, #b4925b 4px, #dcc292 8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  z-index: 3;
+  animation: twineAppear 300ms 450ms ease both;
+}
+
+@keyframes twineAppear {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.fold-seal-label {
+  position: relative;
+  z-index: 4;
+  background: #f5e6c8;
+  color: #6b1510;
+  border: 1px solid #8a5624;
+  padding: 4px 10px;
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 2px;
+  animation: twineAppear 250ms 580ms ease both;
+}
+
+.fold-caption {
+  margin: 0;
+  color: #fff4dd;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+}
+
+/* Seal Stamp Slam Ritual */
+.clinic-stage.stamp-shake {
+  animation: microDeskShake 260ms ease-in-out;
+}
+
+@keyframes microDeskShake {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3px, 2px);
+  }
+  50% {
+    transform: translate(3px, -2px);
+  }
+  75% {
+    transform: translate(-2px, 1px);
+  }
+}
+
+.seal-slam-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 98;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14, 9, 5, 0.45);
+  pointer-events: none;
+}
+
+.seal-chop-stamp {
+  padding: 18px 26px;
+  border: 6px solid #a62620;
+  background: rgba(250, 240, 218, 0.96);
+  color: #a62620;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border-radius: 6px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+  animation: chopSlam 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.seal-chop-stamp.is-jade-seal {
+  border-color: #1f6b5a;
+  color: #1f6b5a;
+}
+
+@keyframes chopSlam {
+  0% {
+    transform: scale(2.1) rotate(-14deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(0.92) rotate(-4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-4deg);
+    opacity: 1;
+  }
+}
+
+/* Herb Garden Room IV */
+.garden-basket-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--paper-aged);
+  border: 1.5px solid #6b4928;
+  border-radius: 3px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+}
+
+.garden-fresh-chip {
+  background: #23574c;
+  color: #fff6df;
+  border-color: #79c4b0;
+}
+
+.garden-plots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.garden-pot-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-do) 100%);
+  border: 2px solid #5a3e28;
+  border-radius: 4px;
+}
+
+.garden-pot-card.is-ready {
+  border-color: #2c6e5e;
+  box-shadow: 0 0 0 1px rgba(44, 110, 94, 0.35);
+}
+
+.garden-pot-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.garden-plant-sway {
+  transform-origin: bottom center;
+  animation: plantSway 4s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.garden-plant-sway.stage-0 {
+  transform: scale(0.68);
+  opacity: 0.72;
+}
+
+.garden-plant-sway.stage-1 {
+  transform: scale(0.82);
+}
+
+.garden-plant-sway.stage-2 {
+  transform: scale(0.94);
+}
+
+.garden-plant-sway.stage-3 {
+  transform: scale(1.04);
+}
+
+@keyframes plantSway {
+  0%, 100% {
+    rotate: -2deg;
+  }
+  50% {
+    rotate: 2deg;
+  }
+}
+
+.garden-terracotta-rim {
+  width: 68px;
+  height: 14px;
+  margin-top: -4px;
+  border-radius: 3px 3px 8px 8px;
+  background: linear-gradient(180deg, #9a4f2d 0%, #68311a 100%);
+  border: 1.5px solid #3a1a0c;
+}
+
+.garden-pot-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.garden-growth-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.growth-dot {
+  width: 14px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(56, 36, 23, 0.22);
+}
+
+.growth-dot.filled {
+  background: #2b6f5e;
+}
+
 @media (max-width: 980px) {
   .desk-grid,
   .sandbox-layout,
@@ -2141,8 +2853,17 @@ button {
   .apothecary-room:not(.is-active-room) {
     display: none;
   }
-  .room-nav-bar {
-    grid-template-columns: 1fr;
+  .room-nav-bar,
+  .room-nav-bar.four-rooms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .diorama-stage-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .compass-brass-layout {
+    flex-direction: column;
   }
   .scale-pans-grid {
     grid-template-columns: repeat(2, 1fr);

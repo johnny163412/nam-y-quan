@@ -397,6 +397,24 @@ export function evaluateCaseSubmission(
       craftBonusScore += 2;
       craftBonusNotes.push('Hơ điếu Ngải cứu ấm kinh mạch rất hợp với chứng Hàn / Hư Hàn.');
     }
+
+    if (decoctionChoice.fanMatched) {
+      craftBonusScore += 2;
+      craftBonusNotes.push('Quạt nan giữ chuẩn độ lửa hỏa hầu giúp chiết trọn khí vị.');
+    }
+
+    const usedFreshCount = (decoctionChoice.usedFreshHerbs ?? []).filter((id) =>
+      assignedHerbIds.includes(id)
+    ).length;
+    if (usedFreshCount > 0) {
+      craftBonusScore += Math.min(2, usedFreshCount);
+      craftBonusNotes.push('Dùng lá thuốc tươi hái tại Hậu Viên vườn quán (+dược lực tinh khiết).');
+    }
+
+    if (decoctionChoice.hasBatTrangPot) {
+      craftBonusScore += 1;
+      craftBonusNotes.push('Sắc bằng Siêu Gốm Bát Tràng Cổ (bảo vật mở khóa từ Y Đức).');
+    }
   }
 
   // 4. Safety penalties

@@ -192,6 +192,10 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(() => apothecaryAudio.playHerbDrop()).not.toThrow();
     expect(() => apothecaryAudio.playDrawerSlide(true)).not.toThrow();
     expect(() => apothecaryAudio.playRoomSlide()).not.toThrow();
+    expect(() => apothecaryAudio.playCurtainBell()).not.toThrow();
+    expect(() => apothecaryAudio.playDeQiChime()).not.toThrow();
+    expect(() => apothecaryAudio.playBambooFan()).not.toThrow();
+    expect(() => apothecaryAudio.playWaterPour()).not.toThrow();
     expect(() => apothecaryAudio.playBambooTally()).not.toThrow();
     expect(() => apothecaryAudio.playMortarGrind()).not.toThrow();
     expect(() => apothecaryAudio.playWokSizzle(true)).not.toThrow();
@@ -225,7 +229,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
   });
 
-  it('verifies all 47 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
+  it('verifies all 48 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
       'meridians/meridian-front.jpg',
@@ -240,6 +244,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'scenes/room-tien-duong.jpg',
       'scenes/room-duoc-cac.jpg',
       'scenes/room-noi-cac.jpg',
+      'scenes/room-hau-vien.jpg',
       'scenes/tang-thu-library.jpg',
       'scenes/y-mieu-temple.jpg',
       'scenes/duong-sinh-scroll.jpg',
@@ -249,7 +254,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'patients/clinic-bg.jpg'
     ];
 
-    expect(requiredAssets).toHaveLength(47);
+    expect(requiredAssets).toHaveLength(48);
 
     requiredAssets.forEach((rel) => {
       const fullPath = path.join(root, rel);
@@ -276,10 +281,13 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
         fire: 'van-hoa',
         dosing: 'am-duong-tang',
         paoZhi: { ta: 'sao-vang', su: 'chich-mat' },
-        moxaEnabled: true
+        moxaEnabled: true,
+        fanMatched: true,
+        usedFreshHerbs: ['ngai-cuu', 'la-lot'],
+        hasBatTrangPot: true
       }
     );
-    expect(crafted.craftBonusScore).toBeGreaterThanOrEqual(3);
+    expect(crafted.craftBonusScore).toBeGreaterThanOrEqual(7);
     expect(crafted.followUpLetter).toBeTruthy();
     expect(crafted.passed).toBe(true);
   });

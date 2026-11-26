@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ACUPOINTS } from '../data/acupoints';
+import { apothecaryAudio } from '../engine/audio';
 import { Acupoint } from '../types/tcm';
 
 interface MeridianBodyMapProps {
@@ -25,6 +26,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
 }) => {
   const [side, setSide] = useState<'front' | 'back'>(forcedSide ?? 'front');
   const [inspected, setInspected] = useState<Acupoint | null>(null);
+  const [deQiPointId, setDeQiPointId] = useState<string | null>(null);
 
   const activeSide = forcedSide ?? side;
   const visiblePoints = ACUPOINTS.filter((p) => {
@@ -34,8 +36,16 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
   });
 
   const handleClickPoint = (pt: Acupoint) => {
+    const activating = !selectedIds.includes(pt.id);
     setInspected(pt);
     onToggleAcupoint(pt.id);
+    if (activating && !hideDetails) {
+      setDeQiPointId(pt.id);
+      apothecaryAudio.playDeQiChime();
+      window.setTimeout(() => {
+        setDeQiPointId((cur) => (cur === pt.id ? null : cur));
+      }, 950);
+    }
   };
 
   return (
@@ -95,7 +105,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 preserveAspectRatio="none"
                 style={{ mixBlendMode: 'multiply' }}
               />
-              {/* Delicate flowing meridian pathways */}
+              {/* Delicate flowing meridian pathways + active Đắc Khí flow */}
               <g stroke="#23574C" strokeWidth="1.1" strokeDasharray="4 3" fill="none" opacity="0.58">
                 <path d="M125 68 C125 112 125 168 125 220" />
                 <path d="M102 124 C95 190 94 265 93 333 C92 368 92 392 91 411" />
@@ -103,6 +113,19 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 <path d="M84 114 C70 152 60 188 55 226 C51 236 48 240 46 244" />
                 <path d="M166 114 C178 152 186 188 190 218 L195 233" />
               </g>
+              {selectedIds.length > 0 && !hideDetails && (
+                <g
+                  className="meridian-qi-stream"
+                  stroke={moxaEnabled ? '#E8833A' : '#58D3AF'}
+                  strokeWidth="1.9"
+                  fill="none"
+                  opacity="0.88"
+                >
+                  <path d="M125 68 C125 112 125 168 125 220" />
+                  <path d="M102 124 C95 190 94 265 93 333 C92 368 92 392 91 411" />
+                  <path d="M84 114 C70 152 60 188 55 226 C51 236 48 240 46 244" />
+                </g>
+              )}
             </>
           ) : (
             <>
@@ -122,6 +145,18 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 <path d="M111 84 C109 124 108 162 108 196 C107 254 105 304 105 352" />
                 <path d="M82 118 C69 154 61 186 56 214" />
               </g>
+              {selectedIds.length > 0 && !hideDetails && (
+                <g
+                  className="meridian-qi-stream"
+                  stroke={moxaEnabled ? '#E8833A' : '#58D3AF'}
+                  strokeWidth="1.9"
+                  fill="none"
+                  opacity="0.88"
+                >
+                  <path d="M125 42 C125 102 125 174 125 236" />
+                  <path d="M111 84 C109 124 108 162 108 196 C107 254 105 304 105 352" />
+                </g>
+              )}
             </>
           )}
 
@@ -180,6 +215,17 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                   stroke={isDanger && !hideDetails ? '#A62620' : moxaEnabled && isSelected ? '#F5B552' : '#2F231A'}
                   strokeWidth={isSelected ? 2 : 1.35}
                 />
+                {isSelected && deQiPointId === pt.id && !hideDetails && (
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r="11"
+                    className="deqi-pulse-ring"
+                    fill="none"
+                    stroke={moxaEnabled ? '#FF9A44' : '#58D3AF'}
+                    strokeWidth="2.2"
+                  />
+                )}
                 {isSelected && moxaEnabled && !hideDetails && (
                   <g className="moxa-aura-group" aria-hidden="true">
                     <circle cx={pt.x} cy={pt.y} r="14" fill="rgba(235, 118, 38, 0.28)" />

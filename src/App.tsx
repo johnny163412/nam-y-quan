@@ -69,6 +69,18 @@ export const App: React.FC = () => {
       }
 
       if (meta) {
+        const usedFresh = (meta.decoction?.usedFreshHerbs ?? []).filter((id) =>
+          Object.values(meta.slots).includes(id)
+        );
+        if (usedFresh.length > 0 && prev.freshHerbIds) {
+          next.freshHerbIds = prev.freshHerbIds.filter((id) => !usedFresh.includes(id));
+        }
+
+        if (result.passed) {
+          const earned = result.totalScore >= 88 ? 25 : 15;
+          next.yDucPoints = (prev.yDucPoints ?? 0) + earned;
+        }
+
         const ledgerEntry: CaseLedgerEntry = {
           id: `${patientCase.id}-${Date.now()}`,
           caseId: patientCase.id,
@@ -164,10 +176,40 @@ export const App: React.FC = () => {
             unlockedChapter={progress.unlockedChapter}
             completedCases={progress.completedCases}
             caseLedger={progress.caseLedger ?? []}
+            yDucPoints={progress.yDucPoints ?? 0}
+            freshHerbIds={progress.freshHerbIds ?? []}
+            gardenGrowth={progress.gardenGrowth ?? {}}
             mentorDismissed={Boolean(progress.mentorDismissed)}
             onDismissMentor={() =>
               setProgress((prev) => ({ ...prev, mentorDismissed: true }))
             }
+            onWaterGardenPlot={(herbId) => {
+              apothecaryAudio.playWaterPour();
+              setProgress((prev) => {
+                const cur = prev.gardenGrowth?.[herbId] ?? 1;
+                return {
+                  ...prev,
+                  gardenGrowth: {
+                    ...(prev.gardenGrowth ?? {}),
+                    [herbId]: Math.min(3, cur + 1)
+                  }
+                };
+              });
+            }}
+            onHarvestGardenPlot={(herbId) => {
+              apothecaryAudio.playHerbDrop();
+              setProgress((prev) => {
+                const existing = prev.freshHerbIds ?? [];
+                return {
+                  ...prev,
+                  freshHerbIds: existing.includes(herbId) ? existing : [...existing, herbId],
+                  gardenGrowth: {
+                    ...(prev.gardenGrowth ?? {}),
+                    [herbId]: 0
+                  }
+                };
+              });
+            }}
             onCaseEvaluated={handleCaseEvaluated}
             onOpenCodexHerb={(herbId) => {
               setCodexHerbId(herbId);

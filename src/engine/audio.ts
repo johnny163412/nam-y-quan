@@ -14,7 +14,7 @@ class ApothecaryAudio {
   private ambientActive = false;
   private sfxVolume = 0.8;
   private musicVolume = 0.65;
-  private activeRoom: 0 | 1 | 2 = 0;
+  private activeRoom: 0 | 1 | 2 | 3 = 0;
   private elementMood: ElementKey = 'tho';
 
   private ambientSource: AudioBufferSourceNode | null = null;
@@ -33,7 +33,7 @@ class ApothecaryAudio {
     this.applyRoomAcousticProfile();
   }
 
-  setActiveRoom(room: 0 | 1 | 2): void {
+  setActiveRoom(room: 0 | 1 | 2 | 3): void {
     this.activeRoom = room;
     this.applyRoomAcousticProfile();
   }
@@ -47,8 +47,22 @@ class ApothecaryAudio {
     if (!ctx || !this.ambientFilter || !this.ambientGain || !this.ambientActive) return;
     try {
       const now = ctx.currentTime;
-      const targetFreq = this.activeRoom === 0 ? 640 : this.activeRoom === 1 ? 360 : 280;
-      const baseGain = this.activeRoom === 0 ? 0.036 : this.activeRoom === 1 ? 0.018 : 0.026;
+      const targetFreq =
+        this.activeRoom === 0
+          ? 640
+          : this.activeRoom === 1
+          ? 360
+          : this.activeRoom === 2
+          ? 280
+          : 520;
+      const baseGain =
+        this.activeRoom === 0
+          ? 0.036
+          : this.activeRoom === 1
+          ? 0.018
+          : this.activeRoom === 2
+          ? 0.026
+          : 0.024;
       this.ambientFilter.frequency.setTargetAtTime(targetFreq, now, 0.25);
       this.ambientGain.gain.setTargetAtTime(baseGain * this.musicVolume, now, 0.25);
     } catch {
@@ -155,11 +169,15 @@ class ApothecaryAudio {
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(this.activeRoom === 0 ? 640 : this.activeRoom === 1 ? 360 : 280, ctx.currentTime);
+      filter.frequency.setValueAtTime(
+        this.activeRoom === 0 ? 640 : this.activeRoom === 1 ? 360 : this.activeRoom === 2 ? 280 : 520,
+        ctx.currentTime
+      );
       filter.Q.setValueAtTime(0.75, ctx.currentTime);
 
       const gain = ctx.createGain();
-      const baseGain = this.activeRoom === 0 ? 0.036 : this.activeRoom === 1 ? 0.018 : 0.026;
+      const baseGain =
+        this.activeRoom === 0 ? 0.036 : this.activeRoom === 1 ? 0.018 : this.activeRoom === 2 ? 0.026 : 0.024;
       gain.gain.setValueAtTime(baseGain * this.musicVolume, ctx.currentTime);
 
       src.connect(filter);
@@ -260,6 +278,128 @@ class ApothecaryAudio {
 
   private sfxLevel(base: number): number {
     return base * Math.max(0.05, this.sfxVolume);
+  }
+
+  playCurtainBell(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      // Temple woodblock tap + bamboo wind chime harmonic
+      const tap = ctx.createOscillator();
+      const tGain = ctx.createGain();
+      tap.type = 'triangle';
+      tap.frequency.setValueAtTime(340, now);
+      tap.frequency.exponentialRampToValueAtTime(160, now + 0.08);
+      tGain.gain.setValueAtTime(this.sfxLevel(0.065), now);
+      tGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+      tap.connect(tGain);
+      tGain.connect(ctx.destination);
+      tap.start(now);
+      tap.stop(now + 0.1);
+
+      [880, 1174.66].forEach((freq, i) => {
+        const chime = ctx.createOscillator();
+        const cGain = ctx.createGain();
+        chime.type = 'sine';
+        chime.frequency.setValueAtTime(freq, now + 0.08 + i * 0.06);
+        cGain.gain.setValueAtTime(this.sfxLevel(0.03), now + 0.08 + i * 0.06);
+        cGain.gain.exponentialRampToValueAtTime(0.0005, now + 0.7 + i * 0.1);
+        chime.connect(cGain);
+        cGain.connect(ctx.destination);
+        chime.start(now + 0.08 + i * 0.06);
+        chime.stop(now + 0.75 + i * 0.1);
+      });
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playDeQiChime(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.18);
+      gain.gain.setValueAtTime(this.sfxLevel(0.048), now);
+      gain.gain.exponentialRampToValueAtTime(0.0006, now + 0.42);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.45);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playBambooFan(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const len = Math.floor(ctx.sampleRate * 0.22);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.sin((i / len) * Math.PI);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(480, now);
+      filter.Q.setValueAtTime(1.0, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(this.sfxLevel(0.06), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(now);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playWaterPour(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const len = Math.floor(ctx.sampleRate * 0.34);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        const mod = 0.7 + 0.3 * Math.sin((i / ctx.sampleRate) * 42);
+        data[i] = (Math.random() * 2 - 1) * mod * (1 - (i / len) * 0.5);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1100, now);
+      filter.frequency.linearRampToValueAtTime(1650, now + 0.3);
+      filter.Q.setValueAtTime(2.4, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(this.sfxLevel(0.055), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(now);
+    } catch {
+      // Safe no-op
+    }
   }
 
   playRoomSlide(): void {

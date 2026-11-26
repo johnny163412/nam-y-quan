@@ -198,6 +198,9 @@ export interface DecoctionChoice {
   dosing: DosingAdvice;
   paoZhi?: SlotPaoZhi;
   moxaEnabled?: boolean;
+  fanMatched?: boolean;
+  usedFreshHerbs?: string[];
+  hasBatTrangPot?: boolean;
 }
 
 export interface ClassicalFormula {
@@ -322,6 +325,9 @@ export interface UserProgress {
   musicVolume?: number;
   mentorDismissed?: boolean;
   caseLedger?: CaseLedgerEntry[];
+  yDucPoints?: number;
+  freshHerbIds?: string[];
+  gardenGrowth?: Record<string, number>;
   discoveredFormulas?: string[];
   savedConstitution?: BodyConstitutionId;
 }
