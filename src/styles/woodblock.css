@@ -837,17 +837,272 @@ button {
   margin: 4px 0 2px;
 }
 
-.herb-drawer.bach-tu-cabinet {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 8px;
-  max-height: 332px;
-  overflow-y: auto;
-  padding: 10px;
-  background: linear-gradient(180deg, #271B14 0%, #1C130E 100%);
-  border: 2px solid #4E3727;
+/* ==================== ĐÔNG Y PULL-OUT APOTHECARY CHEST & HOVER TOOLTIP ==================== */
+.apothecary-chest-wrap {
+  position: relative;
+}
+
+.apothecary-chest {
+  background: linear-gradient(180deg, #1b1009 0%, #120a05 100%);
+  border: 4px solid #3c2414;
+  outline: 1px solid #6b4628;
   border-radius: 4px;
-  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.45);
+  padding: 8px;
+  box-shadow:
+    inset 0 3px 12px rgba(0, 0, 0, 0.78),
+    0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.chest-drawers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.wood-drawer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #4f3420 0%, #382315 58%, #29190e 100%);
+  border: 1.5px solid #6e4a2c;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 1px 0 rgba(235, 194, 130, 0.22),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.14s ease, box-shadow 0.18s ease;
+}
+
+.wood-drawer:hover {
+  border-color: var(--gold-trim);
+}
+
+.wood-drawer.is-assigned {
+  border-color: #6ab5a1;
+  box-shadow:
+    inset 0 0 0 1px rgba(116, 181, 163, 0.42),
+    0 2px 6px rgba(0, 0, 0, 0.48);
+}
+
+.wood-drawer.is-open {
+  grid-column: span 2;
+  z-index: 20;
+  transform: translateY(4px);
+  border-color: var(--gold-trim);
+  border-top: 5px solid #7d532f;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(207, 160, 82, 0.55);
+}
+
+.drawer-face-btn {
+  width: 100%;
+  min-height: 70px;
+  background: transparent;
+  border: 0;
+  padding: 7px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  position: relative;
+}
+
+.wood-drawer.is-open .drawer-face-btn {
+  min-height: 46px;
+  flex-direction: row;
+  padding: 6px 10px;
+  border-bottom: 1.5px solid #593920;
+  background: linear-gradient(180deg, #492f1c 0%, #342013 100%);
+}
+
+.drawer-name-slip {
+  background: linear-gradient(180deg, #efdfb9 0%, #dfc89c 100%);
+  border: 1px solid #6b4928;
+  box-shadow: inset 0 0 0 1px rgba(107, 73, 40, 0.25);
+  border-radius: 2px;
+  padding: 3px 6px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.wood-drawer.is-open .drawer-name-slip {
+  width: auto;
+  flex: 1;
+}
+
+.drawer-herb-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #24170e;
+  line-height: 1.22;
+  text-align: center;
+  word-break: break-word;
+}
+
+.qi-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(36, 23, 14, 0.45);
+}
+
+.qi-dot.qi-hot {
+  background: #b83024;
+}
+
+.qi-dot.qi-cold {
+  background: #2f618a;
+}
+
+.qi-dot.qi-neutral {
+  background: #b27b2b;
+}
+
+.brass-pull-plate {
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: radial-gradient(circle, #c89742 0%, #70491c 100%);
+  border: 1px solid #2b180a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brass-pull-ring {
+  width: 14px;
+  height: 8px;
+  border: 2px solid #f0cb7a;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+}
+
+.drawer-role-ribbon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #23574c;
+  color: #fff4dd;
+  border: 1px solid #96d2c2;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0 4px;
+  border-radius: 2px;
+  line-height: 1.35;
+}
+
+.drawer-open-tray {
+  background: linear-gradient(180deg, #dfcaa2 0%, #ccb285 100%);
+  box-shadow: inset 0 5px 12px rgba(34, 20, 10, 0.36);
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer-herb-nest {
+  padding: 3px;
+  background: rgba(94, 62, 34, 0.16);
+  border: 1px dashed rgba(94, 62, 34, 0.48);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.drawer-tray-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-scoop-btn {
+  padding: 5px 9px;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.drawer-sub-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.drawer-mobile-readout {
+  margin-top: 8px;
+  padding: 7px 10px;
+  background: var(--paper-highlight);
+  border: 1.5px solid #7c562b;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  color: var(--ink-primary);
+}
+
+/* Floating Tooltip on Hover / Focus */
+.herb-hover-tooltip {
+  position: absolute;
+  width: 288px;
+  transform: translateY(-100%);
+  z-index: 45;
+  pointer-events: none;
+  background: linear-gradient(180deg, #ead8b7 0%, #d8c095 100%);
+  border: 2.5px solid #3c2414;
+  outline: 1px solid var(--gold-trim);
+  border-radius: 4px;
+  box-shadow: 0 10px 26px rgba(10, 6, 3, 0.72);
+  color: var(--ink-primary);
+  overflow: hidden;
+}
+
+.herb-hover-tooltip .tooltip-head {
+  background: linear-gradient(180deg, #362215 0%, #22140c 100%);
+  border-bottom: 1.5px solid var(--gold-trim);
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.tooltip-head-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #fff3d6;
+}
+
+.tooltip-head-sub {
+  font-size: 0.74rem;
+  color: var(--sand-muted);
+}
+
+.herb-hover-tooltip .tooltip-body {
+  padding: 9px 10px;
+}
+
+.tooltip-warn {
+  background: rgba(166, 38, 32, 0.14);
+  border-left: 3px solid var(--cinnabar);
+  padding: 3px 6px;
+  font-size: 0.74rem;
+  color: #7c1510;
+  margin-bottom: 5px;
+}
+
+.tooltip-foot {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #5c3e1e;
+  border-top: 1px dashed rgba(92, 62, 30, 0.38);
+  padding-top: 4px;
 }
 
 .herb-card {
@@ -1376,6 +1631,9 @@ button {
   .scale-pans-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .chest-drawers-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
@@ -1405,6 +1663,12 @@ button {
   }
   .diag-selector-grid {
     grid-template-columns: 1fr;
+  }
+  .chest-drawers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .herb-hover-tooltip {
+    display: none;
   }
 }
 

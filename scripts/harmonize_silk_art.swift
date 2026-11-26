@@ -391,108 +391,14 @@ func buildDecoctionStove() {
 buildDecoctionStove()
 
 // =========================================================================
-// 4. PAINTED DORSAL SILK MERIDIAN SCROLL (public/art/meridians/meridian-back.jpg, 500x888)
+// 4. PAINTED DORSAL SILK MERIDIAN SCROLL (delegated to paint_meridian_back.swift)
 // =========================================================================
 func buildMeridianBackScroll() {
-    let w = 500, h = 888
-    let front = loadCG("\(rawMaster)/meridian_front.jpg")
-    let ctx = makeCanvas(w: w, h: h, bg: (0.980, 0.961, 0.910))
-    ctx.draw(front, in: CGRect(x: 0, y: 0, width: w, height: h))
-
-    // Back-of-head hair: end cleanly at occipital nape (y_cg ~ 704) leaving neck hollow cleanly exposed!
-    let hairOverlay = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-    hairOverlay.setFillColor(CGColor(red: 0.19, green: 0.15, blue: 0.12, alpha: 1.0))
-    let backHair = CGMutablePath()
-    backHair.move(to: CGPoint(x: 219, y: 734))
-    backHair.addCurve(to: CGPoint(x: 250, y: 766), control1: CGPoint(x: 218, y: 756), control2: CGPoint(x: 232, y: 766))
-    backHair.addCurve(to: CGPoint(x: 281, y: 734), control1: CGPoint(x: 268, y: 766), control2: CGPoint(x: 282, y: 756))
-    backHair.addCurve(to: CGPoint(x: 266, y: 698), control1: CGPoint(x: 280, y: 712), control2: CGPoint(x: 274, y: 702))
-    backHair.addQuadCurve(to: CGPoint(x: 234, y: 698), control: CGPoint(x: 250, y: 694))
-    backHair.addCurve(to: CGPoint(x: 219, y: 734), control1: CGPoint(x: 226, y: 702), control2: CGPoint(x: 220, y: 712))
-    backHair.closeSubpath()
-    hairOverlay.addPath(backHair)
-    hairOverlay.fillPath()
-    // Warm nape skin oval directly below occipital hairline (covering chin/mouth lines cleanly)
-    hairOverlay.setFillColor(CGColor(red: 0.855, green: 0.728, blue: 0.580, alpha: 1.0))
-    hairOverlay.fillEllipse(in: CGRect(x: 231, y: 666, width: 38, height: 34))
-    hairOverlay.setStrokeColor(CGColor(red: 0.34, green: 0.28, blue: 0.22, alpha: 0.55))
-    hairOverlay.setLineWidth(1.5)
-    for ox in [-16.0, -7.0, 2.0, 11.0] {
-        hairOverlay.move(to: CGPoint(x: 250 + ox * 0.65, y: 702))
-        hairOverlay.addQuadCurve(to: CGPoint(x: 250 + ox, y: 758), control: CGPoint(x: 250 + ox * 1.15, y: 732))
-    }
-    hairOverlay.strokePath()
-    // Softly blur hairOverlay edges by 1.8px so it melts into original hair outline
-    var ciHair = CIImage(cgImage: hairOverlay.makeImage()!)
-    if let blur = CIFilter(name: "CIGaussianBlur") {
-        blur.setValue(ciHair, forKey: kCIInputImageKey)
-        blur.setValue(1.8, forKey: kCIInputRadiusKey)
-        if let out = blur.outputImage { ciHair = out.cropped(to: CGRect(x: 0, y: 0, width: w, height: h)) }
-    }
-    if let hImg = ciContext.createCGImage(ciHair, from: CGRect(x: 0, y: 0, width: w, height: h)) {
-        ctx.draw(hImg, in: CGRect(x: 0, y: 0, width: w, height: h))
-    }
-
-    // Feathered transparent dorsal skin wash over front neck/pecs/navel (matched warm tanned #D7B892)
-    let skinOverlay = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-    let torsoMask = CGMutablePath()
-    torsoMask.move(to: CGPoint(x: 232, y: 668))
-    torsoMask.addCurve(to: CGPoint(x: 194, y: 604), control1: CGPoint(x: 222, y: 644), control2: CGPoint(x: 198, y: 632))
-    torsoMask.addCurve(to: CGPoint(x: 208, y: 454), control1: CGPoint(x: 194, y: 544), control2: CGPoint(x: 204, y: 488))
-    torsoMask.addLine(to: CGPoint(x: 292, y: 454))
-    torsoMask.addCurve(to: CGPoint(x: 306, y: 604), control1: CGPoint(x: 296, y: 488), control2: CGPoint(x: 306, y: 544))
-    torsoMask.addCurve(to: CGPoint(x: 268, y: 668), control1: CGPoint(x: 302, y: 632), control2: CGPoint(x: 278, y: 644))
-    torsoMask.closeSubpath()
-
-    skinOverlay.saveGState()
-    skinOverlay.addPath(torsoMask)
-    skinOverlay.clip()
-    skinOverlay.setFillColor(CGColor(red: 0.855, green: 0.728, blue: 0.580, alpha: 1.0))
-    skinOverlay.fill(CGRect(x: 185, y: 446, width: 130, height: 230))
-    softBloom(skinOverlay, cx: 222, cy: 604, rx: 32, ry: 44, r: 0.76, g: 0.61, b: 0.45, alpha: 0.42)
-    softBloom(skinOverlay, cx: 278, cy: 604, rx: 32, ry: 44, r: 0.76, g: 0.61, b: 0.45, alpha: 0.42)
-    softBloom(skinOverlay, cx: 250, cy: 552, rx: 10, ry: 98, r: 0.71, g: 0.56, b: 0.40, alpha: 0.40)
-    skinOverlay.restoreGState()
-
-    // Smoothly feather torso wash boundary by 9px blur so zero seam shows!
-    var ciSkin = CIImage(cgImage: skinOverlay.makeImage()!)
-    if let blur = CIFilter(name: "CIGaussianBlur") {
-        blur.setValue(ciSkin, forKey: kCIInputImageKey)
-        blur.setValue(9.0, forKey: kCIInputRadiusKey)
-        if let out = blur.outputImage { ciSkin = out.cropped(to: CGRect(x: 0, y: 0, width: w, height: h)) }
-    }
-    if let sImg = ciContext.createCGImage(ciSkin, from: CGRect(x: 0, y: 0, width: w, height: h)) {
-        ctx.draw(sImg, in: CGRect(x: 0, y: 0, width: w, height: h))
-    }
-
-    // Smooth dorsal cloth wrap over front knot (feathered waist band)
-    let loinOverlay = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-    loinOverlay.setFillColor(CGColor(red: 0.69, green: 0.65, blue: 0.50, alpha: 1.0))
-    loinOverlay.fillEllipse(in: CGRect(x: 214, y: 372, width: 72, height: 76))
-    var ciLoin = CIImage(cgImage: loinOverlay.makeImage()!)
-    if let blur = CIFilter(name: "CIGaussianBlur") {
-        blur.setValue(ciLoin, forKey: kCIInputImageKey)
-        blur.setValue(6.0, forKey: kCIInputRadiusKey)
-        if let out = blur.outputImage { ciLoin = out.cropped(to: CGRect(x: 0, y: 0, width: w, height: h)) }
-    }
-    if let lImg = ciContext.createCGImage(ciLoin, from: CGRect(x: 0, y: 0, width: w, height: h)) {
-        ctx.draw(lImg, in: CGRect(x: 0, y: 0, width: w, height: h))
-    }
-
-    // Delicate dorsal anatomy ink lines: subtle spinal furrow & shoulder blade contour
-    ctx.setLineCap(.round)
-    ctx.setStrokeColor(CGColor(red: 0.44, green: 0.31, blue: 0.21, alpha: 0.48))
-    ctx.setLineWidth(1.6)
-    ctx.move(to: CGPoint(x: 250, y: 662))
-    ctx.addCurve(to: CGPoint(x: 250, y: 454), control1: CGPoint(x: 249, y: 584), control2: CGPoint(x: 251, y: 510))
-    ctx.move(to: CGPoint(x: 204, y: 618))
-    ctx.addQuadCurve(to: CGPoint(x: 234, y: 560), control: CGPoint(x: 212, y: 576))
-    ctx.move(to: CGPoint(x: 296, y: 618))
-    ctx.addQuadCurve(to: CGPoint(x: 266, y: 560), control: CGPoint(x: 288, y: 576))
-    ctx.strokePath()
-
-    drawPaperGrain(ctx, w: w, h: h, seed: 405, alpha: 0.022)
-    saveJPEG(ctx.makeImage()!, to: "\(artDir)/meridians/meridian-back.jpg", quality: 0.88)
+    let task = Process()
+    task.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
+    task.arguments = ["\(root)/scripts/paint_meridian_back.swift"]
+    try? task.run()
+    task.waitUntilExit()
 }
 buildMeridianBackScroll()
 

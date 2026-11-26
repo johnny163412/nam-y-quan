@@ -69,7 +69,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   });
   const [slots, setSlots] = useState<PrescriptionSlots>(emptySlots());
   const [selectedSlot, setSelectedSlot] = useState<RoleSlot>('quan');
-  const [selectedHerbId, setSelectedHerbId] = useState<string | null>(null);
+  const [openDrawerId, setOpenDrawerId] = useState<string | null>(null);
+  const [hoveredHerb, setHoveredHerb] = useState<{
+    herb: Herb;
+    left: number;
+    top: number;
+  } | null>(null);
   const [selectedAcupoints, setSelectedAcupoints] = useState<string[]>([]);
   const [treatTab, setTreatTab] = useState<'herbs' | 'acupoints'>('herbs');
   const [showDecoctionModal, setShowDecoctionModal] = useState(false);
@@ -78,6 +83,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [justScoopedRole, setJustScoopedRole] = useState<RoleSlot | null>(null);
 
   const deskRightRef = useRef<HTMLElement | null>(null);
+  const chestWrapRef = useRef<HTMLDivElement | null>(null);
   const panRefs = useRef<Record<RoleSlot, HTMLDivElement | null>>({
     quan: null,
     than: null,
@@ -114,7 +120,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     setInspectedAudio(false);
     setSlots(emptySlots());
     setSelectedSlot('quan');
-    setSelectedHerbId(null);
+    setOpenDrawerId(null);
+    setHoveredHerb(null);
     setSelectedAcupoints([]);
     setTreatTab('herbs');
     setOutcome(null);
@@ -189,23 +196,41 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       const nextEmpty = nextOrder.find((r) => r !== role && !after[r]);
       if (nextEmpty) setSelectedSlot(nextEmpty);
     }
-    setSelectedHerbId(null);
   };
 
-  const handleHerbCardClick = (herb: Herb) => {
-    const currentlyInRole = (Object.keys(slots) as RoleSlot[]).find(
-      (r) => slots[r] === herb.id
-    );
-    if (currentlyInRole && selectedSlot === currentlyInRole) {
-      handleAssignHerb(currentlyInRole, null);
-      return;
-    }
-    if (selectedHerbId === herb.id) {
-      handleAssignHerb(selectedSlot, herb.id);
-      return;
-    }
-    // Direct tap assigns into active selected pan immediately for effortless UX
+  const handleToggleDrawer = (herb: Herb) => {
+    setOpenDrawerId((cur) => {
+      const opening = cur !== herb.id;
+      apothecaryAudio.playDrawerSlide(opening);
+      return opening ? herb.id : null;
+    });
+  };
+
+  const handleScoopFromDrawer = (herb: Herb) => {
     handleAssignHerb(selectedSlot, herb.id);
+    window.setTimeout(() => {
+      setOpenDrawerId((cur) => {
+        if (cur === herb.id) {
+          apothecaryAudio.playDrawerSlide(false);
+          return null;
+        }
+        return cur;
+      });
+    }, 460);
+  };
+
+  const handleDrawerHover = (herb: Herb, el: HTMLElement | null) => {
+    const wrap = chestWrapRef.current;
+    if (!wrap || !el) return;
+    const tooltipW = 288;
+    const wrapW = wrap.clientWidth || 520;
+    const rawLeft = el.offsetLeft + el.offsetWidth / 2 - tooltipW / 2;
+    const clampedLeft = Math.max(6, Math.min(Math.max(6, wrapW - tooltipW - 6), rawLeft));
+    setHoveredHerb({
+      herb,
+      left: clampedLeft,
+      top: el.offsetTop - 8
+    });
   };
 
   const handleToggleAcupoint = (ptId: string) => {
@@ -683,76 +708,169 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 })}
               </div>
 
-              {/* Tủ Thuốc Bách Tử Drawer */}
+              {/* Tủ Thuốc Bách Tử — Wooden Đông Y Pull-Out Drawers & Hover Inspection */}
               <div style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', marginBottom: '6px' }}>
-                Tủ Thuốc Bách Tử (Kéo thả hoặc chạm ngăn thuốc để bốc vào ngăn <strong>{ROLE_META.find((r) => r.role === selectedSlot)?.title}</strong>):
+                Tủ Thuốc Bách Tử (Trỏ chuột xem dược tính • Nhấp hộc gỗ để kéo ngăn bốc vào{' '}
+                <strong>{ROLE_META.find((r) => r.role === selectedSlot)?.title}</strong>):
               </div>
-              <div className="herb-drawer bach-tu-cabinet">
-                {availableHerbs.map((herb) => {
-                  const assignedRole = (Object.keys(slots) as RoleSlot[]).find(
-                    (r) => slots[r] === herb.id
-                  );
-                  return (
-                    <div
-                      key={herb.id}
-                      ref={(el) => {
-                        herbRefs.current[herb.id] = el;
-                      }}
-                      draggable
-                      onDragStart={(e) => e.dataTransfer.setData('text/plain', herb.id)}
-                      onClick={() => handleHerbCardClick(herb)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleHerbCardClick(herb);
-                        }
-                      }}
-                      className={`herb-card ${assignedRole ? 'assigned' : ''} ${
-                        selectedHerbId === herb.id ? 'selected' : ''
-                      }`}
-                    >
-                      <div className="drawer-pull-ring" aria-hidden="true">
-                        <span className="brass-ring" />
-                      </div>
-                      <div className="drawer-paper-label">
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <BotanicalSvg herbId={herb.id} motif={herb.motif} size={46} />
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontWeight: 700, fontSize: '0.86rem', lineHeight: 1.2 }}>
-                              {herb.name}
-                            </div>
-                            <span className={`nature-tag ${natureClass(herb.nature)}`}>
-                              {herb.nature} ({herb.flavors.join(', ')})
-                            </span>
+
+              <div
+                ref={chestWrapRef}
+                className="apothecary-chest-wrap"
+                onMouseLeave={() => setHoveredHerb(null)}
+              >
+                {hoveredHerb && (
+                  <div
+                    className="herb-hover-tooltip"
+                    role="tooltip"
+                    style={{ left: `${hoveredHerb.left}px`, top: `${hoveredHerb.top}px` }}
+                  >
+                    <div className="tooltip-head">
+                      <span className="tooltip-head-name">{hoveredHerb.herb.name}</span>
+                      <span className="tooltip-head-sub">{hoveredHerb.herb.traditionalName}</span>
+                    </div>
+                    <div className="tooltip-body">
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '6px' }}>
+                        <BotanicalSvg herbId={hoveredHerb.herb.id} motif={hoveredHerb.herb.motif} size={58} />
+                        <div style={{ minWidth: 0 }}>
+                          <span className={`nature-tag ${natureClass(hoveredHerb.herb.nature)}`}>
+                            {hoveredHerb.herb.nature} ({hoveredHerb.herb.flavors.join(', ')})
+                          </span>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '3px' }}>
+                            <strong>Bộ phận:</strong> {hoveredHerb.herb.partUsed}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--herbal-jade)', fontWeight: 700 }}>
+                            <strong>Quy kinh:</strong> {hoveredHerb.herb.meridians.join(', ')}
                           </div>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', lineHeight: 1.35 }}>
-                          {herb.summary}
+                      </div>
+                      <p style={{ margin: '0 0 5px', fontSize: '0.78rem', lineHeight: 1.4 }}>
+                        <strong>Công năng:</strong> {hoveredHerb.herb.summary}
+                      </p>
+                      {(hoveredHerb.herb.contraindications.pregnancyLock ||
+                        hoveredHerb.herb.contraindications.pregnancyCautionAsQuan ||
+                        hoveredHerb.herb.contraindications.warningText) && (
+                        <div className="tooltip-warn">
+                          <strong>Kiêng kỵ:</strong> {hoveredHerb.herb.contraindications.warningText}
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--herbal-jade)' }}>
-                            {assignedRole
-                              ? `Đang ở: ${ROLE_META.find((r) => r.role === assignedRole)?.title}`
-                              : `Quy: ${herb.meridians.slice(0, 2).join(', ')}`}
-                          </span>
-                          <button
-                            type="button"
-                            className="btn-secondary"
-                            style={{ padding: '1px 6px', fontSize: '0.72rem' }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onOpenCodexHerb(herb.id);
-                            }}
-                          >
-                            Y thư
-                          </button>
-                        </div>
+                      )}
+                      <div className="tooltip-foot">
+                        {openDrawerId === hoveredHerb.herb.id
+                          ? 'Ngăn đang kéo mở — nhấp Bốc thuốc để đặt lên cân'
+                          : 'Nhấp để kéo ngăn thuốc ra'}
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                )}
+
+                <div className="apothecary-chest">
+                  <div className="chest-drawers-grid">
+                    {availableHerbs.map((herb) => {
+                      const assignedRole = (Object.keys(slots) as RoleSlot[]).find(
+                        (r) => slots[r] === herb.id
+                      );
+                      const isOpen = openDrawerId === herb.id;
+                      const natureShort =
+                        herb.nature === 'Ôn' || herb.nature === 'Nhiệt'
+                          ? 'hot'
+                          : herb.nature === 'Bình'
+                          ? 'neutral'
+                          : 'cold';
+                      const activeRoleTitle =
+                        ROLE_META.find((r) => r.role === selectedSlot)?.title ?? 'Cân';
+
+                      return (
+                        <div
+                          key={herb.id}
+                          ref={(el) => {
+                            herbRefs.current[herb.id] = el;
+                          }}
+                          draggable
+                          onDragStart={(e) => e.dataTransfer.setData('text/plain', herb.id)}
+                          onMouseEnter={(e) => handleDrawerHover(herb, e.currentTarget)}
+                          onFocus={(e) => handleDrawerHover(herb, e.currentTarget)}
+                          className={`wood-drawer ${isOpen ? 'is-open' : ''} ${
+                            assignedRole ? 'is-assigned' : ''
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            className="drawer-face-btn"
+                            aria-expanded={isOpen}
+                            onClick={() => handleToggleDrawer(herb)}
+                          >
+                            {assignedRole && (
+                              <span className="drawer-role-ribbon">
+                                {ROLE_META.find((r) => r.role === assignedRole)?.title.replace(' dược', '')}
+                              </span>
+                            )}
+                            <span className="drawer-name-slip">
+                              <span className={`qi-dot qi-${natureShort}`} aria-hidden="true" />
+                              <span className="drawer-herb-title">{herb.name}</span>
+                            </span>
+                            <span className="brass-pull-plate" aria-hidden="true">
+                              <span className="brass-pull-ring" />
+                            </span>
+                          </button>
+
+                          {isOpen && (
+                            <div className="drawer-open-tray">
+                              <div className="drawer-herb-nest">
+                                <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} />
+                              </div>
+                              <div className="drawer-tray-actions">
+                                <button
+                                  type="button"
+                                  className="btn-cinnabar drawer-scoop-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleScoopFromDrawer(herb);
+                                  }}
+                                >
+                                  Bốc vào {activeRoleTitle}
+                                </button>
+                                <div className="drawer-sub-actions">
+                                  <button
+                                    type="button"
+                                    className="btn-secondary"
+                                    style={{ padding: '2px 7px', fontSize: '0.72rem' }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onOpenCodexHerb(herb.id);
+                                    }}
+                                  >
+                                    Y thư
+                                  </button>
+                                  {assignedRole && (
+                                    <button
+                                      type="button"
+                                      className="btn-secondary"
+                                      style={{ padding: '2px 7px', fontSize: '0.72rem' }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAssignHerb(assignedRole, null);
+                                      }}
+                                    >
+                                      Trả hộc
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {openDrawerId && HERB_MAP[openDrawerId] && (
+                    <div className="drawer-mobile-readout">
+                      <strong>Đang mở hộc {HERB_MAP[openDrawerId].name}:</strong>{' '}
+                      {HERB_MAP[openDrawerId].nature} ({HERB_MAP[openDrawerId].flavors.join(', ')}) —{' '}
+                      {HERB_MAP[openDrawerId].summary}
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           ) : (

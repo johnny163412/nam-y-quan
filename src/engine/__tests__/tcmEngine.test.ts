@@ -186,6 +186,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     apothecaryAudio.setEnabled(false);
     expect(() => apothecaryAudio.playPulseBeat(0.8)).not.toThrow();
     expect(() => apothecaryAudio.playHerbDrop()).not.toThrow();
+    expect(() => apothecaryAudio.playDrawerSlide(true)).not.toThrow();
     expect(() => apothecaryAudio.playSealStamp(true)).not.toThrow();
     expect(() => apothecaryAudio.playPageTurn()).not.toThrow();
     apothecaryAudio.setEnabled(true);

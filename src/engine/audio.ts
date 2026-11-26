@@ -193,6 +193,52 @@ class ApothecaryAudio {
     }
   }
 
+  playDrawerSlide(opening = true): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      // Short filtered wood grain slide noise
+      const len = Math.floor(ctx.sampleRate * 0.09);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(opening ? 380 : 290, now);
+      filter.Q.setValueAtTime(2.0, now);
+
+      const nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(0.045, now);
+      nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      noise.connect(filter);
+      filter.connect(nGain);
+      nGain.connect(ctx.destination);
+      noise.start(now);
+
+      // Low wood body thud resonance
+      const osc = ctx.createOscillator();
+      const oGain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(opening ? 140 : 115, now);
+      osc.frequency.exponentialRampToValueAtTime(opening ? 92 : 78, now + 0.085);
+      oGain.gain.setValueAtTime(0.042, now);
+      oGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+      osc.connect(oGain);
+      oGain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.095);
+    } catch {
+      // Safe no-op
+    }
+  }
+
   playSealStamp(passed = true): void {
     const ctx = this.getContext();
     if (!ctx) return;
