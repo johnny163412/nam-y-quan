@@ -3,13 +3,14 @@ import { getTyNgoWatch } from '../engine/tcmEngine';
 import { exportSaveJson, importSaveJson } from '../engine/storage';
 import { UserProgress } from '../types/tcm';
 
-export type MainTab = 'clinic' | 'codex' | 'exam';
+export type MainTab = 'clinic' | 'codex' | 'exam' | 'constitution';
 
 interface HeaderPlaqueProps {
   activeTab: MainTab;
   onSelectTab: (tab: MainTab) => void;
   progress: UserProgress;
   onToggleSound: () => void;
+  onToggleAmbient: () => void;
   onImportProgress: (next: UserProgress) => void;
   onResetProgress: () => void;
 }
@@ -19,6 +20,7 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
   onSelectTab,
   progress,
   onToggleSound,
+  onToggleAmbient,
   onImportProgress,
   onResetProgress
 }) => {
@@ -87,6 +89,13 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
           >
             3. Khảo Thí Y Miếu
           </button>
+          <button
+            type="button"
+            className={`nav-tab ${activeTab === 'constitution' ? 'active' : ''}`}
+            onClick={() => onSelectTab('constitution')}
+          >
+            4. Tự Đoán Thể Chất
+          </button>
         </nav>
 
         <div className="header-tools">
@@ -98,6 +107,16 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
           >
             <span>{activeWatch.branch}</span>
             <span>({activeWatch.organ} vượng)</span>
+          </button>
+
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={onToggleAmbient}
+            aria-pressed={Boolean(progress.ambientEnabled)}
+            title="Tiếng mưa hiên trúc và chuông ngũ cung thư giãn"
+          >
+            {progress.ambientEnabled ? 'Âm cảnh: Bật' : 'Âm cảnh: Tắt'}
           </button>
 
           <button

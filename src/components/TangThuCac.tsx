@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { TY_NGO_WATCHES } from '../data/acupoints';
-import { HERBS } from '../data/herbs';
+import { CLASSICAL_FORMULAS } from '../data/formulas';
+import { HERB_MAP, HERBS } from '../data/herbs';
 import {
   ELEMENT_CYCLE_ORDER,
   ELEMENT_LABELS,
@@ -15,9 +16,10 @@ interface TangThuCacProps {
   herbNotes: Record<string, string>;
   onSaveHerbNote: (herbId: string, note: string) => void;
   initialHerbId?: string | null;
+  discoveredFormulas?: string[];
 }
 
-type CodexBook = 'herbs' | 'meridians' | 'elements';
+type CodexBook = 'herbs' | 'meridians' | 'elements' | 'formulas';
 
 const ELEMENT_COLORS: Record<ElementKey, string> = {
   moc: '#23574C',
@@ -30,7 +32,8 @@ const ELEMENT_COLORS: Record<ElementKey, string> = {
 export const TangThuCac: React.FC<TangThuCacProps> = ({
   herbNotes,
   onSaveHerbNote,
-  initialHerbId
+  initialHerbId,
+  discoveredFormulas = []
 }) => {
   const [book, setBook] = useState<CodexBook>('herbs');
   const [search, setSearch] = useState('');
@@ -105,6 +108,13 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
             onClick={() => setBook('elements')}
           >
             3. Sa Bàn Ngũ Hành
+          </button>
+          <button
+            type="button"
+            className={`toggle-pill ${book === 'formulas' ? 'active' : ''}`}
+            onClick={() => setBook('formulas')}
+          >
+            4. Bí Truyền Cổ Phương ({discoveredFormulas.length}/{CLASSICAL_FORMULAS.length})
           </button>
         </div>
       </div>
@@ -468,6 +478,69 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+      {/* BOOK 4: SỔ TAY BÍ TRUYỀN CỔ PHƯƠNG */}
+      {book === 'formulas' && (
+        <div>
+          <p className="muted-note" style={{ marginTop: 0 }}>
+            Tổng hợp 9 cặp Dược Đối và Cổ Phương kinh điển của Nam Y Quán. Khi phối đúng các vị thuốc này lên Cân Tiểu Ly tại Y Quán, ấn vàng cộng hưởng sẽ sáng lên và được ghi vào sổ tay của bạn.
+          </p>
+          <div className="codex-grid">
+            {CLASSICAL_FORMULAS.map((f) => {
+              const unlocked = discoveredFormulas.includes(f.id);
+              const herbIds = [...f.requiredHerbs, ...(f.optionalAnyHerbs ?? [])];
+              return (
+                <div key={f.id} className="wood-parchment-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '6px' }}>
+                    <div>
+                      <strong style={{ fontFamily: 'var(--font-serif)', fontSize: '1.02rem' }}>{f.name}</strong>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)' }}>{f.category}</div>
+                    </div>
+                    <span
+                      className="tag-badge"
+                      style={{
+                        background: unlocked ? '#23574C' : '#3A271A',
+                        color: '#FFF5E0',
+                        borderColor: unlocked ? '#74B5A3' : '#7C562B',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {unlocked ? 'Đã lĩnh hội' : 'Chưa phối'}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {herbIds.map((hid) => {
+                      const h = HERB_MAP[hid];
+                      if (!h) return null;
+                      return (
+                        <div
+                          key={hid}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '3px 7px',
+                            background: '#D5BF96',
+                            border: '1px solid #6B4928',
+                            borderRadius: '3px',
+                            fontSize: '0.78rem',
+                            fontWeight: 600
+                          }}
+                        >
+                          <BotanicalSvg herbId={h.id} motif={h.motif} size={24} />
+                          <span>{h.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <p style={{ margin: 0, fontSize: '0.84rem' }}>{f.principle}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

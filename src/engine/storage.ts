@@ -12,7 +12,9 @@ export function createDefaultProgress(): UserProgress {
     examPassedChapters: [],
     herbNotes: {},
     mastery: {},
-    soundEnabled: true
+    soundEnabled: true,
+    ambientEnabled: false,
+    discoveredFormulas: []
   };
 }
 

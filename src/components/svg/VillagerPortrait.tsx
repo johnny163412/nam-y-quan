@@ -9,6 +9,8 @@ const PORTRAIT_IMAGES: Record<string, string> = {
   'c1-phong-han': '/art/patients/c1-phong-han.jpg',
   'c1-phong-nhiet': '/art/patients/c1-phong-nhiet.jpg',
   'c1-thuong-thuc-han': '/art/patients/c1-thuong-thuc-han.jpg',
+  'c2-ty-vi-hu-han': '/art/patients/c2-ty-vi-hu-han.jpg',
+  'c2-can-khi-uat': '/art/patients/c2-can-khi-uat.jpg',
   'c2-tam-ty-luong-hu': '/art/patients/c2-tam-ty-luong-hu.jpg',
   'c2-tam-hoa-vuong': '/art/patients/c2-tam-hoa-vuong.jpg',
   'c3-vai-gay-phong-han': '/art/patients/c3-vai-gay-phong-han.jpg',

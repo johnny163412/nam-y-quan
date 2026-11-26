@@ -66,7 +66,6 @@ export interface Acupoint {
   element: ElementKey;
   chapter: 1 | 2 | 3;
   bodySide: 'front' | 'back';
-  /** Normalized SVG coordinates on 0..200 x 0..420 viewBox */
   x: number;
   y: number;
   locationGuide: string;
@@ -98,9 +97,7 @@ export interface TongueProfile {
 export interface PulseProfile {
   name: string;
   bpm: number;
-  /** Floating depth (Ấn nhẹ / Phù thủ): 0.15 .. 1.0 */
   phuStrength: number;
-  /** Deep depth (Ấn sâu / Trầm thủ): 0.15 .. 1.0 */
   tramStrength: number;
   waveStyle: 'smooth' | 'wiry' | 'tight' | 'slippery' | 'thready' | 'rapid-surging';
   summary: string;
@@ -166,6 +163,25 @@ export interface TreatmentPreview {
   activeHarmonizer: boolean;
 }
 
+export type FireType = 'vu-hoa' | 'van-vu' | 'van-hoa';
+
+export type DosingAdvice = 'nong-dap-chan' | 'am-thoang-gio' | 'am-duong-tang';
+
+export interface DecoctionChoice {
+  fire: FireType;
+  dosing: DosingAdvice;
+}
+
+export interface ClassicalFormula {
+  id: string;
+  name: string;
+  requiredHerbs: string[];
+  optionalAnyHerbs?: string[];
+  category: string;
+  principle: string;
+  bonusPoints: number;
+}
+
 export type EvaluationGrade =
   | 'Thần Y Diệu Thủ'
   | 'Đối Chứng Khỏi Bệnh'
@@ -182,6 +198,9 @@ export interface EvaluationResult {
   resultingVector: EightPrinciplesVector;
   herbNotes: string[];
   acupointNotes: string[];
+  matchedFormulas: ClassicalFormula[];
+  decoctionScore: number;
+  decoctionFeedback: string;
   summaryFeedback: string;
   passed: boolean;
 }
@@ -200,6 +219,41 @@ export interface TyNgoWatch {
 
 export type RankTitle = 'Y Sinh' | 'Học Đồ' | 'Lương Y' | 'Danh Y';
 
+export type BodyConstitutionId =
+  | 'binh-hoa'
+  | 'khi-hu'
+  | 'duong-hu'
+  | 'am-hu'
+  | 'dam-thap'
+  | 'thap-nhiet'
+  | 'huyet-u'
+  | 'khi-uat'
+  | 'dac-bam';
+
+export interface ConstitutionProfile {
+  id: BodyConstitutionId;
+  name: string;
+  tagline: string;
+  signs: string[];
+  tongueSummary: string;
+  recommendedHerbIds: string[];
+  recommendedAcupointIds: string[];
+  dietLifestyleTip: string;
+  bestTyNgoBranch: string;
+}
+
+export interface ConstitutionQuestion {
+  id: string;
+  topic: string;
+  prompt: string;
+  options: {
+    id: string;
+    label: string;
+    detail?: string;
+    weights: Partial<Record<BodyConstitutionId, number>>;
+  }[];
+}
+
 export interface MasteryEntry {
   seen: number;
   correct: number;
@@ -216,6 +270,9 @@ export interface UserProgress {
   herbNotes: Record<string, string>;
   mastery: Record<string, MasteryEntry>;
   soundEnabled: boolean;
+  ambientEnabled?: boolean;
+  discoveredFormulas?: string[];
+  savedConstitution?: BodyConstitutionId;
 }
 
 export type ExamQuestionType = 'tongue' | 'pulse' | 'formula' | 'acupoint';

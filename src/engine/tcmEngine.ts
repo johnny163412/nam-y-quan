@@ -1,13 +1,17 @@
 import { ACUPOINT_MAP, TY_NGO_WATCHES } from '../data/acupoints';
+import { detectActiveFormulas } from '../data/formulas';
 import { HERB_MAP } from '../data/herbs';
 import {
   ContraindicationAlert,
+  DecoctionChoice,
   DiagnosisChoice,
+  DosingAdvice,
   EightPrinciplesVector,
   ElementKey,
   ElementMap,
   EvaluationGrade,
   EvaluationResult,
+  FireType,
   PatientCase,
   PrescriptionSlots,
   RoleSlot,
@@ -220,13 +224,52 @@ export function computeTreatmentPreview(
   };
 }
 
+export function getRecommendedDecoction(patientCase: PatientCase): {
+  fire: FireType;
+  dosing: DosingAdvice;
+  rationale: string;
+} {
+  const { location, nature, state } = patientCase.targetDiagnosis;
+  if (location === 'bieu') {
+    const dosing: DosingAdvice = nature === 'han' ? 'nong-dap-chan' : 'am-thoang-gio';
+    return {
+      fire: 'vu-hoa',
+      dosing,
+      rationale:
+        nature === 'han'
+          ? 'Thuốc giải biểu chứa tinh dầu cần sắc Vũ hỏa (lửa lớn sôi nhanh 10–15 phút) kẻo bay mất khí vị; uống nóng rồi đắp chăn mỏng cho râm ran mồ hôi.'
+          : 'Thuốc tân lương giải biểu sắc Vũ hỏa nhanh để giữ thanh khí; uống ấm vừa nơi thoáng gió nhẹ, tránh ủ kín gây tăng nhiệt.'
+    };
+  }
+  if (state === 'hu') {
+    return {
+      fire: 'van-hoa',
+      dosing: 'am-duong-tang',
+      rationale:
+        'Thuốc bổ Tạng Phủ cần sắc Văn hỏa (lửa nhỏ riu riu 35–45 phút) để chiết sâu tinh chất, uống ấm chia 2 lần sau bữa ăn để dưỡng tỳ vị.'
+    };
+  }
+  return {
+    fire: 'van-vu',
+    dosing: nature === 'han' ? 'nong-dap-chan' : 'am-thoang-gio',
+    rationale:
+      'Chứng Lý Thực nên dùng Văn Vũ hỏa (đun sôi bùng rồi hạ lửa vừa 20–25 phút) để vừa giữ khí hành trệ vừa chiết đủ dược lực.'
+  };
+}
+
 export function evaluateCaseSubmission(
   patientCase: PatientCase,
   userDiagnosis: DiagnosisChoice,
   slots: PrescriptionSlots,
-  selectedAcupoints: string[]
+  selectedAcupoints: string[],
+  decoctionChoice?: DecoctionChoice
 ): EvaluationResult {
   const preview = computeTreatmentPreview(patientCase, slots, selectedAcupoints);
+  const matchedFormulas = detectActiveFormulas(slots);
+  const formulaBonus = Math.min(
+    6,
+    matchedFormulas.reduce((sum, f) => sum + f.bonusPoints, 0)
+  );
 
   // 1. Diagnosis score (0..30)
   let diagnosisScore = 0;
@@ -269,14 +312,35 @@ export function evaluateCaseSubmission(
     );
   }
 
-  const treatmentScore = Math.round(clamp(vectorPoints + rolePoints + acupointPoints, 0, 70));
+  const treatmentScore = Math.round(clamp(vectorPoints + rolePoints + acupointPoints + formulaBonus, 0, 70));
 
-  // 3. Safety penalties
+  // 3. Decoction fire & dosing evaluation (optional stage)
+  let decoctionScore = 0;
+  let decoctionFeedback = '';
+  if (decoctionChoice) {
+    const rec = getRecommendedDecoction(patientCase);
+    if (decoctionChoice.fire === rec.fire) {
+      decoctionScore += 3;
+    } else if (patientCase.targetDiagnosis.location === 'bieu' && decoctionChoice.fire === 'van-hoa') {
+      decoctionScore -= 3;
+    }
+    if (decoctionChoice.dosing === rec.dosing) {
+      decoctionScore += 3;
+    } else if (patientCase.targetDiagnosis.nature === 'nhiet' && decoctionChoice.dosing === 'nong-dap-chan') {
+      decoctionScore -= 2;
+    }
+    decoctionFeedback =
+      decoctionScore >= 5
+        ? `Canh lửa và dặn dò uống thuốc chuẩn xác! ${rec.rationale}`
+        : `Lưu ý khi sắc & dùng thuốc: ${rec.rationale}`;
+  }
+
+  // 4. Safety penalties
   const criticalCount = preview.alerts.filter((a) => a.severity === 'critical').length;
   const cautionCount = preview.alerts.filter((a) => a.severity === 'caution').length;
   const safetyPenalty = criticalCount * 35 + cautionCount * 12;
 
-  let rawTotal = clamp(diagnosisScore + treatmentScore - safetyPenalty, 0, 100);
+  let rawTotal = clamp(diagnosisScore + treatmentScore + decoctionScore - safetyPenalty, 0, 100);
   if (criticalCount > 0) {
     rawTotal = Math.min(rawTotal, 55);
   }
@@ -337,6 +401,9 @@ export function evaluateCaseSubmission(
     resultingVector: preview.resultingVector,
     herbNotes,
     acupointNotes,
+    matchedFormulas,
+    decoctionScore,
+    decoctionFeedback,
     summaryFeedback,
     passed: totalScore >= 70 && criticalCount === 0
   };

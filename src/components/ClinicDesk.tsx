@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { STORY_CASES, generateProceduralCase } from '../data/cases';
+import { detectActiveFormulas } from '../data/formulas';
 import { HERB_MAP, HERBS } from '../data/herbs';
 import { apothecaryAudio } from '../engine/audio';
 import {
@@ -9,6 +10,7 @@ import {
   evaluateCaseSubmission
 } from '../engine/tcmEngine';
 import {
+  DecoctionChoice,
   DiagnosisChoice,
   EvaluationResult,
   Herb,
@@ -16,6 +18,7 @@ import {
   PrescriptionSlots,
   RoleSlot
 } from '../types/tcm';
+import { DecoctionStoveModal } from './DecoctionStoveModal';
 import { EightPrinciplesCompass } from './EightPrinciplesCompass';
 import { MeridianBodyMap } from './MeridianBodyMap';
 import { OutcomeScrollModal } from './OutcomeScrollModal';
@@ -69,6 +72,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [selectedHerbId, setSelectedHerbId] = useState<string | null>(null);
   const [selectedAcupoints, setSelectedAcupoints] = useState<string[]>([]);
   const [treatTab, setTreatTab] = useState<'herbs' | 'acupoints'>('herbs');
+  const [showDecoctionModal, setShowDecoctionModal] = useState(false);
   const [outcome, setOutcome] = useState<EvaluationResult | null>(null);
   const [scoopAnim, setScoopAnim] = useState<ScoopAnimationState | null>(null);
   const [justScoopedRole, setJustScoopedRole] = useState<RoleSlot | null>(null);
@@ -98,8 +102,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     [selectedCase, slots, selectedAcupoints]
   );
 
-  const hasAssignedTreatment =
-    Object.values(slots).some(Boolean) || selectedAcupoints.length > 0;
+  const activeFormulas = useMemo(() => detectActiveFormulas(slots), [slots]);
+  const hasAssignedHerbs = Object.values(slots).some(Boolean);
+  const hasAssignedTreatment = hasAssignedHerbs || selectedAcupoints.length > 0;
 
   const loadPatient = (nextCase: PatientCase) => {
     setSelectedCase(nextCase);
@@ -211,7 +216,20 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   };
 
   const handleStampSubmit = () => {
+    if (hasAssignedHerbs) {
+      setShowDecoctionModal(true);
+      apothecaryAudio.playPageTurn();
+      return;
+    }
     const res = evaluateCaseSubmission(selectedCase, diagnosis, slots, selectedAcupoints);
+    apothecaryAudio.playSealStamp(res.passed);
+    setOutcome(res);
+    onCaseEvaluated(selectedCase, res);
+  };
+
+  const handleConfirmDecoction = (choice: DecoctionChoice) => {
+    setShowDecoctionModal(false);
+    const res = evaluateCaseSubmission(selectedCase, diagnosis, slots, selectedAcupoints, choice);
     apothecaryAudio.playSealStamp(res.passed);
     setOutcome(res);
     onCaseEvaluated(selectedCase, res);
@@ -719,6 +737,16 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             />
           )}
 
+          {/* Live Cổ Phương Synergy Banner */}
+          {activeFormulas.length > 0 && (
+            <div className="synergy-banner">
+              <strong style={{ color: '#E7B96A', fontFamily: 'var(--font-serif)' }}>
+                Cộng hưởng Cổ phương ({activeFormulas.map((f) => f.name).join(' + ')}):
+              </strong>{' '}
+              <span>{activeFormulas[0].principle}</span>
+            </div>
+          )}
+
           {/* Live Contraindication Alerts */}
           {preview.alerts.map((al, i) => (
             <div
@@ -746,11 +774,21 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
               className="btn-cinnabar"
               onClick={handleStampSubmit}
             >
-              Đóng Ấn Kê Đơn &amp; Xem Kết Quả
+              {hasAssignedHerbs ? 'Đưa Lên Bếp Sắc & Đóng Ấn' : 'Đóng Ấn Kê Đơn & Xem Kết Quả'}
             </button>
           </div>
         </section>
       </div>
+
+      {showDecoctionModal && (
+        <DecoctionStoveModal
+          patientCase={selectedCase}
+          slots={slots}
+          selectedAcupoints={selectedAcupoints}
+          onCancel={() => setShowDecoctionModal(false)}
+          onConfirmDecoction={handleConfirmDecoction}
+        />
+      )}
 
       {outcome && (
         <OutcomeScrollModal

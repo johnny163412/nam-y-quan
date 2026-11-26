@@ -1,13 +1,20 @@
 class ApothecaryAudio {
   private ctx: AudioContext | null = null;
   private enabled = true;
+  private ambientActive = false;
+  private ambientSource: AudioBufferSourceNode | null = null;
+  private ambientGain: GainNode | null = null;
+  private chimeTimer: number | null = null;
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
+    if (!enabled) {
+      this.stopAmbient();
+    }
   }
 
-  private getContext(): AudioContext | null {
-    if (!this.enabled || typeof window === 'undefined') return null;
+  private getContext(ignoreEnabled = false): AudioContext | null {
+    if ((!ignoreEnabled && !this.enabled) || typeof window === 'undefined') return null;
     const Ctor =
       window.AudioContext ||
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -23,6 +30,124 @@ class ApothecaryAudio {
       return this.ctx;
     } catch {
       return null;
+    }
+  }
+
+  setAmbientEnabled(on: boolean): void {
+    this.ambientActive = on;
+    if (!on) {
+      this.stopAmbient();
+      return;
+    }
+    const ctx = this.getContext(true);
+    if (!ctx) return;
+
+    try {
+      this.stopAmbientNodesOnly();
+
+      // Gentle rain-on-bamboo-eaves filtered noise loop
+      const bufferSize = ctx.sampleRate * 3;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let lastOut = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + 0.04 * white) / 1.04;
+        lastOut = output[i];
+      }
+
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer;
+      src.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(620, ctx.currentTime);
+      filter.Q.setValueAtTime(0.7, ctx.currentTime);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.028, ctx.currentTime);
+
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      src.start();
+
+      this.ambientSource = src;
+      this.ambientGain = gain;
+
+      // Subtle pentatonic plucked zither / temple chime every few seconds
+      const pentatonic = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
+      this.chimeTimer = window.setInterval(() => {
+        if (!this.ambientActive) return;
+        const c = this.getContext(true);
+        if (!c) return;
+        try {
+          const now = c.currentTime;
+          const freq = pentatonic[Math.floor(Math.random() * pentatonic.length)];
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          g.gain.setValueAtTime(0.001, now);
+          g.gain.exponentialRampToValueAtTime(0.016, now + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.0005, now + 1.4);
+          osc.connect(g);
+          g.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 1.45);
+        } catch {
+          // Safe no-op
+        }
+      }, 4200);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  private stopAmbientNodesOnly(): void {
+    try {
+      if (this.ambientSource) {
+        this.ambientSource.stop();
+        this.ambientSource.disconnect();
+        this.ambientSource = null;
+      }
+      if (this.ambientGain) {
+        this.ambientGain.disconnect();
+        this.ambientGain = null;
+      }
+      if (this.chimeTimer !== null && typeof window !== 'undefined') {
+        window.clearInterval(this.chimeTimer);
+        this.chimeTimer = null;
+      }
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  private stopAmbient(): void {
+    this.ambientActive = false;
+    this.stopAmbientNodesOnly();
+  }
+
+  playStoveSimmer(intense: boolean): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = intense ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(intense ? 185 : 130, now);
+      osc.frequency.exponentialRampToValueAtTime(intense ? 260 : 155, now + 0.16);
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch {
+      // Safe no-op
     }
   }
 

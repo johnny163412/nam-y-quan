@@ -108,7 +108,7 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
 
             {current.tonguePreview && (
               <div style={{ marginBottom: '10px' }}>
-                <TongueMirror tongue={current.tonguePreview} compact hideSummary />
+                <TongueMirror tongue={current.tonguePreview} compact hideSummary blindLabels />
               </div>
             )}
 

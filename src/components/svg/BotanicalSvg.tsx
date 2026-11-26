@@ -4,12 +4,24 @@ import { BotanicalMotif } from '../../types/tcm';
 export const PAINTED_HERB_IDS = new Set([
   'tia-to',
   'kinh-gioi',
+  'sinh-khuong',
+  'bac-ha',
+  'kim-ngan-hoa',
   'cuc-hoa',
   'cat-can',
+  'cam-thao',
+  'tran-bi',
+  'hoai-son',
   'dinh-lang',
   'ngai-cuu',
+  'lac-tien',
+  'tam-sen',
+  'ky-tu',
   'nhan-tran',
-  'la-lot'
+  'la-lot',
+  'co-xuoc',
+  'que-chi',
+  'dan-sam'
 ]);
 
 interface BotanicalSvgProps {

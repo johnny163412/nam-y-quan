@@ -281,8 +281,8 @@ if let silkLady = loadCGImage(from: "\(rawDir)/c2_tam_ty_luong_hu.jpg") {
     let expectant = gradeAndCrop(silkLady, cropFracRect: CGRect(x: 0.08, y: 0.03, width: 0.84, height: 0.84), saturation: 1.08, brightness: 0.03, tempShift: 650)
     saveJPEG(expectant, to: "\(artDir)/patients/c3-thai-phu-khi-nghich.jpg", quality: 0.84)
 
-    // Soft blurred apothecary backdrop for composite folk portraits
-    let bgCropRect = CGRect(x: CGFloat(silkLady.width) * 0.02, y: CGFloat(silkLady.height) * 0.02, width: CGFloat(silkLady.width) * 0.42, height: CGFloat(silkLady.height) * 0.52)
+    // Soft blurred apothecary backdrop for composite folk portraits (pure lantern/wall corner, zero face)
+    let bgCropRect = CGRect(x: CGFloat(silkLady.width) * 0.01, y: CGFloat(silkLady.height) * 0.02, width: CGFloat(silkLady.width) * 0.24, height: CGFloat(silkLady.height) * 0.45)
     if let bgRaw = silkLady.cropping(to: bgCropRect) {
         var ciBg = CIImage(cgImage: bgRaw)
         if let blur = CIFilter(name: "CIGaussianBlur") {

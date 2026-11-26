@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { STORY_CASES, generateProceduralCase } from '../../data/cases';
 import { ACUPOINTS } from '../../data/acupoints';
+import { STORY_CASES, generateProceduralCase } from '../../data/cases';
+import { evaluateConstitution } from '../../data/constitutions';
+import { detectActiveFormulas } from '../../data/formulas';
 import { HERBS } from '../../data/herbs';
 import { apothecaryAudio } from '../audio';
 import { selectExamSession } from '../examEngine';
@@ -211,30 +213,19 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
   });
 
-  it('verifies all silk-and-ink visual art assets exist on disk and are non-empty', () => {
+  it('verifies all 35 silk-and-watercolor visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
       'meridians/meridian-front.jpg',
       'tools/healer-hand.png',
       'tools/pulse-pillow.jpg',
-      'herbs/tia-to.jpg',
-      'herbs/kinh-gioi.jpg',
-      'herbs/cuc-hoa.jpg',
-      'herbs/cat-can.jpg',
-      'herbs/dinh-lang.jpg',
-      'herbs/ngai-cuu.jpg',
-      'herbs/nhan-tran.jpg',
-      'herbs/la-lot.jpg',
-      'patients/c1-phong-han.jpg',
-      'patients/c1-phong-nhiet.jpg',
-      'patients/c1-thuong-thuc-han.jpg',
-      'patients/c2-tam-ty-luong-hu.jpg',
-      'patients/c2-tam-hoa-vuong.jpg',
-      'patients/c3-vai-gay-phong-han.jpg',
-      'patients/c3-thai-phu-khi-nghich.jpg',
-      'patients/c3-than-duong-hu-phong-thap.jpg',
+      'tools/decoction-stove.jpg',
+      ...HERBS.map((h) => `herbs/${h.id}.jpg`),
+      ...STORY_CASES.map((c) => `patients/${c.id}.jpg`),
       'patients/clinic-bg.jpg'
     ];
+
+    expect(requiredAssets).toHaveLength(35);
 
     requiredAssets.forEach((rel) => {
       const fullPath = path.join(root, rel);
@@ -242,5 +233,48 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       const stat = fs.statSync(fullPath);
       expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(5000);
     });
+  });
+
+  it('detects classical Dược Đối / Cổ Phương synergies and evaluates decoction fire/dosing', () => {
+    const matched = detectActiveFormulas({
+      quan: 'tia-to',
+      than: 'kinh-gioi',
+      ta: 'sinh-khuong',
+      su: 'cam-thao'
+    });
+    expect(matched.some((f) => f.id === 'tan-on-giai-bieu')).toBe(true);
+    expect(matched.some((f) => f.id === 'khuong-to-hoa-vi')).toBe(true);
+
+    const case1 = STORY_CASES[0];
+    const goodDecoction = evaluateCaseSubmission(
+      case1,
+      case1.targetDiagnosis,
+      { quan: 'tia-to', than: 'kinh-gioi', ta: 'sinh-khuong', su: 'cam-thao' },
+      [],
+      { fire: 'vu-hoa', dosing: 'nong-dap-chan' }
+    );
+    const badDecoction = evaluateCaseSubmission(
+      case1,
+      case1.targetDiagnosis,
+      { quan: 'tia-to', than: 'kinh-gioi', ta: 'sinh-khuong', su: 'cam-thao' },
+      [],
+      { fire: 'van-hoa', dosing: 'am-duong-tang' }
+    );
+
+    expect(goodDecoction.decoctionScore).toBeGreaterThan(badDecoction.decoctionScore);
+    expect(goodDecoction.matchedFormulas.length).toBeGreaterThan(0);
+  });
+
+  it('evaluates 9-constitution self-assessment accurately', () => {
+    const coldYangDeficient = evaluateConstitution({
+      'cq-temp': 'b',
+      'cq-energy': 'b',
+      'cq-digestion': 'b',
+      'cq-tongue': 'b',
+      'cq-season': 'c',
+      'cq-skin': 'b'
+    });
+    expect(['duong-hu', 'khi-hu']).toContain(coldYangDeficient.primary.id);
+    expect(coldYangDeficient.primary.recommendedHerbIds.length).toBeGreaterThan(0);
   });
 });

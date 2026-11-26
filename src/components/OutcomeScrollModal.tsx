@@ -51,6 +51,24 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
 
         <p style={{ fontWeight: 600, margin: '0 0 10px' }}>{result.summaryFeedback}</p>
 
+        {result.matchedFormulas.length > 0 && (
+          <div className="synergy-banner" style={{ marginBottom: '10px' }}>
+            <strong style={{ color: '#E7B96A', fontFamily: 'var(--font-serif)' }}>
+              Lĩnh hội Cổ Phương Bí Truyền: {result.matchedFormulas.map((f) => f.name).join(', ')}
+            </strong>
+            <div style={{ marginTop: '3px', fontSize: '0.84rem' }}>
+              {result.matchedFormulas[0].principle}
+            </div>
+          </div>
+        )}
+
+        {result.decoctionFeedback && (
+          <div className="alert-banner caution" style={{ marginBottom: '10px' }}>
+            <strong>Hỏa hầu &amp; Cách dùng ({result.decoctionScore >= 0 ? `+${result.decoctionScore}` : result.decoctionScore}đ):</strong>{' '}
+            {result.decoctionFeedback}
+          </div>
+        )}
+
         {result.alerts.length > 0 && (
           <div style={{ marginBottom: '12px' }}>
             {result.alerts.map((al, i) => (

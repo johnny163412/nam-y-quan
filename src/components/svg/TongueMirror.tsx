@@ -6,6 +6,7 @@ interface TongueMirrorProps {
   onInspectZone?: (zone: TongueZoneDetail) => void;
   compact?: boolean;
   hideSummary?: boolean;
+  blindLabels?: boolean;
 }
 
 const BODY_COLOR_HEX: Record<TongueProfile['bodyColor'], string> = {
@@ -24,7 +25,13 @@ const COAT_COLOR_HEX: Record<TongueProfile['coatColor'], string> = {
   peeled: 'rgba(255, 255, 255, 0.08)'
 };
 
-export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZone, compact = false, hideSummary = false }) => {
+export const TongueMirror: React.FC<TongueMirrorProps> = ({
+  tongue,
+  onInspectZone,
+  compact = false,
+  hideSummary = false,
+  blindLabels = false
+}) => {
   const [activeZone, setActiveZone] = useState<TongueZoneDetail>(tongue.zones[0]);
 
   const handleSelect = (zoneKey: TongueZoneDetail['zone']) => {
@@ -98,7 +105,7 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
             strokeWidth={activeZone.zone === 'root' ? 1.8 : 0.9}
           />
           <text x="90" y="60" textAnchor="middle" fontSize="11" fontWeight="700" fill="#221B15">
-            Gốc (Thận)
+            {blindLabels ? 'Vùng Gốc' : 'Gốc (Thận)'}
           </text>
         </g>
 
@@ -111,10 +118,10 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
             strokeWidth={activeZone.zone === 'center' ? 1.8 : 0.9}
           />
           <text x="90" y="105" textAnchor="middle" fontSize="10" fontWeight="700" fill="#221B15">
-            Giữa
+            {blindLabels ? 'Vùng' : 'Giữa'}
           </text>
           <text x="90" y="117" textAnchor="middle" fontSize="9.5" fontWeight="600" fill="#221B15">
-            (Tỳ Vị)
+            {blindLabels ? 'Giữa' : '(Tỳ Vị)'}
           </text>
         </g>
 
@@ -134,10 +141,10 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
             strokeWidth={activeZone.zone === 'sides' ? 1.8 : 0.8}
           />
           <text x="45" y="112" textAnchor="middle" fontSize="9" fontWeight="700" fill="#221B15">
-            Can
+            {blindLabels ? 'Rìa' : 'Can'}
           </text>
           <text x="135" y="112" textAnchor="middle" fontSize="9" fontWeight="700" fill="#221B15">
-            Đởm
+            {blindLabels ? 'Rìa' : 'Đởm'}
           </text>
         </g>
 
@@ -150,7 +157,7 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
             strokeWidth={activeZone.zone === 'tip' ? 1.8 : 0.9}
           />
           <text x="90" y="163" textAnchor="middle" fontSize="11" fontWeight="700" fill="#221B15">
-            Đầu (Tâm Phế)
+            {blindLabels ? 'Đầu Lưỡi' : 'Đầu (Tâm Phế)'}
           </text>
         </g>
       </svg>

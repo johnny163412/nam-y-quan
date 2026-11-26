@@ -3,6 +3,7 @@ import { ClinicDesk } from './components/ClinicDesk';
 import { HeaderPlaque, MainTab } from './components/HeaderPlaque';
 import { KhaoThiYMieu } from './components/KhaoThiYMieu';
 import { TangThuCac } from './components/TangThuCac';
+import { TuDoanTheChat } from './components/TuDoanTheChat';
 import { InkBrushDefs } from './components/svg/InkBrushDefs';
 import { apothecaryAudio } from './engine/audio';
 import { computeRank } from './engine/examEngine';
@@ -16,6 +17,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     apothecaryAudio.setEnabled(progress.soundEnabled);
+    apothecaryAudio.setAmbientEnabled(Boolean(progress.ambientEnabled));
     saveProgress(progress);
   }, [progress]);
 
@@ -55,6 +57,12 @@ export const App: React.FC = () => {
         next.unlockedChapter = 3;
       }
 
+      if (result.matchedFormulas.length > 0) {
+        const formulaSet = new Set(next.discoveredFormulas ?? []);
+        result.matchedFormulas.forEach((f) => formulaSet.add(f.id));
+        next.discoveredFormulas = Array.from(formulaSet);
+      }
+
       next.rank = computeRank(next);
       return next;
     });
@@ -74,6 +82,7 @@ export const App: React.FC = () => {
           }
         }
       };
+
       next.rank = computeRank(next);
       return next;
     });
@@ -95,6 +104,7 @@ export const App: React.FC = () => {
         examPassedChapters: Array.from(passedSet),
         unlockedChapter: nextChapter as 1 | 2 | 3
       };
+
       next.rank = computeRank(next);
       return next;
     });
@@ -113,6 +123,9 @@ export const App: React.FC = () => {
         progress={progress}
         onToggleSound={() =>
           setProgress((prev) => ({ ...prev, soundEnabled: !prev.soundEnabled }))
+        }
+        onToggleAmbient={() =>
+          setProgress((prev) => ({ ...prev, ambientEnabled: !prev.ambientEnabled }))
         }
         onImportProgress={(imported) => setProgress(imported)}
         onResetProgress={() => setProgress(createDefaultProgress())}
@@ -135,6 +148,7 @@ export const App: React.FC = () => {
           <TangThuCac
             herbNotes={progress.herbNotes}
             initialHerbId={codexHerbId}
+            discoveredFormulas={progress.discoveredFormulas ?? []}
             onSaveHerbNote={(herbId, note) =>
               setProgress((prev) => ({
                 ...prev,
@@ -149,6 +163,20 @@ export const App: React.FC = () => {
             progress={progress}
             onRecordAnswer={handleRecordExamAnswer}
             onPassExamChapter={handlePassExamChapter}
+          />
+        )}
+
+        {activeTab === 'constitution' && (
+          <TuDoanTheChat
+            savedConstitution={progress.savedConstitution}
+            onSaveConstitution={(id) =>
+              setProgress((prev) => ({ ...prev, savedConstitution: id }))
+            }
+            onOpenCodexHerb={(herbId) => {
+              setCodexHerbId(herbId);
+              setActiveTab('codex');
+              window.scrollTo({ top: 0 });
+            }}
           />
         )}
       </main>
