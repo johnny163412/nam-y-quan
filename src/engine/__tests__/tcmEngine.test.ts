@@ -213,25 +213,31 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
   });
 
-  it('verifies all 35 silk-and-watercolor visual art assets exist on disk and are non-empty', () => {
+  it('verifies all 41 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
       'meridians/meridian-front.jpg',
+      'meridians/meridian-back.jpg',
       'tools/healer-hand.png',
       'tools/pulse-pillow.jpg',
       'tools/decoction-stove.jpg',
+      'scenes/clinic-hall.jpg',
+      'scenes/tang-thu-library.jpg',
+      'scenes/y-mieu-temple.jpg',
+      'scenes/duong-sinh-scroll.jpg',
+      'scenes/ancient-meridian-woodblock.jpg',
       ...HERBS.map((h) => `herbs/${h.id}.jpg`),
       ...STORY_CASES.map((c) => `patients/${c.id}.jpg`),
       'patients/clinic-bg.jpg'
     ];
 
-    expect(requiredAssets).toHaveLength(35);
+    expect(requiredAssets).toHaveLength(41);
 
     requiredAssets.forEach((rel) => {
       const fullPath = path.join(root, rel);
       expect(fs.existsSync(fullPath), `Missing asset: ${rel}`).toBe(true);
       const stat = fs.statSync(fullPath);
-      expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(5000);
+      expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(8000);
     });
   });
 

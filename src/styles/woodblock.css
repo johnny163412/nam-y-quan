@@ -1199,6 +1199,165 @@ button {
   font-size: 1rem;
 }
 
+/* ==================== BOTANICAL MEDALLION, DIORAMA BANNERS & SAC PHONG ==================== */
+.botanical-medallion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: radial-gradient(circle, #faf5e8 65%, #eadbc0 100%);
+  border: 1px solid rgba(107, 73, 40, 0.42);
+  box-shadow: inset 0 0 6px rgba(74, 48, 22, 0.16);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scene-diorama-banner {
+  position: relative;
+  height: 128px;
+  border: 2px solid var(--gold-trim);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #1B110A;
+  box-shadow:
+    inset 0 0 0 1px rgba(243, 228, 200, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.scene-diorama-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.scene-diorama-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(22, 13, 8, 0.92) 0%,
+    rgba(24, 14, 8, 0.72) 52%,
+    rgba(22, 13, 8, 0.38) 100%
+  );
+  pointer-events: none;
+}
+
+.scene-diorama-content {
+  position: relative;
+  z-index: 2;
+  color: var(--ivory-text);
+  max-width: 68ch;
+}
+
+.scene-diorama-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.14rem;
+  font-weight: 700;
+  color: #FFF4DC;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.scene-diorama-sub {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: #E3CFA9;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+}
+
+.scene-couplet-group {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.couplet-plaque {
+  background: linear-gradient(180deg, #8F221B 0%, #5F1410 100%);
+  border: 1px solid var(--gold-trim);
+  color: #FFF3D6;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.silk-scroll-mount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.scroll-rod-cap {
+  width: 138px;
+  height: 7px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #5A3A20 0%, #2D1A0D 100%);
+  border: 1px solid var(--gold-trim);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.speaker-seal {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+
+.speaker-seal.doctor {
+  background: #6F481E;
+  color: #FFF3D6;
+  border: 1px solid var(--gold-trim);
+}
+
+.speaker-seal.patient {
+  background: #8E231D;
+  color: #FFF3D6;
+  border: 1px solid #D99B52;
+}
+
+.sac-phong-frame {
+  position: relative;
+  border: 3px solid var(--gold-trim);
+  outline: 1px solid #4A2E16;
+  box-shadow:
+    inset 0 0 0 2px rgba(207, 160, 82, 0.35),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.cinnabar-chop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 2.5px solid #A62620;
+  color: #A62620;
+  background: rgba(246, 232, 202, 0.92);
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  transform: rotate(-4deg);
+  box-shadow: inset 0 0 0 1px rgba(166, 38, 32, 0.3);
+}
+
 /* ==================== FOOTER ==================== */
 .disclaimer-footer {
   background: linear-gradient(180deg, #1E130D 0%, #120B07 100%);
@@ -1226,6 +1385,16 @@ button {
   }
   .main-stage {
     padding: 10px 10px 24px;
+  }
+  .scene-diorama-banner {
+    height: 92px;
+    padding: 8px 12px;
+  }
+  .scene-couplet-group {
+    display: none;
+  }
+  .scroll-rod-cap {
+    width: 104px;
   }
   .patient-avatar-silk {
     width: 96px;

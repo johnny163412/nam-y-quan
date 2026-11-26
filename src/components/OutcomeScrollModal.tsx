@@ -16,10 +16,13 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
 }) => {
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Y án luận trị">
-      <div className="woodblock-sheet modal-scroll">
+      <div className="woodblock-sheet modal-scroll sac-phong-frame">
         <div className="section-heading">
           <span>Y Án Luận Trị — {patientCase.patientName}</span>
-          <span className="seal-stamp-badge">{result.grade}</span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span className="cinnabar-chop" title="Ấn triện Tuệ Tâm Đường">惠心堂印</span>
+            <span className="seal-stamp-badge">{result.grade}</span>
+          </div>
         </div>
 
         <div

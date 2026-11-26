@@ -61,7 +61,7 @@ export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onC
       <div className="healer-hand-rig">
         {/* Pinched herb held at the painted thumb-index fingertips */}
         <div className={`pinched-herb ${phase === 'drop' ? 'releasing' : ''}`}>
-          <BotanicalSvg herbId={scoop.herb.id} motif={scoop.herb.motif} size={42} />
+          <BotanicalSvg herbId={scoop.herb.id} motif={scoop.herb.motif} size={42} bare />
         </div>
 
         {/* Dropping herb flecks when releasing onto the scale dish */}

@@ -28,25 +28,42 @@ interface BotanicalSvgProps {
   motif: BotanicalMotif;
   herbId?: string;
   size?: number;
+  bare?: boolean;
 }
 
-export const BotanicalSvg: React.FC<BotanicalSvgProps> = ({ motif, herbId, size = 34 }) => {
+export const BotanicalSvg: React.FC<BotanicalSvgProps> = ({
+  motif,
+  herbId,
+  size = 34,
+  bare = false
+}) => {
   if (herbId && PAINTED_HERB_IDS.has(herbId)) {
-    return (
+    const imgEl = (
       <img
         src={`/art/herbs/${herbId}.jpg`}
         alt=""
         loading="lazy"
         className="botanical-ink-img"
         style={{
-          width: size,
-          height: size,
-          objectFit: 'contain',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
           mixBlendMode: 'multiply',
-          borderRadius: '4px',
-          flexShrink: 0
+          display: 'block'
         }}
       />
+    );
+    if (bare) {
+      return (
+        <span style={{ display: 'inline-block', width: size, height: size, flexShrink: 0 }}>
+          {imgEl}
+        </span>
+      );
+    }
+    return (
+      <span className="botanical-medallion" style={{ width: size, height: size }}>
+        {imgEl}
+      </span>
     );
   }
 

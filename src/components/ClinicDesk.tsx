@@ -258,6 +258,26 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   return (
     <div>
+      {/* Atmospheric Đông Y Apothecary Diorama Banner */}
+      <div className="scene-diorama-banner">
+        <img
+          src="/art/scenes/clinic-hall.jpg"
+          alt="Nội đường tiệm thuốc Nam cổ Tuệ Tâm Đường"
+          className="scene-diorama-img"
+        />
+        <div className="scene-diorama-scrim" aria-hidden="true" />
+        <div className="scene-diorama-content">
+          <h2 className="scene-diorama-title">Nội Đường Biện Chứng Luận Trị</h2>
+          <p className="scene-diorama-sub">
+            Tứ chẩn Vọng · Văn · Vấn · Thiết kết hợp Cân Tiểu Ly Quân — Thần — Tá — Sứ
+          </p>
+        </div>
+        <div className="scene-couplet-group" aria-hidden="true">
+          <span className="couplet-plaque">「 Nam dược trị Nam nhân 」</span>
+          <span className="couplet-plaque">「 Y lý hợp Âm Dương 」</span>
+        </div>
+      </div>
+
       {/* Case & Chapter Toolbar */}
       <div className="case-toolbar">
         <div className="chapter-pills">
@@ -324,7 +344,11 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           </div>
 
           <div className="patient-banner">
-            <VillagerPortrait patientCase={selectedCase} />
+            <div className="silk-scroll-mount" aria-hidden="true">
+              <div className="scroll-rod-cap" />
+              <VillagerPortrait patientCase={selectedCase} />
+              <div className="scroll-rod-cap" />
+            </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
                 <strong style={{ fontFamily: 'var(--font-serif)', fontSize: '1.04rem', color: 'var(--ivory-text)' }}>
@@ -430,10 +454,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     .map((q) => (
                       <React.Fragment key={q.id}>
                         <div className="chat-turn-doctor">
-                          <span style={{ color: '#E7B96A', fontWeight: 700 }}>Thầy lang hỏi:</span> {q.question}
+                          <span className="speaker-seal doctor">Lương Y</span> {q.question}
                         </div>
                         <div className="chat-turn-patient">
-                          “{q.answer}”
+                          <span className="speaker-seal patient">{selectedCase.patientName}</span>“{q.answer}”
                           <div style={{ fontSize: '0.78rem', color: 'var(--herbal-jade)', fontWeight: 700, marginTop: '3px' }}>
                             Ghi nhận: {q.clueTag}
                           </div>
@@ -546,14 +570,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
           {treatTab === 'herbs' ? (
             <>
-              {/* Giá Cân Tiểu Ly Đồng Cổ — dynamically tilts with Cold/Heat balance */}
+              {/* Giá Cân Tiểu Ly Đồng Cổ — engraved dragon-cloud beam tilting dynamically */}
               <div className="balance-beam-bar" aria-hidden="true">
-                <svg width="100%" height="34" viewBox="0 0 440 34" fill="none">
-                  <path d="M220 2 V14" stroke="#9C6B24" strokeWidth="2.4" />
-                  <circle cx="220" cy="14" r="4" fill="#D59E49" stroke="#2F231A" strokeWidth="1.2" />
+                <svg width="100%" height="42" viewBox="0 0 440 42" fill="none">
+                  <path d="M220 2 V16" stroke="#CFA052" strokeWidth="2.8" />
+                  <circle cx="220" cy="16" r="5.5" fill="#D59E49" stroke="#2F231A" strokeWidth="1.4" />
+                  <path d="M217 16 A3 3 0 0 1 223 16" fill="#2F231A" />
                   <g
                     style={{
-                      transformOrigin: '220px 14px',
+                      transformOrigin: '220px 16px',
                       transform: `rotate(${
                         hasAssignedTreatment
                           ? Math.max(-6, Math.min(6, preview.resultingVector.coldHeat / 14))
@@ -562,15 +587,16 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       transition: 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)'
                     }}
                   >
-                    <path d="M46 14 Q220 10 394 14" stroke="#9C6B24" strokeWidth="3.2" strokeLinecap="round" />
-                    <circle cx="46" cy="14" r="2.8" fill="#2F231A" />
-                    <circle cx="162" cy="13" r="2.6" fill="#2F231A" />
-                    <circle cx="278" cy="13" r="2.6" fill="#2F231A" />
-                    <circle cx="394" cy="14" r="2.8" fill="#2F231A" />
-                    <path d="M46 16 L36 33 M46 16 L56 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
-                    <path d="M162 15 L152 33 M162 15 L172 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
-                    <path d="M278 15 L268 33 M278 15 L288 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
-                    <path d="M394 16 L384 33 M394 16 L404 33" stroke="#9C6B24" strokeWidth="1" opacity="0.7" />
+                    <path d="M46 16 Q133 9 220 15 Q307 9 394 16" stroke="#9C6B24" strokeWidth="3.6" strokeLinecap="round" />
+                    <path d="M46 16 Q133 11 220 15 Q307 11 394 16" stroke="#E8BF6E" strokeWidth="1.1" opacity="0.7" fill="none" />
+                    <circle cx="46" cy="16" r="3.2" fill="#2F231A" stroke="#D59E49" strokeWidth="1" />
+                    <circle cx="162" cy="14" r="2.8" fill="#2F231A" stroke="#D59E49" strokeWidth="1" />
+                    <circle cx="278" cy="14" r="2.8" fill="#2F231A" stroke="#D59E49" strokeWidth="1" />
+                    <circle cx="394" cy="16" r="3.2" fill="#2F231A" stroke="#D59E49" strokeWidth="1" />
+                    <path d="M46 18 L34 40 M46 18 L58 40" stroke="#A97B3B" strokeWidth="1.1" opacity="0.75" />
+                    <path d="M162 16 L150 40 M162 16 L174 40" stroke="#A97B3B" strokeWidth="1.1" opacity="0.75" />
+                    <path d="M278 16 L266 40 M278 16 L290 40" stroke="#A97B3B" strokeWidth="1.1" opacity="0.75" />
+                    <path d="M394 18 L382 40 M394 18 L406 40" stroke="#A97B3B" strokeWidth="1.1" opacity="0.75" />
                   </g>
                 </svg>
               </div>
@@ -607,8 +633,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       {herb ? (
                         <div className="pan-dish-wrap">
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
-                            <BotanicalSvg herbId={herb.id} motif={herb.motif} size={36} />
-                            <svg width="92" height="10" viewBox="0 0 92 10" fill="none" aria-hidden="true" style={{ marginTop: '-4px' }}>
+                            <BotanicalSvg herbId={herb.id} motif={herb.motif} size={48} />
+                            <svg width="92" height="10" viewBox="0 0 92 10" fill="none" aria-hidden="true" style={{ marginTop: '-2px' }}>
                               <path d="M6 2 Q46 11 86 2" stroke="#9C6B24" strokeWidth="2.1" strokeLinecap="round" fill="rgba(156,107,36,0.14)" />
                             </svg>
                           </div>

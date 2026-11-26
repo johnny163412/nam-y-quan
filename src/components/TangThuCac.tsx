@@ -85,6 +85,24 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
 
   return (
     <div className="woodblock-sheet">
+      <div className="scene-diorama-banner">
+        <img
+          src="/art/scenes/tang-thu-library.jpg"
+          alt="Tàng Thư Các — Y thư cổ bản thảo và đồ hình kinh lạc"
+          className="scene-diorama-img"
+        />
+        <div className="scene-diorama-scrim" aria-hidden="true" />
+        <div className="scene-diorama-content">
+          <h2 className="scene-diorama-title">Tàng Thư Các — Y Tông Tâm Lĩnh</h2>
+          <p className="scene-diorama-sub">
+            Bản thảo 20 vị Nam dược, đồ hình Kinh Lạc 12 canh giờ, Ngũ Hành &amp; Cổ Phương
+          </p>
+        </div>
+        <div className="scene-couplet-group" aria-hidden="true">
+          <span className="couplet-plaque">「 Thuốc Nam Việt cứu người Nam 」</span>
+        </div>
+      </div>
+
       <div className="section-heading" style={{ flexWrap: 'wrap' }}>
         <span>Tàng Thư Các — Kho Tri Thức &amp; Sa Bàn Tương Tác</span>
         <div className="toggle-pair" style={{ maxWidth: '560px' }}>
@@ -301,6 +319,40 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
                   {w.branch}: {w.organ.split(' ')[0]}
                 </button>
               ))}
+            </div>
+
+            <div
+              style={{
+                marginTop: '14px',
+                padding: '10px',
+                background: 'var(--paper-aged)',
+                border: '1.5px solid #5A3E28',
+                borderRadius: '3px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center'
+              }}
+            >
+              <img
+                src="/art/scenes/ancient-meridian-woodblock.jpg"
+                alt="Cổ đồ mộc bản Đốc Mạch thế kỷ XVII"
+                style={{
+                  width: '84px',
+                  height: '118px',
+                  objectFit: 'cover',
+                  border: '1.5px solid #5A3E28',
+                  borderRadius: '2px',
+                  flexShrink: 0
+                }}
+              />
+              <div style={{ fontSize: '0.82rem' }}>
+                <strong style={{ fontFamily: 'var(--font-serif)', fontSize: '0.92rem', display: 'block', marginBottom: '4px' }}>
+                  Cổ Đồ Mộc Bản Thế Kỷ XVII — Đốc Mạch Kinh Huyệt Đồ
+                </strong>
+                <span className="muted-note">
+                  Tư liệu khắc gỗ truyền thống mô tả cột sống Đốc Mạch dẫn dương khí toàn thân, đối chiếu cùng đồ hình tương tác Mặt Sau.
+                </span>
+              </div>
             </div>
           </div>
         </div>

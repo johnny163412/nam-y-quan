@@ -59,6 +59,24 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
 
   return (
     <div className="woodblock-sheet" style={{ maxWidth: '920px', margin: '0 auto' }}>
+      <div className="scene-diorama-banner">
+        <img
+          src="/art/scenes/y-mieu-temple.jpg"
+          alt="Khuê Văn Các Văn Miếu — Khoa trường Khảo Thí Y Miếu"
+          className="scene-diorama-img"
+        />
+        <div className="scene-diorama-scrim" aria-hidden="true" />
+        <div className="scene-diorama-content">
+          <h2 className="scene-diorama-title">Y Miếu Quốc Học — Khoa Trường Sát Hạch</h2>
+          <p className="scene-diorama-sub">
+            Ứng thí Tứ Chẩn &amp; Thảo Dược để thăng ấn hiệu Y Gia và khai mở chương mới
+          </p>
+        </div>
+        <div className="scene-couplet-group" aria-hidden="true">
+          <span className="couplet-plaque">「 Y Đạo Tinh Thâm 」</span>
+        </div>
+      </div>
+
       <div className="section-heading">
         <span>Khảo Thí Y Miếu — Sát Hạch Thăng Cấp Y Gia</span>
         <span className="tag-badge">Ấn hiệu hiện tại: {progress.rank}</span>

@@ -69,8 +69,15 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
             boxShadow: 'inset 0 0 18px rgba(70, 44, 18, 0.18)'
           }}
         >
-          {/* Woodblock scroll top & bottom accent lines */}
-          <path d="M-8 10 Q125 7 258 10 M-8 434 Q125 437 258 434" stroke="#9C6B24" strokeWidth="0.9" opacity="0.45" fill="none" />
+          {/* Antique Rosewood & Brass Scroll Rollers top & bottom */}
+          <g>
+            <rect x="-14" y="2" width="278" height="6" rx="2" fill="#3B2314" stroke="#8C6234" strokeWidth="0.9" />
+            <circle cx="-13" cy="5" r="4" fill="#CFA052" stroke="#3B2314" strokeWidth="1" />
+            <circle cx="263" cy="5" r="4" fill="#CFA052" stroke="#3B2314" strokeWidth="1" />
+            <rect x="-14" y="436" width="278" height="6" rx="2" fill="#3B2314" stroke="#8C6234" strokeWidth="0.9" />
+            <circle cx="-13" cy="439" r="4" fill="#CFA052" stroke="#3B2314" strokeWidth="1" />
+            <circle cx="263" cy="439" r="4" fill="#CFA052" stroke="#3B2314" strokeWidth="1" />
+          </g>
 
           {activeSide === 'front' ? (
             <>
@@ -94,97 +101,24 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
               </g>
             </>
           ) : (
-            /* Hand-drawn brush-ink back figure calibrated to the exact 250x444 scroll proportions */
-            <g filter="url(#ink-brush-soft)" strokeLinecap="round" strokeLinejoin="round">
-              {/* Topknot bun & nape hair */}
-              <path
-                d="M116 34 C115 26 120 22 125 22 C130 22 135 26 134 34 C130 36 120 36 116 34 Z"
-                fill="#352820"
-                stroke="#2F231A"
-                strokeWidth="1.4"
+            <>
+              {/* Painted silk dorsal scroll aligned 1:1 with front silhouette & dorsal acupoints */}
+              <image
+                href="/art/meridians/meridian-back.jpg"
+                x="0"
+                y="0"
+                width="250"
+                height="444"
+                preserveAspectRatio="none"
+                style={{ mixBlendMode: 'multiply' }}
               />
-              <path d="M116 33 Q125 35 134 33 M134 33 Q139 36 138 40" stroke="#A62620" strokeWidth="1.3" fill="none" />
-              <path d="M104 57 C100 57 100 66 105 67" fill="#EBD5BA" stroke="#2F231A" strokeWidth="1.3" />
-              <path d="M146 57 C150 57 150 66 145 67" fill="#EBD5BA" stroke="#2F231A" strokeWidth="1.3" />
-              <path
-                d="M105 57 C104 43 112 36 125 36 C138 36 146 43 145 57 C144 68 139 77 133 81 C128 78 122 78 117 81 C111 77 106 68 105 57 Z"
-                fill="#352820"
-                fillOpacity="0.9"
-                stroke="#2F231A"
-                strokeWidth="1.5"
-              />
-
-              {/* Organic Body Back Silhouette */}
-              <path
-                d="M116 82 C116 90 114 95 109 98
-                   C96 102 82 107 75 117
-                   C67 132 62 156 57 178
-                   C52 195 48 212 45 227
-                   C40 233 37 243 39 252
-                   C41 255 44 255 45 250
-                   C46 256 50 257 51 251
-                   C53 255 56 253 56 246
-                   C57 235 58 228 60 221
-                   C65 204 71 182 78 161
-                   C82 148 86 137 89 133
-                   C89 156 90 178 93 198
-                   C94 212 92 228 89 248
-                   C87 270 89 294 93 318
-                   C95 342 95 372 94 398
-                   C92 407 85 416 85 421
-                   C87 425 97 425 105 422
-                   C109 419 109 408 108 398
-                   C110 370 113 340 115 314
-                   C117 292 120 274 125 270
-                   C130 274 133 292 135 314
-                   C137 340 140 370 142 398
-                   C141 408 141 419 145 422
-                   C153 425 163 425 165 421
-                   C165 416 158 407 156 398
-                   C155 372 155 342 157 318
-                   C161 294 163 270 161 248
-                   C158 228 156 212 157 198
-                   C160 178 161 156 161 133
-                   C164 137 168 148 172 161
-                   C179 182 185 204 190 221
-                   C192 228 193 235 194 246
-                   C194 253 197 255 199 251
-                   C200 257 204 256 205 250
-                   C206 255 209 255 211 252
-                   C213 243 210 233 205 227
-                   C202 212 198 195 193 178
-                   C188 156 183 132 175 117
-                   C168 107 154 102 141 98
-                   C136 95 134 90 134 82"
-                fill="#E4C6A3"
-                stroke="#2F231A"
-                strokeWidth="1.55"
-              />
-
-              {/* Cloth Waist Wrap (Back view) */}
-              <path
-                d="M90 238 Q125 244 160 238 L162 269 Q142 275 125 272 Q108 275 88 269 Z"
-                fill="#6C7C6B"
-                fillOpacity="0.65"
-                stroke="#2F231A"
-                strokeWidth="1.4"
-              />
-              <path d="M90 242 Q125 248 160 242" stroke="#2F231A" strokeWidth="1.1" fill="none" />
-
-              {/* Dorsal spine & scapula ink lines */}
-              <g stroke="#8E6C4E" strokeWidth="1.1" fill="none" opacity="0.72">
-                <path d="M125 94 C124 142 126 190 125 234" />
-                <path d="M97 125 C102 144 108 154 113 158 M153 125 C148 144 142 154 137 158" />
-                <path d="M97 316 Q103 314 109 316 M141 316 Q147 314 153 316" />
-              </g>
-
-              {/* Back meridian pathways */}
-              <g stroke="#274B6D" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.7">
+              {/* Back meridian pathways: Đốc Mạch, Bàng Quang & Tam Tiêu */}
+              <g stroke="#274B6D" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.72">
                 <path d="M125 42 C125 102 125 174 125 236" />
                 <path d="M111 84 C109 124 108 162 108 196 C107 254 105 304 105 352" />
                 <path d="M82 118 C69 154 61 186 56 214" />
               </g>
-            </g>
+            </>
           )}
 
           {/* Acupoint Nodes & Crisp Unfiltered Labels */}

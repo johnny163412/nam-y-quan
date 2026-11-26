@@ -50,6 +50,24 @@ export const TuDoanTheChat: React.FC<TuDoanTheChatProps> = ({
 
   return (
     <div className="woodblock-sheet stitched-binding" style={{ maxWidth: '1040px', margin: '0 auto' }}>
+      <div className="scene-diorama-banner">
+        <img
+          src="/art/scenes/duong-sinh-scroll.jpg"
+          alt="Tranh dân gian Đông Hồ và bản thảo Dưỡng Sinh"
+          className="scene-diorama-img"
+        />
+        <div className="scene-diorama-scrim" aria-hidden="true" />
+        <div className="scene-diorama-content">
+          <h2 className="scene-diorama-title">Cửu Chủng Thể Chất &amp; Dưỡng Sinh Dân Gian</h2>
+          <p className="scene-diorama-sub">
+            Soi xét Hàn — Nhiệt — Hư — Thực để lập tờ Sắc Phong trà dược &amp; huyệt xoa bóp
+          </p>
+        </div>
+        <div className="scene-couplet-group" aria-hidden="true">
+          <span className="couplet-plaque">「 Thuận Thiên Dưỡng Sinh 」</span>
+        </div>
+      </div>
+
       <div className="section-heading">
         <span>Tự Đoán Thể Chất Cửu Chủng — Dưỡng Sinh Cá Nhân</span>
         {savedConstitution && (
@@ -135,14 +153,17 @@ export const TuDoanTheChat: React.FC<TuDoanTheChatProps> = ({
         </div>
       ) : (
         <div>
-          {/* Sắc Phong Dưỡng Sinh Cá Nhân */}
-          <div className="patient-banner" style={{ alignItems: 'center' }}>
+          {/* Sắc Phong Dưỡng Sinh Cá Nhân — Sơn Son Thếp Vàng */}
+          <div className="patient-banner sac-phong-frame" style={{ alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '6px' }}>
-                <span className="seal-stamp-badge">Sắc Phong Dưỡng Sinh</span>
-                <h2 style={{ margin: 0, fontFamily: 'var(--font-serif)', color: 'var(--ivory-text)', fontSize: '1.28rem' }}>
-                  {evaluation.primary.name}
-                </h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                  <span className="seal-stamp-badge">Sắc Phong Dưỡng Sinh</span>
+                  <h2 style={{ margin: 0, fontFamily: 'var(--font-serif)', color: 'var(--ivory-text)', fontSize: '1.28rem' }}>
+                    {evaluation.primary.name}
+                  </h2>
+                </div>
+                <span className="cinnabar-chop" title="Ấn triện Tuệ Tâm Đường">惠心堂印</span>
               </div>
               <p style={{ margin: '4px 0 8px', color: 'var(--sand-muted)' }}>
                 {evaluation.primary.tagline}
