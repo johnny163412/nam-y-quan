@@ -3,6 +3,7 @@ import { ClinicDesk } from './components/ClinicDesk';
 import { HeaderPlaque, MainTab } from './components/HeaderPlaque';
 import { KhaoThiYMieu } from './components/KhaoThiYMieu';
 import { TangThuCac } from './components/TangThuCac';
+import { InkBrushDefs } from './components/svg/InkBrushDefs';
 import { apothecaryAudio } from './engine/audio';
 import { computeRank } from './engine/examEngine';
 import { createDefaultProgress, loadProgress, saveProgress } from './engine/storage';
@@ -101,6 +102,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-shell">
+      <InkBrushDefs />
       <HeaderPlaque
         activeTab={activeTab}
         onSelectTab={(tab) => {

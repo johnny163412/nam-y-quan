@@ -43,49 +43,57 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
         aria-label="Gương soi Thiệt chẩn 5 vùng Tạng Phủ"
         style={{ flexShrink: 0 }}
       >
-        {/* Dark mouth cavity frame */}
-        <ellipse cx="90" cy="108" rx="76" ry="96" fill="#2B1B18" stroke="#221B15" strokeWidth="2" />
+        {/* Dark mouth cavity & organic hand-drawn tongue layer */}
+        <g filter="url(#ink-brush-soft)" strokeLinecap="round" strokeLinejoin="round">
+          <path
+            d="M16 106 C15 48 48 12 90 13 C133 12 165 48 164 108 C165 166 132 203 90 203 C47 203 15 165 16 106 Z"
+            fill="#2B1B18"
+            stroke="#2F231A"
+            strokeWidth="2.1"
+          />
 
-        {/* Tongue base */}
-        <path
-          d={
-            tongue.bodyShape === 'swollen-teeth'
-              ? 'M36 46 Q90 22 144 46 Q152 84 143 102 Q151 120 140 138 Q144 156 126 174 Q90 198 54 174 Q36 156 40 138 Q29 120 37 102 Q28 84 36 46 Z'
-              : tongue.bodyShape === 'thin'
-              ? 'M50 48 Q90 28 130 48 Q138 118 124 166 Q90 192 56 166 Q42 118 50 48 Z'
-              : 'M40 46 Q90 24 140 46 Q150 116 132 168 Q90 196 48 168 Q30 116 40 46 Z'
-          }
-          fill={BODY_COLOR_HEX[tongue.bodyColor]}
-          stroke="#2A1615"
-          strokeWidth="2"
-        />
+          {/* Tongue base */}
+          <path
+            d={
+              tongue.bodyShape === 'swollen-teeth'
+                ? 'M36 46 Q90 22 144 46 Q152 84 143 102 Q151 120 140 138 Q144 156 126 174 Q90 198 54 174 Q36 156 40 138 Q29 120 37 102 Q28 84 36 46 Z'
+                : tongue.bodyShape === 'thin'
+                ? 'M50 48 Q90 28 130 48 Q138 118 124 166 Q90 192 56 166 Q42 118 50 48 Z'
+                : 'M40 46 Q90 24 140 46 Q150 116 132 168 Q90 196 48 168 Q30 116 40 46 Z'
+            }
+            fill={BODY_COLOR_HEX[tongue.bodyColor]}
+            stroke="#2F231A"
+            strokeWidth="1.9"
+          />
 
-        {/* Tongue coat overlay */}
-        <ellipse
-          cx="90"
-          cy="104"
-          rx={tongue.bodyShape === 'thin' ? 30 : 38}
-          ry="58"
-          fill={COAT_COLOR_HEX[tongue.coatColor]}
-        />
+          {/* Tongue coat watercolor wash */}
+          <path
+            d={
+              tongue.bodyShape === 'thin'
+                ? 'M62 56 C88 45 104 47 118 57 C126 98 120 140 107 158 C90 172 72 168 62 155 C54 132 54 90 62 56 Z'
+                : 'M53 54 C84 42 108 43 127 56 C137 96 131 142 114 160 C92 174 68 171 55 156 C44 134 45 86 53 54 Z'
+            }
+            fill={COAT_COLOR_HEX[tongue.coatColor]}
+          />
 
-        {/* Moisture sheen */}
-        {tongue.moisture === 'wet-slippery' && (
-          <ellipse cx="75" cy="96" rx="10" ry="24" fill="rgba(255,255,255,0.34)" />
-        )}
+          {/* Moisture sheen */}
+          {tongue.moisture === 'wet-slippery' && (
+            <path
+              d="M70 76 C66 94 67 112 73 123 C79 116 78 92 74 75 Z"
+              fill="rgba(255,255,255,0.34)"
+            />
+          )}
+        </g>
 
         {/* Interactive Zone Hotspots */}
         <g
           onClick={() => handleSelect('root')}
           style={{ cursor: 'pointer' }}
         >
-          <ellipse
-            cx="90"
-            cy="56"
-            rx="34"
-            ry="18"
+          <path
+            d="M57 57 C66 40 114 40 123 57 C115 73 65 73 57 57 Z"
             fill={activeZone.zone === 'root' ? 'rgba(166, 38, 32, 0.22)' : 'transparent'}
-            stroke="#221B15"
+            stroke="#2F231A"
             strokeDasharray="3 3"
             strokeWidth={activeZone.zone === 'root' ? 1.8 : 0.9}
           />
@@ -95,13 +103,10 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
         </g>
 
         <g onClick={() => handleSelect('center')} style={{ cursor: 'pointer' }}>
-          <ellipse
-            cx="90"
-            cy="108"
-            rx="24"
-            ry="26"
+          <path
+            d="M66 108 C66 84 114 84 114 108 C114 132 66 132 66 108 Z"
             fill={activeZone.zone === 'center' ? 'rgba(166, 38, 32, 0.22)' : 'transparent'}
-            stroke="#221B15"
+            stroke="#2F231A"
             strokeDasharray="3 3"
             strokeWidth={activeZone.zone === 'center' ? 1.8 : 0.9}
           />
@@ -114,25 +119,17 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
         </g>
 
         <g onClick={() => handleSelect('sides')} style={{ cursor: 'pointer' }}>
-          <rect
-            x="35"
-            y="80"
-            width="20"
-            height="58"
-            rx="8"
+          <path
+            d="M42 78 C34 94 35 126 45 140 C56 136 58 92 50 79 Z"
             fill={activeZone.zone === 'sides' ? 'rgba(166, 38, 32, 0.25)' : 'transparent'}
-            stroke="#221B15"
+            stroke="#2F231A"
             strokeDasharray="2 2"
             strokeWidth={activeZone.zone === 'sides' ? 1.8 : 0.8}
           />
-          <rect
-            x="125"
-            y="80"
-            width="20"
-            height="58"
-            rx="8"
+          <path
+            d="M138 78 C146 94 145 126 135 140 C124 136 122 92 130 79 Z"
             fill={activeZone.zone === 'sides' ? 'rgba(166, 38, 32, 0.25)' : 'transparent'}
-            stroke="#221B15"
+            stroke="#2F231A"
             strokeDasharray="2 2"
             strokeWidth={activeZone.zone === 'sides' ? 1.8 : 0.8}
           />
@@ -145,17 +142,14 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
         </g>
 
         <g onClick={() => handleSelect('tip')} style={{ cursor: 'pointer' }}>
-          <ellipse
-            cx="90"
-            cy="160"
-            rx="28"
-            ry="18"
+          <path
+            d="M62 158 C70 142 110 142 118 158 C108 178 72 178 62 158 Z"
             fill={activeZone.zone === 'tip' ? 'rgba(166, 38, 32, 0.25)' : 'transparent'}
-            stroke="#221B15"
+            stroke="#2F231A"
             strokeDasharray="3 3"
             strokeWidth={activeZone.zone === 'tip' ? 1.8 : 0.9}
           />
-          <text x="90" y="164" textAnchor="middle" fontSize="11" fontWeight="700" fill="#221B15">
+          <text x="90" y="163" textAnchor="middle" fontSize="11" fontWeight="700" fill="#221B15">
             Đầu (Tâm Phế)
           </text>
         </g>

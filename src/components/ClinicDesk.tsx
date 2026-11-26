@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { STORY_CASES, generateProceduralCase } from '../data/cases';
 import { HERB_MAP, HERBS } from '../data/herbs';
 import { apothecaryAudio } from '../engine/audio';
@@ -21,7 +21,9 @@ import { MeridianBodyMap } from './MeridianBodyMap';
 import { OutcomeScrollModal } from './OutcomeScrollModal';
 import { PulseCanvas } from './PulseCanvas';
 import { BotanicalSvg } from './svg/BotanicalSvg';
+import { HealerHandOverlay, ScoopAnimationState } from './svg/HealerHandOverlay';
 import { TongueMirror } from './svg/TongueMirror';
+import { VillagerPortrait } from './svg/VillagerPortrait';
 
 interface ClinicDeskProps {
   unlockedChapter: 1 | 2 | 3;
@@ -68,6 +70,18 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [selectedAcupoints, setSelectedAcupoints] = useState<string[]>([]);
   const [treatTab, setTreatTab] = useState<'herbs' | 'acupoints'>('herbs');
   const [outcome, setOutcome] = useState<EvaluationResult | null>(null);
+  const [scoopAnim, setScoopAnim] = useState<ScoopAnimationState | null>(null);
+  const [justScoopedRole, setJustScoopedRole] = useState<RoleSlot | null>(null);
+
+  const deskRightRef = useRef<HTMLElement | null>(null);
+  const panRefs = useRef<Record<RoleSlot, HTMLDivElement | null>>({
+    quan: null,
+    than: null,
+    ta: null,
+    su: null
+  });
+  const herbRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const scoopCounterRef = useRef(0);
 
   const chapterCases = useMemo(
     () => STORY_CASES.filter((c) => c.chapter === activeChapter),
@@ -127,13 +141,46 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     apothecaryAudio.playPageTurn();
   };
 
+  const triggerScoopAnimation = useCallback((herb: Herb, role: RoleSlot) => {
+    const container = deskRightRef.current;
+    const panEl = panRefs.current[role];
+    const herbEl = herbRefs.current[herb.id];
+    if (!container || !panEl) return;
+
+    const cRect = container.getBoundingClientRect();
+    const pRect = panEl.getBoundingClientRect();
+    const hRect = herbEl?.getBoundingClientRect();
+
+    const fromX = hRect
+      ? hRect.left - cRect.left + hRect.width * 0.42
+      : cRect.width * 0.5;
+    const fromY = hRect
+      ? hRect.top - cRect.top + hRect.height * 0.35
+      : cRect.height * 0.72;
+    const toX = pRect.left - cRect.left + pRect.width * 0.45;
+    const toY = pRect.top - cRect.top + pRect.height * 0.42;
+
+    scoopCounterRef.current += 1;
+    const animId = scoopCounterRef.current;
+    setScoopAnim({ id: animId, herb, fromX, fromY, toX, toY });
+
+    window.setTimeout(() => {
+      setJustScoopedRole(role);
+      window.setTimeout(() => {
+        setJustScoopedRole((cur) => (cur === role ? null : cur));
+      }, 360);
+    }, 420);
+  }, []);
+
   const handleAssignHerb = (role: RoleSlot, herbId: string | null) => {
-    setSlots((prev) => assignHerbToSlot(prev, role, herbId));
+    const after = assignHerbToSlot(slots, role, herbId);
+    setSlots(after);
     if (herbId) {
       apothecaryAudio.playHerbDrop();
+      const herbObj = HERB_MAP[herbId];
+      if (herbObj) triggerScoopAnimation(herbObj, role);
       // Auto-advance selected empty slot for fast tap-to-assign ergonomics
       const nextOrder: RoleSlot[] = ['quan', 'than', 'ta', 'su'];
-      const after = assignHerbToSlot(slots, role, herbId);
       const nextEmpty = nextOrder.find((r) => r !== role && !after[r]);
       if (nextEmpty) setSelectedSlot(nextEmpty);
     }
@@ -259,15 +306,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           </div>
 
           <div className="patient-banner">
-            <div className="patient-avatar" aria-hidden="true">
-              <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
-                <circle cx="24" cy="18" r="9" fill="#E2D4B7" stroke="#221B15" strokeWidth="1.6" />
-                <path d="M10 42C10 33 16 29 24 29C32 29 38 33 38 42" fill="#23574C" fillOpacity="0.25" stroke="#221B15" strokeWidth="1.6" />
-                <circle cx="21" cy="17" r="1.3" fill="#221B15" />
-                <circle cx="27" cy="17" r="1.3" fill="#221B15" />
-                <path d="M21 22Q24 23 27 22" stroke="#221B15" strokeWidth="1.3" />
-              </svg>
-            </div>
+            <VillagerPortrait patientCase={selectedCase} />
             <div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
                 <strong>{selectedCase.patientName}</strong>
@@ -416,7 +455,17 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
         </section>
 
         {/* RIGHT COLUMN: BÁT CƯƠNG COMPASS + SCALE PANS + HERB DRAWER / ACUPOINTS */}
-        <section className="woodblock-sheet" aria-label="Biện chứng và Phối phương">
+        <section
+          ref={deskRightRef}
+          className="woodblock-sheet desk-right-col"
+          aria-label="Biện chứng và Phối phương"
+        >
+          <HealerHandOverlay
+            scoop={scoopAnim}
+            onComplete={(doneId) =>
+              setScoopAnim((cur) => (cur && cur.id === doneId ? null : cur))
+            }
+          />
           <EightPrinciplesCompass
             initialVector={selectedCase.initialVector}
             previewVector={preview.resultingVector}
@@ -466,9 +515,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   return (
                     <div
                       key={meta.role}
+                      ref={(el) => {
+                        panRefs.current[meta.role] = el;
+                      }}
                       className={`scale-pan ${isActiveSlot ? 'selected-slot' : ''} ${
                         herb ? 'filled' : ''
-                      }`}
+                      } ${justScoopedRole === meta.role ? 'just-scooped' : ''}`}
                       onClick={() => setSelectedSlot(meta.role)}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => {
@@ -484,9 +536,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                         <span>{meta.weightLabel}</span>
                       </div>
                       {herb ? (
-                        <div>
-                          <div className="pan-herb-name">{herb.name}</div>
-                          <span className={`nature-tag ${natureClass(herb.nature)}`}>
+                        <div className="pan-dish-wrap">
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
+                            <BotanicalSvg motif={herb.motif} size={28} />
+                            <svg width="92" height="10" viewBox="0 0 92 10" fill="none" aria-hidden="true" style={{ marginTop: '-4px' }}>
+                              <path d="M6 2 Q46 11 86 2" stroke="#9C6B24" strokeWidth="2.1" strokeLinecap="round" fill="rgba(156,107,36,0.14)" />
+                            </svg>
+                          </div>
+                          <div className="pan-herb-name" style={{ textAlign: 'center', margin: '1px 0' }}>{herb.name}</div>
+                          <span className={`nature-tag ${natureClass(herb.nature)}`} style={{ alignSelf: 'center' }}>
                             {herb.nature} — {herb.flavors[0]}
                           </span>
                         </div>
@@ -530,6 +588,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   return (
                     <div
                       key={herb.id}
+                      ref={(el) => {
+                        herbRefs.current[herb.id] = el;
+                      }}
                       draggable
                       onDragStart={(e) => e.dataTransfer.setData('text/plain', herb.id)}
                       onClick={() => handleHerbCardClick(herb)}

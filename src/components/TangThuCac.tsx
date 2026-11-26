@@ -341,46 +341,48 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
                 </marker>
               </defs>
 
-              {/* Tương Sinh outer pentagon */}
-              {ELEMENT_CYCLE_ORDER.map((el, i) => {
-                const next = ELEMENT_CYCLE_ORDER[(i + 1) % 5];
-                const p1 = pentagonCoords[el];
-                const p2 = pentagonCoords[next];
-                return (
-                  <line
-                    key={`sinh-${el}`}
-                    x1={p1.x}
-                    y1={p1.y}
-                    x2={p2.x}
-                    y2={p2.y}
-                    stroke="#23574C"
-                    strokeWidth="2"
-                    opacity="0.55"
-                    markerEnd="url(#arrow-sinh)"
-                  />
-                );
-              })}
+              {/* Tương Sinh outer curved brush ring */}
+              <g filter="url(#ink-brush-soft)" strokeLinecap="round">
+                {ELEMENT_CYCLE_ORDER.map((el, i) => {
+                  const next = ELEMENT_CYCLE_ORDER[(i + 1) % 5];
+                  const p1 = pentagonCoords[el];
+                  const p2 = pentagonCoords[next];
+                  const mx = (p1.x + p2.x) / 2 + ((p1.x + p2.x) / 2 - 160) * 0.22;
+                  const my = (p1.y + p2.y) / 2 + ((p1.y + p2.y) / 2 - 155) * 0.22;
+                  return (
+                    <path
+                      key={`sinh-${el}`}
+                      d={`M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`}
+                      fill="none"
+                      stroke="#23574C"
+                      strokeWidth="2.1"
+                      opacity="0.6"
+                      markerEnd="url(#arrow-sinh)"
+                    />
+                  );
+                })}
 
-              {/* Tương Khắc inner star */}
-              {ELEMENT_CYCLE_ORDER.map((el, i) => {
-                const target = ELEMENT_CYCLE_ORDER[(i + 2) % 5];
-                const p1 = pentagonCoords[el];
-                const p2 = pentagonCoords[target];
-                return (
-                  <line
-                    key={`khac-${el}`}
-                    x1={p1.x}
-                    y1={p1.y}
-                    x2={p2.x}
-                    y2={p2.y}
-                    stroke="#A62620"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 3"
-                    opacity="0.6"
-                    markerEnd="url(#arrow-khac)"
-                  />
-                );
-              })}
+                {/* Tương Khắc inner brush star */}
+                {ELEMENT_CYCLE_ORDER.map((el, i) => {
+                  const target = ELEMENT_CYCLE_ORDER[(i + 2) % 5];
+                  const p1 = pentagonCoords[el];
+                  const p2 = pentagonCoords[target];
+                  const mx = (p1.x + p2.x) / 2 + 8;
+                  const my = (p1.y + p2.y) / 2 - 6;
+                  return (
+                    <path
+                      key={`khac-${el}`}
+                      d={`M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`}
+                      fill="none"
+                      stroke="#A62620"
+                      strokeWidth="1.5"
+                      strokeDasharray="5 4"
+                      opacity="0.65"
+                      markerEnd="url(#arrow-khac)"
+                    />
+                  );
+                })}
+              </g>
 
               {/* Element Nodes */}
               {ELEMENT_CYCLE_ORDER.map((el) => {
