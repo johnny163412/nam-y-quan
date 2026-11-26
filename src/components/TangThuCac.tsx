@@ -165,14 +165,7 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
               ))}
             </div>
 
-            <div
-              style={{
-                background: 'var(--paper-highlight)',
-                border: '1.5px solid var(--border-ink)',
-                padding: '14px',
-                borderRadius: '2px'
-              }}
-            >
+            <div className="wood-parchment-panel">
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '12px' }}>
                 <BotanicalSvg herbId={activeHerb.id} motif={activeHerb.motif} size={112} />
                 <div>
@@ -248,14 +241,7 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
             />
           </div>
 
-          <div
-            style={{
-              background: 'var(--paper-highlight)',
-              border: '1.5px solid var(--border-ink)',
-              padding: '14px',
-              borderRadius: '2px'
-            }}
-          >
+          <div className="wood-parchment-panel">
             <h3 style={{ margin: '0 0 8px', fontFamily: 'var(--font-serif)' }}>
               Đồng Hồ Sinh Học Tý Ngọ Lưu Chú (12 Canh Giờ)
             </h3>
@@ -314,11 +300,8 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
       {book === 'elements' && (
         <div className="sandbox-layout">
           <div
+            className="wood-parchment-panel"
             style={{
-              background: 'var(--paper-highlight)',
-              border: '1.5px solid var(--border-ink)',
-              padding: '14px',
-              borderRadius: '2px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center'
@@ -421,14 +404,7 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
             </div>
           </div>
 
-          <div
-            style={{
-              background: 'var(--paper-highlight)',
-              border: '1.5px solid var(--border-ink)',
-              padding: '14px',
-              borderRadius: '2px'
-            }}
-          >
+          <div className="wood-parchment-panel">
             <strong style={{ display: 'block', marginBottom: '8px', fontFamily: 'var(--font-serif)', fontSize: '1.05rem' }}>
               Điều chỉnh trạng thái hành {ELEMENT_LABELS[activeEl]}
             </strong>

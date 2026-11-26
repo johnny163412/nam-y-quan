@@ -63,10 +63,10 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
           role="img"
           aria-label="Đồ hình Kinh Lạc và Huyệt Đạo cổ họa"
           style={{
-            background: 'radial-gradient(circle at 50% 42%, #FAF4E4 0%, #EFE4CA 100%)',
-            border: '1.5px solid #2F231A',
+            background: 'radial-gradient(circle at 50% 42%, #E5D4B3 0%, #D4BE96 100%)',
+            border: '2px solid #5A3E28',
             borderRadius: '4px',
-            boxShadow: 'inset 0 0 18px rgba(90, 75, 60, 0.14)'
+            boxShadow: 'inset 0 0 18px rgba(70, 44, 18, 0.18)'
           }}
         >
           {/* Woodblock scroll top & bottom accent lines */}
@@ -299,8 +299,8 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
             <div
               style={{
                 padding: '10px',
-                background: '#EFE6D2',
-                border: '1px solid rgba(42,33,27,0.35)',
+                background: '#DFCCA8',
+                border: '1.5px solid #5A3E28',
                 borderRadius: '3px',
                 fontSize: '0.85rem'
               }}

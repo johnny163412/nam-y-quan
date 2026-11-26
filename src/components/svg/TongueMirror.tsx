@@ -174,9 +174,9 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({ tongue, onInspectZon
           <div
             style={{
               padding: '8px 10px',
-              background: '#EFE6D2',
-              border: '1px solid rgba(42,33,27,0.35)',
-              borderRadius: '2px',
+              background: '#D5BF96',
+              border: '1.5px solid #5A3E28',
+              borderRadius: '3px',
               fontSize: '0.85rem'
             }}
           >

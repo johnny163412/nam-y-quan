@@ -57,8 +57,9 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
           <span
             className="tag-badge"
             style={{
-              background: balanceScore >= 75 ? 'var(--herbal-jade-soft)' : 'var(--brass-soft)',
-              color: balanceScore >= 75 ? 'var(--herbal-jade)' : 'var(--brass-ochre)'
+              background: balanceScore >= 75 ? '#23574C' : '#6B4616',
+              color: '#FFF5E0',
+              borderColor: 'var(--gold-trim)'
             }}
           >
             Độ quân bình dự kiến: {balanceScore}%
@@ -70,7 +71,7 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
         <div className="axis-row" key={ax.label}>
           <div className="axis-labels">
             <span>{ax.left}</span>
-            <span style={{ color: 'var(--ink-muted)', fontWeight: 500 }}>{ax.label}</span>
+            <span style={{ color: 'var(--sand-muted)', fontWeight: 500 }}>{ax.label}</span>
             <span>{ax.right}</span>
           </div>
           <div className="axis-track" aria-label={ax.label}>
@@ -91,7 +92,7 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
         </div>
       ))}
 
-      <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
+      <div style={{ fontSize: '0.78rem', color: 'var(--sand-muted)', marginBottom: '8px' }}>
         Chấm đỏ: Lệch bệnh hiện tại | Kim xanh: Điểm cân bằng sau khi đặt thuốc vào Cân Tiểu Ly
       </div>
 

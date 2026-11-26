@@ -307,15 +307,19 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
           <div className="patient-banner">
             <VillagerPortrait patientCase={selectedCase} />
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                <strong>{selectedCase.patientName}</strong>
+                <strong style={{ fontFamily: 'var(--font-serif)', fontSize: '1.04rem', color: 'var(--ivory-text)' }}>
+                  {selectedCase.patientName}
+                </strong>
                 <span className="muted-note">({selectedCase.age} tuổi — {selectedCase.patientRole})</span>
                 {selectedCase.isPregnant && (
                   <span className="tag-badge pregnant">Thai phụ (Thận trọng Cấm kỵ)</span>
                 )}
               </div>
-              <p className="patient-speech">“{selectedCase.chiefComplaint}”</p>
+              <div className="wood-speech-bubble">
+                「 {selectedCase.chiefComplaint} 」
+              </div>
             </div>
           </div>
 
@@ -391,35 +395,53 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             {examTab === 'van-hoi' && (
               <div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
-                  Chọn tối đa {selectedCase.maxInquiries} câu hỏi trọng tâm theo phép Thập Vấn (còn{' '}
+                  Đối thoại Vấn chẩn (chọn tối đa {selectedCase.maxInquiries} thẻ tre câu hỏi, còn{' '}
                   <strong>{selectedCase.maxInquiries - askedIds.length}</strong> lượt):
                 </div>
-                <div className="inquiry-grid">
-                  {selectedCase.inquiries.map((q) => {
-                    const isAsked = askedIds.includes(q.id);
-                    const limitReached = askedIds.length >= selectedCase.maxInquiries && !isAsked;
-                    return (
-                      <button
-                        key={q.id}
-                        type="button"
-                        className={`inquiry-btn ${isAsked ? 'asked' : ''}`}
-                        disabled={limitReached}
-                        onClick={() => handleAskQuestion(q.id, q.clueTag)}
-                      >
-                        <div style={{ fontWeight: 600 }}>
-                          [{q.topic}] {q.question}
+
+                {/* Khung đối thoại gỗ cổ */}
+                <div className="wooden-chat-log" aria-live="polite">
+                  <div className="chat-turn-patient">
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7C1A14', marginBottom: '2px' }}>
+                      {selectedCase.patientName} thưa:
+                    </div>
+                    “{selectedCase.chiefComplaint}”
+                  </div>
+                  {selectedCase.inquiries
+                    .filter((q) => askedIds.includes(q.id))
+                    .map((q) => (
+                      <React.Fragment key={q.id}>
+                        <div className="chat-turn-doctor">
+                          <span style={{ color: '#E7B96A', fontWeight: 700 }}>Thầy lang hỏi:</span> {q.question}
                         </div>
-                        {isAsked && (
-                          <div className="inquiry-answer">
-                            <div>“{q.answer}”</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--herbal-jade)', fontWeight: 600, marginTop: '3px' }}>
-                              Ghi nhận: {q.clueTag}
-                            </div>
+                        <div className="chat-turn-patient">
+                          “{q.answer}”
+                          <div style={{ fontSize: '0.78rem', color: 'var(--herbal-jade)', fontWeight: 700, marginTop: '3px' }}>
+                            Ghi nhận: {q.clueTag}
                           </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                        </div>
+                      </React.Fragment>
+                    ))}
+                </div>
+
+                {/* Thẻ tre câu hỏi */}
+                <div className="inquiry-grid">
+                  {selectedCase.inquiries
+                    .filter((q) => !askedIds.includes(q.id))
+                    .map((q) => {
+                      const limitReached = askedIds.length >= selectedCase.maxInquiries;
+                      return (
+                        <button
+                          key={q.id}
+                          type="button"
+                          className="bamboo-tally-btn"
+                          disabled={limitReached}
+                          onClick={() => handleAskQuestion(q.id, q.clueTag)}
+                        >
+                          <span style={{ color: '#E7B96A', fontWeight: 700 }}>[{q.topic}]</span> {q.question}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             )}
@@ -578,12 +600,24 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                           </span>
                         </div>
                       ) : (
-                        <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', margin: '6px 0' }}>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--sand-muted)', margin: '6px 0' }}>
                           {meta.hint}
                         </div>
                       )}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                        <span style={{ fontSize: '0.72rem', color: isActiveSlot ? 'var(--cinnabar)' : 'var(--ink-muted)', fontWeight: isActiveSlot ? 700 : 400 }}>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            color: herb
+                              ? isActiveSlot
+                                ? 'var(--cinnabar)'
+                                : 'var(--ink-muted)'
+                              : isActiveSlot
+                              ? '#E7B96A'
+                              : 'var(--sand-muted)',
+                            fontWeight: isActiveSlot ? 700 : 400
+                          }}
+                        >
                           {isActiveSlot ? 'Đang chọn ngăn này' : 'Chạm để chọn'}
                         </span>
                         {herb && (

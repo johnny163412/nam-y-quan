@@ -100,15 +100,7 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
             <span>Điểm hiện tại: {scoreCount}</span>
           </div>
 
-          <div
-            style={{
-              padding: '12px',
-              background: 'var(--paper-highlight)',
-              border: '1px solid rgba(42,33,27,0.35)',
-              borderRadius: '2px',
-              marginBottom: '12px'
-            }}
-          >
+          <div className="wood-parchment-panel" style={{ marginBottom: '12px' }}>
             <h3 style={{ margin: '0 0 6px', fontFamily: 'var(--font-serif)', fontSize: '1.06rem' }}>
               {current.prompt}
             </h3>
@@ -145,20 +137,20 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
             {current.options.map((opt) => {
               const isPicked = selectedOption === opt.id;
               const isCorrect = opt.id === current.correctOptionId;
-              let bg = 'var(--paper-highlight)';
-              let border = 'rgba(42,33,27,0.35)';
-              if (submitted) {
-                if (isCorrect) {
-                  bg = 'var(--herbal-jade-soft)';
-                  border = 'var(--herbal-jade)';
-                } else if (isPicked && !isCorrect) {
-                  bg = 'var(--cinnabar-soft)';
-                  border = 'var(--cinnabar)';
-                }
-              } else if (isPicked) {
-                bg = 'var(--brass-soft)';
-                border = 'var(--cinnabar)';
-              }
+              const cls = [
+                'exam-option-plaque',
+                submitted
+                  ? isCorrect
+                    ? 'correct'
+                    : isPicked
+                    ? 'wrong'
+                    : ''
+                  : isPicked
+                  ? 'picked'
+                  : ''
+              ]
+                .filter(Boolean)
+                .join(' ');
 
               return (
                 <button
@@ -166,18 +158,10 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
                   type="button"
                   disabled={submitted}
                   onClick={() => setSelectedOption(opt.id)}
-                  style={{
-                    textAlign: 'left',
-                    padding: '10px 12px',
-                    background: bg,
-                    border: `1.5px solid ${border}`,
-                    borderRadius: '2px'
-                  }}
+                  className={cls}
                 >
                   <div style={{ fontWeight: 700 }}>{opt.label}</div>
-                  {opt.detail && (
-                    <div style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>{opt.detail}</div>
-                  )}
+                  {opt.detail && <div className="opt-detail">{opt.detail}</div>}
                 </button>
               );
             })}

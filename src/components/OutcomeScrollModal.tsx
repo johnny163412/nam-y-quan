@@ -67,9 +67,9 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
         <div
           style={{
             padding: '10px 12px',
-            background: 'rgba(255,252,244,0.75)',
-            border: '1px solid rgba(42,33,27,0.3)',
-            borderRadius: '2px',
+            background: 'var(--paper-highlight)',
+            border: '1.5px solid #5A3E28',
+            borderRadius: '3px',
             marginBottom: '10px'
           }}
         >

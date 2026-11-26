@@ -1,21 +1,28 @@
 :root {
-  --wood-desk: #1d1510;
-  --wood-panel: #2b1f17;
-  --wood-trim: #463325;
-  --paper-do: #efe6d2;
-  --paper-aged: #e2d4b7;
-  --paper-highlight: #f7f1e3;
-  --ink-primary: #221b15;
-  --ink-muted: #5a4b3c;
+  --wood-desk: #160e09;
+  --wood-panel: #251810;
+  --wood-trim: #5a3d26;
+  --wood-carved-dark: #21150e;
+  --wood-carved-mid: #312015;
+  --wood-carved-light: #462f1f;
+  --wood-bevel: #7c562b;
+  --gold-trim: #cfa052;
+  --ivory-text: #f3e4c8;
+  --sand-muted: #ceb690;
+  --paper-do: #dbc7a1;
+  --paper-aged: #cfb68c;
+  --paper-highlight: #e4d3b2;
+  --ink-primary: #22170f;
+  --ink-muted: #523e2c;
   --cinnabar: #a62620;
-  --cinnabar-soft: rgba(166, 38, 32, 0.12);
+  --cinnabar-soft: rgba(166, 38, 32, 0.14);
   --herbal-jade: #23574c;
-  --herbal-jade-soft: rgba(35, 87, 76, 0.14);
+  --herbal-jade-soft: rgba(35, 87, 76, 0.15);
   --indigo-cold: #274b6d;
   --indigo-soft: rgba(39, 75, 109, 0.14);
   --brass-ochre: #9c6b24;
-  --brass-soft: rgba(156, 107, 36, 0.15);
-  --border-ink: #2a211b;
+  --brass-soft: rgba(156, 107, 36, 0.16);
+  --border-ink: #382417;
   --font-serif: 'Noto Serif', 'Times New Roman', Georgia, serif;
   --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
 }
@@ -33,14 +40,21 @@ body {
   min-height: 100%;
   background-color: var(--wood-desk);
   background-image:
-    radial-gradient(circle at 26% 14%, rgba(227, 165, 72, 0.16), transparent 44%),
-    radial-gradient(circle at 78% 18%, rgba(156, 107, 36, 0.13), transparent 48%),
+    radial-gradient(circle at 26% 14%, rgba(227, 165, 72, 0.15), transparent 44%),
+    radial-gradient(circle at 78% 18%, rgba(156, 107, 36, 0.12), transparent 48%),
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.014) 0px,
-      rgba(255, 255, 255, 0.014) 2px,
+      rgba(255, 224, 178, 0.018) 0px,
+      rgba(255, 224, 178, 0.018) 2px,
       transparent 2px,
-      transparent 22px
+      transparent 18px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.12) 0px,
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 38px
     );
   color: var(--ink-primary);
   font-family: var(--font-sans);
@@ -62,7 +76,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--cinnabar);
+  outline: 2px solid var(--gold-trim);
   outline-offset: 2px;
 }
 
@@ -72,11 +86,12 @@ button {
   flex-direction: column;
 }
 
-/* ==================== HEADER PLAQUE ==================== */
+/* ==================== HEADER PLAQUE (HOÀNH PHI GỖ SƠN SON) ==================== */
 .header-plaque {
-  background: linear-gradient(180deg, #2d2018 0%, var(--wood-desk) 100%);
-  border-bottom: 3px double var(--brass-ochre);
-  color: var(--paper-do);
+  background: linear-gradient(180deg, #322116 0%, #1B110B 100%);
+  border-bottom: 3px double var(--gold-trim);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  color: var(--ivory-text);
   padding: 12px 20px;
   position: sticky;
   top: 0;
@@ -100,15 +115,15 @@ button {
 }
 
 .rank-seal {
-  border: 2px solid var(--cinnabar);
-  background: var(--cinnabar);
-  color: #fff6ec;
+  border: 2px solid var(--gold-trim);
+  background: linear-gradient(180deg, #A62620 0%, #781915 100%);
+  color: #FFF5E0;
   font-family: var(--font-serif);
   font-weight: 700;
   padding: 4px 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 0.85rem;
-  box-shadow: inset 0 0 0 1px rgba(255, 246, 236, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(255, 228, 178, 0.4), 0 2px 4px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
 }
 
@@ -117,14 +132,14 @@ button {
   font-family: var(--font-serif);
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--paper-highlight);
+  color: var(--ivory-text);
   letter-spacing: 0.01em;
 }
 
 .brand-subtitle {
   margin: 0;
   font-size: 0.78rem;
-  color: #d3c3a4;
+  color: var(--sand-muted);
 }
 
 .nav-tabs {
@@ -134,25 +149,26 @@ button {
 }
 
 .nav-tab {
-  background: rgba(239, 230, 210, 0.08);
-  border: 1px solid var(--wood-trim);
-  color: var(--paper-do);
+  background: linear-gradient(180deg, #3D291B 0%, #271A11 100%);
+  border: 1.5px solid #6E4B2A;
+  color: var(--ivory-text);
   padding: 7px 14px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-weight: 600;
   font-size: 0.9rem;
+  box-shadow: inset 0 1px 0 rgba(235, 195, 130, 0.16), 0 2px 0 #140C07;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .nav-tab:hover {
-  background: rgba(239, 230, 210, 0.16);
+  border-color: var(--gold-trim);
 }
 
 .nav-tab.active {
-  background: var(--paper-do);
-  color: var(--ink-primary);
-  border-color: var(--brass-ochre);
-  box-shadow: 0 2px 0 var(--brass-ochre);
+  background: linear-gradient(180deg, #9E2921 0%, #721A14 100%);
+  color: #FFF5E0;
+  border-color: var(--gold-trim);
+  box-shadow: inset 0 1px 0 rgba(255, 225, 168, 0.35), 0 2px 0 #3D0D09;
 }
 
 .header-tools {
@@ -163,11 +179,11 @@ button {
 }
 
 .watch-pill {
-  background: rgba(156, 107, 36, 0.22);
-  border: 1px solid rgba(239, 230, 210, 0.28);
-  color: var(--paper-highlight);
+  background: linear-gradient(180deg, #3D291B 0%, #2A1C12 100%);
+  border: 1.5px solid #7C562B;
+  color: var(--ivory-text);
   padding: 5px 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 0.82rem;
   display: flex;
   align-items: center;
@@ -175,19 +191,19 @@ button {
 }
 
 .icon-btn {
-  background: rgba(239, 230, 210, 0.1);
-  border: 1px solid var(--wood-trim);
-  color: var(--paper-do);
+  background: linear-gradient(180deg, #422C1D 0%, #2B1C12 100%);
+  border: 1.5px solid #6E4B2A;
+  color: var(--ivory-text);
   padding: 5px 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 0.82rem;
 }
 
 .icon-btn:hover {
-  background: rgba(239, 230, 210, 0.2);
+  border-color: var(--gold-trim);
 }
 
-/* ==================== MAIN WORKSPACE & WOODBLOCK SHEETS ==================== */
+/* ==================== MAIN WORKSPACE & CARVED WOOD BOARDS ==================== */
 .main-stage {
   flex: 1;
   max-width: 1400px;
@@ -199,50 +215,60 @@ button {
 .woodblock-sheet {
   background-color: var(--paper-do);
   background-image:
-    radial-gradient(circle at 85% 12%, rgba(186, 134, 54, 0.12), transparent 48%),
-    radial-gradient(circle at 12% 90%, rgba(120, 82, 42, 0.08), transparent 45%),
+    radial-gradient(circle at 85% 12%, rgba(168, 118, 44, 0.14), transparent 48%),
+    radial-gradient(circle at 12% 90%, rgba(96, 62, 28, 0.11), transparent 45%),
     linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-do) 100%);
-  border: 2px solid var(--border-ink);
+  border: 4px solid #382417;
+  outline: 1px solid #6E4B2A;
   box-shadow:
-    inset 0 0 0 3px var(--paper-do),
-    inset 0 0 0 4px rgba(42, 33, 27, 0.24),
-    0 8px 24px rgba(0, 0, 0, 0.44);
-  border-radius: 3px;
+    inset 0 0 0 2px #7C562B,
+    inset 0 0 26px rgba(66, 42, 18, 0.24),
+    0 12px 28px rgba(0, 0, 0, 0.55);
+  border-radius: 4px;
   padding: 16px;
 }
 
 .stitched-binding {
-  padding-left: 24px;
+  padding-left: 26px;
   background-image:
     repeating-linear-gradient(
       180deg,
       transparent 0px,
       transparent 28px,
-      rgba(42, 33, 27, 0.55) 28px,
-      rgba(42, 33, 27, 0.55) 38px,
+      rgba(42, 27, 16, 0.7) 28px,
+      rgba(42, 27, 16, 0.7) 38px,
       transparent 38px,
       transparent 54px
     ),
-    linear-gradient(90deg, rgba(90, 75, 60, 0.12) 0px, rgba(90, 75, 60, 0.12) 14px, transparent 15px),
-    radial-gradient(circle at 85% 12%, rgba(186, 134, 54, 0.12), transparent 48%),
+    linear-gradient(90deg, rgba(64, 42, 24, 0.18) 0px, rgba(64, 42, 24, 0.18) 16px, transparent 17px),
+    radial-gradient(circle at 85% 12%, rgba(168, 118, 44, 0.14), transparent 48%),
     linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-do) 100%);
   background-size: 3px 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-position: 9px 0, 0 0, 0 0, 0 0;
+  background-position: 10px 0, 0 0, 0 0, 0 0;
   background-repeat: repeat-y, no-repeat, no-repeat, no-repeat;
 }
 
 .section-heading {
   font-family: var(--font-serif);
-  font-size: 1.12rem;
+  font-size: 1.08rem;
   font-weight: 700;
-  color: var(--ink-primary);
-  margin: 0 0 10px;
-  padding-bottom: 6px;
-  border-bottom: 1.5px solid rgba(42, 33, 27, 0.28);
+  color: var(--ivory-text);
+  background: linear-gradient(180deg, #382518 0%, #23160E 100%);
+  border: 1.5px solid var(--wood-bevel);
+  padding: 8px 12px;
+  border-radius: 3px;
+  margin: 0 0 12px;
+  box-shadow: inset 0 1px 0 rgba(235, 195, 130, 0.22), 0 2px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.section-heading .tag-badge {
+  background: linear-gradient(180deg, #4B3220 0%, #2F1F14 100%);
+  color: var(--ivory-text);
+  border: 1px solid var(--gold-trim);
 }
 
 .muted-note {
@@ -260,10 +286,11 @@ button {
   gap: 10px;
   margin-bottom: 14px;
   padding: 10px 14px;
-  background: var(--wood-panel);
-  border: 1.5px solid var(--wood-trim);
-  border-radius: 2px;
-  color: var(--paper-do);
+  background: linear-gradient(180deg, #2F1F15 0%, #20150E 100%);
+  border: 2px solid #6E4B2A;
+  box-shadow: inset 0 1px 0 rgba(235, 195, 130, 0.16), 0 4px 10px rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  color: var(--ivory-text);
 }
 
 .chapter-pills {
@@ -274,19 +301,19 @@ button {
 }
 
 .chapter-btn {
-  background: transparent;
-  border: 1px solid var(--wood-trim);
-  color: #dfd3b9;
+  background: linear-gradient(180deg, #422D1E 0%, #2B1C12 100%);
+  border: 1.5px solid #6B4928;
+  color: var(--sand-muted);
   padding: 5px 11px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .chapter-btn.active {
-  background: var(--brass-ochre);
-  border-color: #d6a456;
-  color: #fff8ed;
+  background: linear-gradient(180deg, #9E2921 0%, #721A14 100%);
+  border-color: var(--gold-trim);
+  color: #FFF5E0;
 }
 
 .chapter-btn:disabled {
@@ -295,13 +322,18 @@ button {
 }
 
 .case-select {
-  background: var(--paper-do);
-  color: var(--ink-primary);
-  border: 1.5px solid var(--border-ink);
-  padding: 5px 10px;
-  border-radius: 2px;
+  background: linear-gradient(180deg, #422D1E 0%, #2B1C12 100%);
+  color: var(--ivory-text);
+  border: 1.5px solid #7C562B;
+  padding: 6px 10px;
+  border-radius: 3px;
   font-size: 0.88rem;
   max-width: 100%;
+}
+
+.case-select option {
+  background: #2B1C12;
+  color: #F3E4C8;
 }
 
 .desk-grid {
@@ -311,16 +343,24 @@ button {
   align-items: start;
 }
 
-/* ==================== PATIENT & FOUR EXAMS ==================== */
+/* ==================== PATIENT ALCOVE & WOODEN CHAT ==================== */
 .patient-banner {
   display: flex;
   gap: 14px;
   align-items: flex-start;
-  background: var(--paper-aged);
-  border: 1px solid rgba(42, 33, 27, 0.35);
-  padding: 12px;
-  border-radius: 2px;
+  background: linear-gradient(180deg, #2D1E14 0%, #1E130C 100%);
+  border: 2px solid #7C562B;
+  box-shadow:
+    inset 0 0 0 2px rgba(207, 160, 82, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+  color: var(--ivory-text);
+  padding: 14px;
+  border-radius: 4px;
   margin-bottom: 14px;
+}
+
+.patient-banner .muted-note {
+  color: var(--sand-muted);
 }
 
 .patient-avatar-silk {
@@ -328,12 +368,12 @@ button {
   width: 126px;
   height: 162px;
   flex-shrink: 0;
-  border: 2px solid #3A291C;
+  border: 2px solid #8F6531;
   background: #231912;
   border-radius: 4px;
   overflow: hidden;
   box-shadow:
-    0 4px 12px rgba(24, 15, 8, 0.28),
+    0 4px 12px rgba(24, 15, 8, 0.38),
     inset 0 0 0 2px rgba(214, 164, 86, 0.32);
 }
 
@@ -352,10 +392,85 @@ button {
   box-shadow: inset 0 0 18px rgba(24, 15, 8, 0.45);
 }
 
+.wood-speech-bubble {
+  background: linear-gradient(180deg, #DFCAA3 0%, #D2B98E 100%);
+  color: #22170F;
+  border: 1.5px solid #6E4B2A;
+  border-left: 5px solid #8C6234;
+  padding: 10px 12px;
+  border-radius: 3px;
+  margin-top: 8px;
+  box-shadow: inset 0 0 14px rgba(70, 44, 18, 0.18);
+  font-family: var(--font-serif);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.wooden-chat-log {
+  background: #21160F;
+  border: 2px solid #694826;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+
+.chat-turn-doctor {
+  align-self: flex-end;
+  max-width: 88%;
+  background: linear-gradient(180deg, #483121 0%, #332116 100%);
+  color: var(--ivory-text);
+  border: 1px solid #8C6234;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.chat-turn-patient {
+  align-self: flex-start;
+  max-width: 92%;
+  background: linear-gradient(180deg, #E1CDA8 0%, #D4BC92 100%);
+  color: #22170F;
+  border: 1.5px solid #7A542B;
+  border-left: 4px solid var(--cinnabar);
+  border-radius: 4px;
+  padding: 8px 11px;
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+}
+
+.bamboo-tally-btn {
+  background: linear-gradient(90deg, #3A271A 0%, #4A3221 50%, #382518 100%);
+  color: var(--ivory-text);
+  border: 1.5px solid #7D582E;
+  border-left: 5px solid var(--gold-trim);
+  padding: 8px 11px;
+  border-radius: 3px;
+  text-align: left;
+  font-size: 0.86rem;
+  box-shadow: 0 2px 0 #180F0A;
+  transition: border-color 0.12s ease, transform 0.1s ease;
+}
+
+.bamboo-tally-btn:hover:not(:disabled) {
+  border-color: #E3B666;
+  transform: translateY(-1px);
+}
+
+.bamboo-tally-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .pulse-pillow-scene {
   position: relative;
   margin-bottom: 10px;
-  border: 1.5px solid #3A291C;
+  border: 2px solid #5A3D26;
   border-radius: 4px;
   overflow: hidden;
   background: #1D1510;
@@ -370,11 +485,11 @@ button {
 }
 
 .pulse-pillow-caption {
-  padding: 5px 10px;
-  background: rgba(29, 21, 16, 0.9);
-  color: var(--paper-do);
-  font-size: 0.78rem;
-  border-top: 1px solid rgba(214, 164, 86, 0.35);
+  padding: 6px 10px;
+  background: linear-gradient(180deg, #2D1E14 0%, #1C120C 100%);
+  color: var(--ivory-text);
+  font-size: 0.79rem;
+  border-top: 1px solid #7C562B;
 }
 
 .balance-beam-bar {
@@ -382,28 +497,21 @@ button {
   line-height: 0;
 }
 
-.patient-speech {
-  margin: 6px 0 0;
-  font-family: var(--font-serif);
-  font-size: 0.96rem;
-  color: var(--ink-primary);
-  line-height: 1.5;
-}
-
 .tag-badge {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 0.78rem;
   font-weight: 600;
-  border: 1px solid rgba(42, 33, 27, 0.3);
-  background: var(--paper-highlight);
+  border: 1px solid #7C562B;
+  background: #DFCCA8;
+  color: var(--ink-primary);
 }
 
 .tag-badge.pregnant {
-  background: var(--cinnabar-soft);
-  border-color: var(--cinnabar);
-  color: var(--cinnabar);
+  background: linear-gradient(180deg, #9E2921 0%, #781915 100%);
+  border-color: var(--gold-trim);
+  color: #FFF5E0;
 }
 
 .exam-tabs {
@@ -414,32 +522,40 @@ button {
 }
 
 .exam-tab-btn {
-  background: var(--paper-aged);
-  border: 1.5px solid rgba(42, 33, 27, 0.35);
+  background: linear-gradient(180deg, #473020 0%, #2D1E14 100%);
+  color: var(--ivory-text);
+  border: 1.5px solid #755129;
   padding: 8px 6px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-weight: 600;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   text-align: center;
+  box-shadow: inset 0 1px 0 rgba(240, 200, 138, 0.2), 0 2px 0 #160E09;
   transition: all 0.12s ease;
 }
 
+.exam-tab-btn:hover {
+  border-color: var(--gold-trim);
+}
+
 .exam-tab-btn.active {
-  background: var(--ink-primary);
-  color: var(--paper-highlight);
-  border-color: var(--ink-primary);
+  background: linear-gradient(180deg, #9E2921 0%, #721A14 100%);
+  color: #FFF5E0;
+  border-color: var(--gold-trim);
+  box-shadow: inset 0 1px 0 rgba(255, 225, 168, 0.35), 0 2px 0 #3D0D09;
 }
 
 .exam-panel {
-  border: 1px solid rgba(42, 33, 27, 0.3);
-  background: rgba(255, 252, 244, 0.65);
+  border: 2px solid #5A3E28;
+  background: linear-gradient(180deg, #DFCCA5 0%, #D3BC93 100%);
   padding: 12px;
-  border-radius: 2px;
+  border-radius: 4px;
   margin-bottom: 14px;
+  box-shadow: inset 0 0 16px rgba(70, 44, 18, 0.16);
 }
 
 .clue-drawer {
-  border-top: 1px dashed rgba(42, 33, 27, 0.35);
+  border-top: 1.5px dashed rgba(64, 42, 24, 0.45);
   padding-top: 10px;
 }
 
@@ -451,55 +567,35 @@ button {
 }
 
 .clue-chip {
-  background: var(--herbal-jade-soft);
-  border: 1px solid rgba(35, 87, 76, 0.4);
-  color: var(--herbal-jade);
-  padding: 3px 8px;
-  border-radius: 2px;
+  background: linear-gradient(180deg, #3C291B 0%, #2A1C12 100%);
+  border: 1px solid #8A6232;
+  color: #F2E2C4;
+  padding: 3px 9px;
+  border-radius: 3px;
   font-size: 0.8rem;
   font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .inquiry-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
-.inquiry-btn {
-  text-align: left;
-  background: var(--paper-highlight);
-  border: 1px solid rgba(42, 33, 27, 0.32);
-  padding: 8px 10px;
-  border-radius: 2px;
-  font-size: 0.88rem;
-}
-
-.inquiry-btn:hover:not(:disabled) {
-  border-color: var(--brass-ochre);
-  background: #fffdf7;
-}
-
-.inquiry-btn.asked {
-  background: var(--paper-aged);
-  border-color: var(--herbal-jade);
-}
-
-.inquiry-answer {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(42, 33, 27, 0.22);
-  color: var(--ink-primary);
-  font-family: var(--font-serif);
-}
-
-/* ==================== COMPASS, SCALE PANS & HERB DRAWER ==================== */
+/* ==================== WOODEN COMPASS, SCALE PANS & BÁCH TỬ CABINET ==================== */
 .compass-box {
-  background: rgba(255, 252, 244, 0.72);
-  border: 1px solid rgba(42, 33, 27, 0.3);
+  background: linear-gradient(180deg, #2B1D14 0%, #1F140D 100%);
+  color: var(--ivory-text);
+  border: 2px solid #7A542B;
   padding: 12px;
-  border-radius: 2px;
+  border-radius: 4px;
   margin-bottom: 12px;
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.compass-box .diag-group-label {
+  color: var(--sand-muted);
 }
 
 .axis-row {
@@ -517,9 +613,9 @@ button {
 .axis-track {
   position: relative;
   height: 12px;
-  background: linear-gradient(90deg, var(--indigo-soft) 0%, rgba(255, 255, 255, 0.5) 50%, var(--cinnabar-soft) 100%);
-  border: 1px solid rgba(42, 33, 27, 0.35);
-  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(66, 114, 160, 0.48) 0%, rgba(220, 198, 162, 0.35) 50%, rgba(196, 62, 54, 0.52) 100%);
+  border: 1px solid #8A6232;
+  border-radius: 3px;
 }
 
 .axis-center-line {
@@ -528,8 +624,8 @@ button {
   top: -2px;
   bottom: -2px;
   width: 2px;
-  background: var(--ink-primary);
-  opacity: 0.45;
+  background: var(--gold-trim);
+  opacity: 0.85;
 }
 
 .axis-marker-initial {
@@ -538,8 +634,8 @@ button {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--cinnabar);
-  border: 1.5px solid #fff;
+  background: #D9382E;
+  border: 1.5px solid #FFF5E0;
   transform: translate(-50%, -50%);
 }
 
@@ -549,8 +645,8 @@ button {
   width: 12px;
   height: 12px;
   border-radius: 2px;
-  background: var(--herbal-jade);
-  border: 1.5px solid #fff;
+  background: #3B8C75;
+  border: 1.5px solid #FFF5E0;
   transform: translate(-50%, -50%) rotate(45deg);
   transition: left 0.2s ease;
 }
@@ -576,23 +672,34 @@ button {
 
 .toggle-pair {
   display: flex;
-  gap: 4px;
+  gap: 5px;
 }
 
 .toggle-pill {
   flex: 1;
   padding: 5px 8px;
-  border: 1px solid rgba(42, 33, 27, 0.35);
-  background: var(--paper-highlight);
-  border-radius: 2px;
+  background: linear-gradient(180deg, #473020 0%, #2D1E14 100%);
+  color: var(--ivory-text);
+  border: 1.5px solid #755129;
+  border-radius: 3px;
   font-size: 0.84rem;
   font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(240, 200, 138, 0.16), 0 1px 0 #160E09;
+}
+
+.toggle-pill:hover:not(:disabled) {
+  border-color: var(--gold-trim);
+}
+
+.toggle-pill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .toggle-pill.active {
-  background: var(--cinnabar);
-  color: #fff8ed;
-  border-color: var(--cinnabar);
+  background: linear-gradient(180deg, #9E2921 0%, #721A14 100%);
+  color: #FFF5E0;
+  border-color: var(--gold-trim);
 }
 
 .scale-pans-grid {
@@ -685,11 +792,12 @@ button {
 }
 
 .scale-pan {
-  border: 1.5px dashed var(--brass-ochre);
-  background: var(--brass-soft);
-  border-radius: 5px;
+  border: 1.5px dashed #A97B3B;
+  background: linear-gradient(180deg, #332217 0%, #241810 100%);
+  color: var(--sand-muted);
+  border-radius: 4px;
   padding: 8px;
-  min-height: 106px;
+  min-height: 112px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -698,14 +806,15 @@ button {
 
 .scale-pan.selected-slot {
   border-style: solid;
-  border-color: var(--cinnabar);
-  box-shadow: 0 0 0 2px rgba(166, 38, 32, 0.2);
+  border-color: var(--gold-trim);
+  box-shadow: 0 0 0 2px rgba(207, 160, 82, 0.28);
 }
 
 .scale-pan.filled {
   border-style: solid;
   background: var(--paper-highlight);
-  border-color: var(--border-ink);
+  border: 2px solid #5C4028;
+  color: var(--ink-primary);
 }
 
 .pan-header {
@@ -714,7 +823,11 @@ button {
   align-items: center;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--brass-ochre);
+  color: #D59E49;
+}
+
+.scale-pan.filled .pan-header {
+  color: #825317;
 }
 
 .pan-herb-name {
@@ -739,24 +852,25 @@ button {
 
 .herb-card {
   background: var(--paper-highlight);
-  border: 1.5px solid rgba(42, 33, 27, 0.38);
+  border: 2px solid #5A3E28;
   border-radius: 3px;
   padding: 9px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   text-align: left;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22);
   transition: border-color 0.14s ease, transform 0.12s ease;
 }
 
 .herb-card:hover {
-  border-color: var(--brass-ochre);
+  border-color: var(--gold-trim);
   transform: translateY(-1px);
 }
 
 .herb-card.selected {
   border: 2px solid var(--cinnabar);
-  background: #fff9ef;
+  background: #ECDCC0;
 }
 
 .bach-tu-cabinet .herb-card {
@@ -797,7 +911,7 @@ button {
 
 .drawer-paper-label {
   background: var(--paper-highlight);
-  border: 1px solid rgba(42, 33, 27, 0.4);
+  border: 1px solid #6B4928;
   border-radius: 2px;
   padding: 6px 7px;
   display: flex;
@@ -807,7 +921,7 @@ button {
 }
 
 .herb-card.assigned .drawer-paper-label {
-  background: #E9F1EC;
+  background: #D9E2D4;
 }
 
 .nature-tag {
@@ -830,24 +944,24 @@ button {
 
 .nature-neutral {
   background: var(--brass-soft);
-  color: var(--brass-ochre);
+  color: #7D5115;
 }
 
 .alert-banner {
   border: 1.5px solid var(--cinnabar);
-  background: var(--cinnabar-soft);
-  color: var(--cinnabar);
+  background: rgba(166, 38, 32, 0.16);
+  color: #7C1510;
   padding: 8px 12px;
-  border-radius: 2px;
+  border-radius: 3px;
   margin: 10px 0;
   font-size: 0.86rem;
   font-weight: 600;
 }
 
 .alert-banner.caution {
-  border-color: var(--brass-ochre);
-  background: var(--brass-soft);
-  color: #6b4510;
+  border-color: #8F6531;
+  background: rgba(156, 107, 36, 0.2);
+  color: #54340A;
 }
 
 .stamp-action-bar {
@@ -858,37 +972,38 @@ button {
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1.5px solid rgba(42, 33, 27, 0.28);
+  border-top: 1.5px solid rgba(56, 36, 23, 0.35);
 }
 
 .btn-cinnabar {
-  background: var(--cinnabar);
-  color: #fff8ed;
-  border: 2px solid #6e1511;
+  background: linear-gradient(180deg, #A62620 0%, #781915 100%);
+  color: #FFF5E0;
+  border: 2px solid var(--gold-trim);
   padding: 9px 18px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-family: var(--font-serif);
   font-weight: 700;
   font-size: 0.96rem;
-  box-shadow: 0 2px 0 #5b100d;
+  box-shadow: inset 0 1px 0 rgba(255, 224, 170, 0.3), 0 2px 0 #420B08;
 }
 
 .btn-cinnabar:hover {
-  background: #8f1f1a;
+  background: linear-gradient(180deg, #B92B24 0%, #861D18 100%);
 }
 
 .btn-secondary {
-  background: var(--paper-aged);
-  color: var(--ink-primary);
-  border: 1.5px solid var(--border-ink);
+  background: linear-gradient(180deg, #473020 0%, #2D1E14 100%);
+  color: var(--ivory-text);
+  border: 1.5px solid #755129;
   padding: 7px 13px;
-  border-radius: 2px;
+  border-radius: 3px;
   font-weight: 600;
   font-size: 0.88rem;
+  box-shadow: inset 0 1px 0 rgba(240, 200, 138, 0.16), 0 2px 0 #160E09;
 }
 
 .btn-secondary:hover {
-  background: #d8c7a3;
+  border-color: var(--gold-trim);
 }
 
 /* ==================== TANG THU CAC & SANDBOX ==================== */
@@ -905,11 +1020,54 @@ button {
   align-items: start;
 }
 
+.wood-parchment-panel {
+  background: linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-do) 100%);
+  border: 2px solid #5A3E28;
+  border-radius: 4px;
+  padding: 14px;
+  box-shadow: inset 0 0 16px rgba(68, 44, 18, 0.16);
+}
+
+.exam-option-plaque {
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3D291C 0%, #2B1C12 100%);
+  color: var(--ivory-text);
+  border: 1.5px solid #755129;
+  box-shadow: 0 2px 0 #160E09;
+}
+
+.exam-option-plaque:hover:not(:disabled) {
+  border-color: var(--gold-trim);
+}
+
+.exam-option-plaque.picked {
+  background: linear-gradient(180deg, #573A26 0%, #3E281A 100%);
+  border-color: var(--gold-trim);
+}
+
+.exam-option-plaque.correct {
+  background: linear-gradient(180deg, #285E52 0%, #1C433A 100%);
+  border-color: #74B5A3;
+}
+
+.exam-option-plaque.wrong {
+  background: linear-gradient(180deg, #91241E 0%, #661713 100%);
+  border-color: #E2857E;
+}
+
+.exam-option-plaque .opt-detail {
+  font-size: 0.82rem;
+  color: var(--sand-muted);
+  margin-top: 2px;
+}
+
 /* ==================== MODAL OVERLAY ==================== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(18, 12, 9, 0.72);
+  background: rgba(14, 9, 6, 0.78);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -927,20 +1085,21 @@ button {
 .seal-stamp-badge {
   display: inline-block;
   border: 3px solid var(--cinnabar);
+  background: rgba(236, 218, 182, 0.9);
   color: var(--cinnabar);
   font-family: var(--font-serif);
   font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 2px;
-  transform: rotate(-4deg);
-  font-size: 1.05rem;
+  padding: 5px 12px;
+  border-radius: 3px;
+  transform: rotate(-3deg);
+  font-size: 1rem;
 }
 
 /* ==================== FOOTER ==================== */
 .disclaimer-footer {
-  background: var(--wood-desk);
-  border-top: 1px solid var(--wood-trim);
-  color: #bba989;
+  background: linear-gradient(180deg, #1E130D 0%, #120B07 100%);
+  border-top: 2px solid #5A3D26;
+  color: var(--sand-muted);
   font-size: 0.78rem;
   padding: 12px 20px;
   text-align: center;

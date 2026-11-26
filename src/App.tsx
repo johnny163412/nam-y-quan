@@ -108,6 +108,7 @@ export const App: React.FC = () => {
         onSelectTab={(tab) => {
           apothecaryAudio.playPageTurn();
           setActiveTab(tab);
+          window.scrollTo({ top: 0 });
         }}
         progress={progress}
         onToggleSound={() =>

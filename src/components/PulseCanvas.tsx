@@ -38,11 +38,11 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({ pulse, onDepthInspecte
 
       ctx.clearRect(0, 0, w, h);
 
-      // Aged rice paper grid lines
-      ctx.fillStyle = '#F7F1E3';
+      // Tea-aged parchment pulse scroll background
+      ctx.fillStyle = '#DCC7A0';
       ctx.fillRect(0, 0, w, h);
 
-      ctx.strokeStyle = 'rgba(42, 33, 27, 0.1)';
+      ctx.strokeStyle = 'rgba(56, 36, 23, 0.16)';
       ctx.lineWidth = 1;
       for (let x = 0; x < w; x += 28) {
         ctx.beginPath();
@@ -162,8 +162,8 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({ pulse, onDepthInspecte
         style={{
           width: '100%',
           height: '118px',
-          border: '1.5px solid #2A211B',
-          borderRadius: '2px',
+          border: '2px solid #5A3E28',
+          borderRadius: '3px',
           display: 'block'
         }}
       />
