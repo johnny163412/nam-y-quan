@@ -141,6 +141,8 @@ export interface PatientCase {
   title: string;
   chapter: 1 | 2 | 3;
   isProcedural?: boolean;
+  /** Set on a tái khám visit: the story case id this patient first came for. */
+  followUpOf?: string;
   patientName: string;
   patientRole: string;
   age: number;
@@ -335,6 +337,17 @@ export interface UserProgress {
   currentStreak?: number;
   songAnClearedIds?: string[];
   unlockedAchievements?: string[];
+  pendingFollowUps?: PendingFollowUp[];
+}
+
+export interface PendingFollowUp {
+  caseId: string;
+  patientName: string;
+  dueDay: number;
+  kind: 'chua-lui' | 'chuyen-the';
+  residual: EightPrinciplesVector;
+  /** chuyen-the only: procedural template the disease turned into. */
+  templateCode?: string;
 }
 
 export interface DecoctionTasteReading {

@@ -17,6 +17,7 @@ import {
   evaluateCaseSubmission,
   getTyNgoWatch
 } from '../engine/tcmEngine';
+import { buildFollowUpCase, dueFollowUps, planFollowUp } from '../engine/followUp';
 import {
   CaseLedgerEntry,
   ClassicalFormula,
@@ -28,6 +29,7 @@ import {
   Herb,
   PaoZhiMethod,
   PatientCase,
+  PendingFollowUp,
   PrescriptionSlots,
   RoleSlot,
   SlotPaoZhi
@@ -58,6 +60,7 @@ interface ClinicDeskProps {
   caseLedger: CaseLedgerEntry[];
   yDucPoints: number;
   dayCount: number;
+  pendingFollowUps: PendingFollowUp[];
   currentStreak: number;
   songAnClearedIds: string[];
   discoveredFormulas: string[];
@@ -111,6 +114,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   caseLedger,
   yDucPoints,
   dayCount,
+  pendingFollowUps,
   currentStreak: _currentStreak,
   songAnClearedIds,
   discoveredFormulas,
@@ -611,6 +615,18 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       bienChung
     );
 
+    const followUp = planFollowUp(selectedCase, res, dayCount);
+    if (followUp) {
+      window.setTimeout(
+        () =>
+          pushCallout(
+            `${followUp.patientName} sẽ quay lại tái khám sau ${followUp.dueDay - dayCount - 1} ngày`,
+            'cinnabar'
+          ),
+        900
+      );
+    }
+
     setStampingActive(true);
     apothecaryAudio.playSealStamp(res.passed);
     window.setTimeout(() => {
@@ -629,7 +645,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       handleSpawnProcedural();
       return;
     }
-    const idx = STORY_CASES.findIndex((c) => c.id === selectedCase.id);
+    const storyId = selectedCase.followUpOf ?? selectedCase.id;
+    const idx = STORY_CASES.findIndex((c) => c.id === storyId);
     if (idx >= 0 && idx + 1 < STORY_CASES.length) {
       const next = STORY_CASES[idx + 1];
       setActiveChapter(next.chapter);
@@ -675,6 +692,21 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           >
             <AntiqueIcon name="bell" size={13} /> <span>Đón Khách</span>
           </button>
+          {dueFollowUps(pendingFollowUps, dayCount).map((fu) => {
+            const fuCase = buildFollowUpCase(fu);
+            if (!fuCase || fuCase.id === selectedCase.id) return null;
+            return (
+              <button
+                key={fu.caseId}
+                type="button"
+                className="hud-scroll-btn follow-up-btn"
+                onClick={() => loadPatient(fuCase, true)}
+                title={fu.kind === 'chuyen-the' ? 'Bệnh đã chuyển sang thể khác' : 'Bệnh chưa lui hẳn'}
+              >
+                <AntiqueIcon name="bell" size={13} /> <span>Tái khám: {fu.patientName}</span>
+              </button>
+            );
+          })}
           <div style={{ position: 'relative' }}>
             <button
               type="button"

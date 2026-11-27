@@ -16,6 +16,7 @@ import {
 import { SONG_AN_PAIRS } from './data/cases';
 import { apothecaryAudio } from './engine/audio';
 import { computeRank } from './engine/examEngine';
+import { planFollowUp } from './engine/followUp';
 import { createDefaultProgress, loadProgress, saveProgress } from './engine/storage';
 import { CaseLedgerEntry, DecoctionChoice, EvaluationResult, PatientCase, PrescriptionSlots, UserProgress } from './types/tcm';
 
@@ -71,7 +72,7 @@ export const App: React.FC = () => {
 
       if (patientCase.isProcedural) {
         if (result.passed) next.proceduralCleared += 1;
-      } else {
+      } else if (!patientCase.followUpOf) {
         const existing = next.completedCases[patientCase.id];
         if (!existing || result.totalScore > existing.bestScore) {
           next.completedCases[patientCase.id] = {
@@ -150,6 +151,15 @@ export const App: React.FC = () => {
           timestamp: Date.now()
         };
         next.caseLedger = [ledgerEntry, ...(next.caseLedger ?? [])].slice(0, 50);
+      }
+
+      if (!patientCase.isProcedural) {
+        const storyId = patientCase.followUpOf ?? patientCase.id;
+        const followUp = planFollowUp(patientCase, result, prev.dayCount ?? 1);
+        next.pendingFollowUps = [
+          ...(prev.pendingFollowUps ?? []).filter((f) => f.caseId !== storyId),
+          ...(followUp ? [followUp] : [])
+        ];
       }
 
       next.rank = computeRank(next);
@@ -258,6 +268,7 @@ export const App: React.FC = () => {
           caseLedger={progress.caseLedger ?? []}
           yDucPoints={progress.yDucPoints ?? 0}
           dayCount={progress.dayCount ?? 1}
+          pendingFollowUps={progress.pendingFollowUps ?? []}
           currentStreak={progress.currentStreak ?? 0}
           songAnClearedIds={progress.songAnClearedIds ?? []}
           discoveredFormulas={progress.discoveredFormulas ?? []}

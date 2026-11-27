@@ -7506,3 +7506,9 @@ button {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* Tái khám — returning patient call button */
+.hud-scroll-btn.follow-up-btn {
+  border-color: var(--cinnabar);
+  box-shadow: 0 0 0 1px var(--cinnabar-soft), 0 0 10px var(--cinnabar-soft);
+}

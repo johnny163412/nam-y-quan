@@ -709,7 +709,7 @@ export const STORY_CASES: PatientCase[] = [
   }
 ];
 
-interface ProceduralTemplate {
+export interface ProceduralTemplate {
   code: string;
   titlePrefix: string;
   seasonTag: string;
@@ -731,7 +731,7 @@ interface ProceduralTemplate {
   realLifeTakeaway: string;
 }
 
-const PROCEDURAL_TEMPLATES: ProceduralTemplate[] = [
+export const PROCEDURAL_TEMPLATES: ProceduralTemplate[] = [
   {
     code: 'proc-phong-han',
     titlePrefix: 'Khách vãng lai: Trúng gió lạnh đồng ruộng',
@@ -856,9 +856,17 @@ export function generateProceduralCase(chapter: 1 | 2 | 3, seed: number): Patien
   const pool = PROCEDURAL_TEMPLATES.filter((t) => t.minChapter <= chapter);
   const template = pool[Math.abs(seed) % pool.length];
   const persona = VILLAGER_NAMES[Math.abs(seed * 7 + 3) % VILLAGER_NAMES.length];
+  return caseFromTemplate(template, persona, chapter, `${template.code}-${seed}`);
+}
 
+export function caseFromTemplate(
+  template: ProceduralTemplate,
+  persona: { name: string; role: string; age: number },
+  chapter: 1 | 2 | 3,
+  id: string
+): PatientCase {
   return {
-    id: `${template.code}-${seed}`,
+    id,
     title: `${template.titlePrefix} (${persona.name})`,
     chapter,
     isProcedural: true,

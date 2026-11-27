@@ -33,8 +33,10 @@ const PORTRAIT_IMAGES: Record<string, string> = {
 };
 
 function resolvePortraitSrc(patientCase: PatientCase): string {
-  if (PORTRAIT_IMAGES[patientCase.id]) {
-    return PORTRAIT_IMAGES[patientCase.id];
+  // a tái khám visit keeps the same person's face
+  const portraitKey = patientCase.followUpOf ?? patientCase.id;
+  if (PORTRAIT_IMAGES[portraitKey]) {
+    return PORTRAIT_IMAGES[portraitKey];
   }
   if (patientCase.id.startsWith('proc-phong-han')) return PORTRAIT_IMAGES['c1-phong-han'];
   if (patientCase.id.startsWith('proc-phong-nhiet')) return PORTRAIT_IMAGES['c1-phong-nhiet'];

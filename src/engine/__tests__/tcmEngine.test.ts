@@ -23,7 +23,8 @@ import {
   getTyNgoWatch,
   simulateFiveElements
 } from '../tcmEngine';
-import { PrescriptionSlots } from '../../types/tcm';
+import { EvaluationResult, PrescriptionSlots } from '../../types/tcm';
+import { buildFollowUpCase, dueFollowUps, planFollowUp } from '../followUp';
 
 describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
   it('contains 20 herbs, 20 garden plots, and 24 acupoints (12 front, 12 back) across 3 chapters', () => {
@@ -438,5 +439,46 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(firstTry.diagnosisScore).toBe(plain.diagnosisScore);
     expect(firstTry.craftBonusNotes).toContain('Sổ Biện Chứng ấn chứng ngay nét mực đầu tiên.');
     expect(thirdTry.diagnosisScore).toBe(plain.diagnosisScore - 8);
+  });
+
+  it('tái khám: healed patients stay home, undertreated return, over-treated change pattern', () => {
+    const fake = (totalScore: number, v: EvaluationResult['resultingVector'], critical = false) =>
+      ({
+        totalScore,
+        resultingVector: v,
+        alerts: critical ? [{ severity: 'critical', sourceId: 'x', sourceName: 'x', message: 'x' }] : []
+      }) as EvaluationResult;
+    const phongHan = STORY_CASES.find((c) => c.id === 'c1-phong-han')!;
+
+    expect(planFollowUp(phongHan, fake(90, { exteriorInterior: 0, coldHeat: 0, deficiencyExcess: 0 }), 5)).toBeNull();
+    expect(planFollowUp(generateProceduralCase(1, 3), fake(30, phongHan.initialVector), 5)).toBeNull();
+
+    const under = planFollowUp(phongHan, fake(60, { exteriorInterior: -30, coldHeat: -40, deficiencyExcess: 20 }), 5)!;
+    expect(under).toMatchObject({ kind: 'chua-lui', dueDay: 8, residual: { coldHeat: -40 } });
+    const underCase = buildFollowUpCase(under)!;
+    expect(underCase.followUpOf).toBe('c1-phong-han');
+    expect(underCase.initialVector.coldHeat).toBe(-40);
+    expect(underCase.targetDiagnosis).toEqual(phongHan.targetDiagnosis);
+    expect(planFollowUp(underCase, fake(10, underCase.initialVector), 8)).toBeNull();
+
+    const over = planFollowUp(phongHan, fake(40, { exteriorInterior: -20, coldHeat: 45, deficiencyExcess: 30 }), 5)!;
+    expect(over).toMatchObject({ kind: 'chuyen-the', templateCode: 'proc-phong-nhiet' });
+    const overCase = buildFollowUpCase(over)!;
+    expect(overCase.targetDiagnosis.nature).toBe('nhiet');
+    expect(overCase.patientName).toBe(phongHan.patientName);
+    expect(overCase.isProcedural).toBe(false);
+
+    const unsafe = planFollowUp(phongHan, fake(85, { exteriorInterior: 0, coldHeat: 0, deficiencyExcess: 0 }, true), 5)!;
+    expect(unsafe).toMatchObject({ kind: 'chua-lui', residual: phongHan.initialVector });
+
+    expect(dueFollowUps([under], 7)).toHaveLength(0);
+    expect(dueFollowUps([under], 8)).toHaveLength(1);
+
+    const pregnant = STORY_CASES.find((c) => c.isPregnant);
+    if (pregnant) {
+      const flipToHeat = { ...pregnant.initialVector, coldHeat: pregnant.initialVector.coldHeat < 0 ? 60 : -60 };
+      const fu = planFollowUp(pregnant, fake(40, flipToHeat), 1);
+      if (fu?.kind === 'chuyen-the') expect(buildFollowUpCase(fu)!.isPregnant).toBe(true);
+    }
   });
 });
