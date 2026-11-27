@@ -96,3 +96,17 @@ test('settings opens fully on screen and its volume sliders work', async ({ page
   await dialog.getByRole('button', { name: 'Đóng lại' }).click();
   await expect(dialog).toHaveCount(0);
 });
+
+test('holding a finger on the wrist reads Phù, then sinks to Trầm', async ({ page }) => {
+  await enterClinic(page);
+  await page.locator('.tabletop-tool-btn', { hasText: 'Gối Mạch' }).click();
+  const wrist = page.locator('.pulse-wrist-backdrop');
+  await page.waitForTimeout(600); // the drawer scrolls itself into view on phones
+  await wrist.hover({ position: { x: 40, y: 30 } });
+  await page.mouse.down();
+  await expect(wrist).toHaveClass(/depth-phu/);
+  await expect(wrist).toHaveClass(/depth-tram/, { timeout: 2000 });
+  await page.mouse.up();
+  await expect(wrist).not.toHaveClass(/is-pressing/);
+  await expect(page.locator('.knob-half.active', { hasText: 'Trầm thủ' })).toBeVisible();
+});

@@ -32,7 +32,12 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
   const [depth, setDepth] = useState<'phu' | 'tram'>('phu');
   const [activeFinger, setActiveFinger] = useState<PulseFingerZone>('quan');
   const [audioPulseOn, setAudioPulseOn] = useState(false);
+  // press-and-hold on the wrist: a light touch reads Phù, holding on ~0.8s sinks to Trầm
+  const [pressing, setPressing] = useState(false);
+  const deepenTimer = useRef<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Kết / Đại / Xúc pulses drop a beat now and then
+  const intermittent = /Kết|Đại|Xúc/.test(pulse.name);
 
   const fingerMultiplier = pulse.zoneNotes?.[activeFinger]?.strengthMultiplier ?? 1;
   const baseStrength = depth === 'phu' ? pulse.phuStrength : pulse.tramStrength;
@@ -43,13 +48,28 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
     onDepthInspected?.(next);
   };
 
+  const startPress = () => {
+    setPressing(true);
+    switchDepth('phu');
+    if (deepenTimer.current) window.clearTimeout(deepenTimer.current);
+    deepenTimer.current = window.setTimeout(() => switchDepth('tram'), 800);
+  };
+  const endPress = () => {
+    if (deepenTimer.current) window.clearTimeout(deepenTimer.current);
+    deepenTimer.current = null;
+    setPressing(false);
+  };
+  useEffect(() => () => {
+    if (deepenTimer.current) window.clearTimeout(deepenTimer.current);
+  }, []);
+
   const switchFinger = (zone: PulseFingerZone) => {
     setActiveFinger(zone);
     const note = pulse.zoneNotes?.[zone];
     if (note && onFingerInspected) {
       onFingerInspected(zone, `${note.label}: ${note.finding}`);
     }
-    apothecaryAudio.playPulseBeat(activeStrength);
+    apothecaryAudio.playHeartbeat(activeStrength, pulse.waveStyle);
   };
 
   useEffect(() => {
@@ -133,9 +153,12 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
 
       const freq = pulse.bpm / 60;
       const beatIndex = Math.floor(elapsed * freq);
-      if (audioPulseOn && beatIndex !== lastBeatIdx) {
+      if ((audioPulseOn || pressing) && beatIndex !== lastBeatIdx) {
         lastBeatIdx = beatIndex;
-        apothecaryAudio.playPulseBeat(activeStrength);
+        if (!(intermittent && beatIndex % 7 === 6)) {
+          apothecaryAudio.playHeartbeat(activeStrength, pulse.waveStyle);
+          if (pressing) navigator.vibrate?.(depth === 'tram' ? 22 : 12);
+        }
       }
 
       // Soft calligraphy ink echo shadow stroke
@@ -177,7 +200,7 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
 
     rafId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(rafId);
-  }, [pulse, depth, activeFinger, activeStrength, audioPulseOn, hideName]);
+  }, [pulse, depth, activeFinger, activeStrength, audioPulseOn, pressing, intermittent, hideName]);
 
   const activeZoneNote = pulse.zoneNotes?.[activeFinger];
 
@@ -185,12 +208,22 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
     <div>
       {!hideName && (
         <div className="pulse-wrist-stage">
-          <div className="pulse-wrist-backdrop">
+          <div
+            className={`pulse-wrist-backdrop ${pressing ? `is-pressing depth-${depth}` : ''}`}
+            onPointerDown={startPress}
+            onPointerUp={endPress}
+            onPointerLeave={endPress}
+            onPointerCancel={endPress}
+            onContextMenu={(e) => e.preventDefault()}
+          >
             <img
               src="./art/tools/pulse-pillow.webp"
               alt="Thầy thuốc đặt ba ngón Thốn Quan Xích bắt mạch trên gối gấm bên ngọn đèn dầu"
               className="pulse-pillow-art-pure"
             />
+            <span className="pulse-press-hint" aria-hidden="true">
+              {pressing ? (depth === 'tram' ? 'Trầm thủ — ấn sâu' : 'Phù thủ — giữ thêm để ấn sâu') : 'Giữ ngón trên cổ tay để bắt mạch'}
+            </span>
             <div className="pulse-hotspots-layer" role="group" aria-label="Ba bộ Thốn Quan Xích trên cổ tay">
               {FINGER_ZONES.map((fz) => {
                 const isAct = activeFinger === fz.id;

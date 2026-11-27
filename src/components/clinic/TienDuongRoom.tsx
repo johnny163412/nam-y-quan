@@ -21,6 +21,7 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
     activeRoom,
     curtainParting,
     activeToolDrawer,
+    outcome,
     setActiveToolDrawer,
     askedIds,
     clues,
@@ -67,15 +68,16 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
         {/* Left / Center Cinematic Patient & Speech Stage */}
         <div className="spatial-patient-stage">
           <div className="stage-patient-centerpiece">
-            <div className="silk-scroll-mount" aria-hidden="true">
-              <div className="scroll-rod-cap stage-cap" />
+            {/* the patient sits across the desk from you, lit by the oil lamp on the left; the lower body dissolves into shadow like an ink-wash figure */}
+            <div className="patient-at-desk" aria-hidden="true">
               <VillagerPortrait
                 patientCase={selectedCase}
                 size="stage"
+                cutout
+                mood={outcome?.passed ? 'recovered' : 'sick'}
                 activeExamTool={activeToolDrawer && activeToolDrawer !== 'bat-cuong' ? activeToolDrawer : null}
                 coughing={auscultating}
               />
-              <div className="scroll-rod-cap stage-cap" />
             </div>
           </div>
 

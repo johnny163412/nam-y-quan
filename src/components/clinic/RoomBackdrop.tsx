@@ -2,7 +2,7 @@ import React from 'react';
 import { WeatherCanvas, WeatherKind } from './WeatherCanvas';
 
 type RoomKey = 'tien-duong' | 'duoc-cac' | 'noi-cac' | 'hau-vien';
-type LightKind = 'lamp' | 'lantern' | 'ember' | 'sun';
+type LightKind = 'lamp' | 'lantern' | 'ember' | 'sun' | 'pool';
 
 /** A light painted into the scene. x/y/r are percentages of the 1280x720 painting. */
 interface SceneLight {
@@ -20,10 +20,15 @@ interface SmokeSource {
   size: 's' | 'l';
 }
 
-const ROOMS: Record<RoomKey, { deep?: boolean; lights: SceneLight[]; smoke?: SmokeSource[] }> = {
+const ROOMS: Record<RoomKey, { deep?: boolean; lights: SceneLight[]; smoke?: SmokeSource[]; bamboo?: boolean }> = {
   'tien-duong': {
     deep: true,
-    lights: [{ kind: 'lamp', x: 17.8, y: 53.5, r: 30, layer: 'near' }],
+    lights: [
+      { kind: 'lamp', x: 17.8, y: 53.5, r: 30, layer: 'near' },
+      // the lamp's pool of light on the desk top; same index-0 timing, so it flickers with the flame
+      { kind: 'pool', x: 22, y: 80, r: 44, layer: 'near' }
+    ],
+    bamboo: true,
     smoke: [
       { x: 84.8, y: 70, size: 's' }, // tea cup
       { x: 96.4, y: 70.5, size: 's' } // teapot spout
@@ -57,12 +62,28 @@ const ROOMS: Record<RoomKey, { deep?: boolean; lights: SceneLight[]; smoke?: Smo
 };
 
 const lightStyle = (l: SceneLight, i: number) =>
-  ({ '--x': `${l.x}%`, '--y': `${l.y}%`, '--r': `${l.r}%`, '--delay': `${-i * 0.7}s` }) as React.CSSProperties;
+  ({ '--x': `${l.x}%`, '--y': `${l.y}%`, '--r': `${l.r}%`, '--delay': `${l.kind === 'pool' ? 0 : -i * 0.7}s` }) as React.CSSProperties;
+
+/** Shadow of the bamboo outside, thrown across the inner wall and swaying in the wind. */
+const BambooShadow = () => (
+  <svg className="room-bamboo-shadow" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+    <g className="bamboo-sway">
+      <path d="M330 0 C326 90 334 180 328 300" strokeWidth="7" />
+      <path d="M372 0 C368 100 376 190 371 300" strokeWidth="5" />
+      {[
+        [328, 40, -38], [330, 62, 30], [327, 96, -48], [331, 128, 26], [329, 170, -34],
+        [371, 30, -30], [372, 74, 38], [370, 118, -42], [373, 150, 34], [370, 200, -28]
+      ].map(([x, y, a], i) => (
+        <ellipse key={i} cx={x + (a < 0 ? -22 : 22)} cy={y} rx="26" ry="5" transform={`rotate(${a} ${x} ${y})`} />
+      ))}
+    </g>
+  </svg>
+);
 
 /** Night veil with a soft hole at every light (mask layers intersect, so each light punches its own hole). */
 const nightMask = (lights: SceneLight[]) =>
   lights
-    .filter((l) => l.kind !== 'sun')
+    .filter((l) => l.kind !== 'sun' && l.kind !== 'pool')
     .map((l) => `radial-gradient(circle ${l.r * 0.55}cqw at ${l.x}% ${l.y}%, transparent 20%, #000 100%)`)
     .join(', ') || 'none';
 
@@ -103,6 +124,7 @@ export const RoomBackdrop: React.FC<RoomBackdropProps> = ({ room, night, healthT
       )}
       <div className="room-depth-layer is-base">
         <img src={src('base')} alt="" fetchPriority={room === 'tien-duong' ? 'high' : undefined} decoding="async" />
+        {cfg.bamboo && <BambooShadow />}
         {lights('base')}
       </div>
       {!cfg.deep && weatherLayer && <div className={`room-depth-layer is-weather room-${room}`}>{weatherLayer}</div>}

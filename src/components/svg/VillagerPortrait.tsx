@@ -11,6 +11,8 @@ interface VillagerPortraitProps {
   mood?: 'sick' | 'recovered';
   activeExamTool?: ExamToolType | null;
   coughing?: boolean;
+  /** Tiền Đường stage: the person lifted out of the painting (no frame), sitting behind the desk. */
+  cutout?: boolean;
 }
 
 const EXAM_TOOL_META: Record<ExamToolType, { icon: AntiqueIconName; label: string }> = {
@@ -52,9 +54,11 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
   size = 'compact',
   mood = 'sick',
   activeExamTool = null,
-  coughing = false
+  coughing = false,
+  cutout = false
 }) => {
-  const portraitSrc = resolvePortraitSrc(patientCase);
+  const framedSrc = resolvePortraitSrc(patientCase);
+  const portraitSrc = cutout ? framedSrc.replace(/\.webp$/, '-cutout.webp') : framedSrc;
   const coldHeat = patientCase.initialVector.coldHeat;
   const conditionClass =
     mood === 'recovered'
@@ -199,9 +203,10 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
 
   return (
     <div
-      className={`patient-avatar-silk ${size === 'stage' ? 'is-stage-portrait' : ''} ${conditionClass} ${
+      className={`patient-avatar-silk ${size === 'stage' ? 'is-stage-portrait' : ''} ${cutout ? 'is-cutout' : ''} ${conditionClass} ${
         coughing ? 'is-coughing' : ''
       } ${mood === 'recovered' ? 'is-bowing-recovered' : ''}`}
+      style={cutout ? ({ '--cutout': `url(${portraitSrc})` } as React.CSSProperties) : undefined}
       aria-hidden="true"
     >
       <img
@@ -215,7 +220,7 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
         height={160}
         className="portrait-symptom-canvas"
       />
-      <div className="silk-frame-vignette" />
+      {!cutout && <div className="silk-frame-vignette" />}
       {size === 'stage' && toolBadge && (
         <div className="portrait-tool-callout">
           <AntiqueIcon name={toolBadge.icon} size={13} />

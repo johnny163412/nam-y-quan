@@ -677,6 +677,63 @@ class ApothecaryAudio {
     }
   }
 
+  /**
+   * A felt heartbeat under the fingertips: a low "thình" then a softer "thịch".
+   * style shapes it: slippery (Hoạt) rolls round, tight/wiry (Khẩn/Huyền) snaps, thready (Tế) is faint and short.
+   */
+  playHeartbeat(strength = 0.7, style: 'smooth' | 'wiry' | 'tight' | 'slippery' | 'thready' | 'rapid-surging' = 'smooth'): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const s = Math.max(0.2, Math.min(1.15, strength)) * (style === 'thready' ? 0.55 : 1);
+      const sharp = style === 'tight' || style === 'wiry';
+      const thump = (at: number, level: number, from: number, to: number, len: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(from, now + at);
+        osc.frequency.exponentialRampToValueAtTime(to, now + at + len * 0.8);
+        gain.gain.setValueAtTime(0.0001, now + at);
+        gain.gain.exponentialRampToValueAtTime(this.sfxLevel(level * s), now + at + (sharp ? 0.006 : 0.018));
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + at + len);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + at);
+        osc.stop(now + at + len + 0.02);
+      };
+      const len = style === 'thready' ? 0.08 : style === 'slippery' ? 0.16 : 0.12;
+      thump(0, 0.13, sharp ? 92 : 68, 36, len);
+      thump(style === 'rapid-surging' ? 0.1 : 0.14, 0.075, sharp ? 84 : 60, 34, len * 0.85);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  /** Clay lid knocking on a kettle at a rolling boil: two or three dull clacks a few ms apart. */
+  playLidRattle(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [0, 0.07, 0.15].forEach((t, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(420 - i * 40, now + t);
+        osc.frequency.exponentialRampToValueAtTime(180, now + t + 0.03);
+        gain.gain.setValueAtTime(this.sfxLevel(0.03 - i * 0.006), now + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.04);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + t);
+        osc.stop(now + t + 0.045);
+      });
+    } catch {
+      // Safe no-op
+    }
+  }
+
   playPulseBeat(strength = 0.7): void {
     const ctx = this.getContext();
     if (!ctx) return;

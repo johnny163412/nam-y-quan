@@ -1240,21 +1240,7 @@ button {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
-.silk-scroll-mount {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-}
 
-.scroll-rod-cap {
-  width: 138px;
-  height: 7px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, #5A3A20 0%, #2D1A0D 100%);
-  border: 1px solid var(--gold-trim);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-}
 
 .speaker-seal {
   display: inline-block;
@@ -1718,9 +1704,6 @@ button {
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.72);
 }
 
-.scroll-rod-cap.stage-cap {
-  width: 170px;
-}
 
 .portrait-breathe {
   animation: subtleBreath 4.2s ease-in-out infinite;
@@ -3106,9 +3089,6 @@ button {
   
   .scene-couplet-group {
     display: none;
-  }
-  .scroll-rod-cap {
-    width: 104px;
   }
   .patient-avatar-silk {
     width: 96px;
@@ -6412,9 +6392,6 @@ button {
 }
 
 /* Tiền Đường props lit by the oil lamp on the left: soft shadows fall to the right, warm rim on the lamp side */
-.tien-duong-spatial .silk-scroll-mount {
-  filter: drop-shadow(-5px 0 12px rgba(255, 176, 90, 0.22)) drop-shadow(16px 20px 16px rgba(6, 3, 1, 0.55));
-}
 .tien-duong-spatial .spatial-dialogue-card {
   box-shadow: -8px 0 26px -14px rgba(255, 176, 90, 0.35), 18px 22px 42px rgba(8, 4, 2, 0.55);
 }
@@ -6616,7 +6593,7 @@ button {
   background: radial-gradient(circle, rgba(246, 238, 226, 0.8), rgba(246, 238, 226, 0) 70%);
   filter: blur(0.2cqw);
   opacity: 0;
-  animation: roomSmokeRise 5.2s linear infinite;
+  animation: roomSmokeRise var(--smoke-dur, 5.2s) linear infinite;
   animation-delay: var(--delay, 0s);
 }
 .room-smoke i:nth-child(2) { animation-delay: calc(var(--delay, 0s) - 1.3s); }
@@ -6700,4 +6677,211 @@ button {
   .is-stage-portrait::after {
     animation: none;
   }
+}
+
+/* Tiền Đường: the patient, lifted out of the painting, sits across the desk from you. The oil lamp on the left
+   rims their shoulder in warm light and throws their shadow down and to the right. */
+.patient-at-desk {
+  position: relative;
+  flex-shrink: 0;
+  width: clamp(200px, 22vw, 300px);
+  aspect-ratio: 3 / 4;
+}
+/* a soft pool of shadow where the figure fades out */
+.patient-at-desk::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: -4%;
+  bottom: 2%;
+  height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 45% 50%, rgba(8, 4, 2, 0.55), transparent 70%);
+  pointer-events: none;
+}
+.patient-avatar-silk.is-cutout {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: auto;
+  height: auto;
+  -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 97%);
+  mask-image: linear-gradient(180deg, #000 70%, transparent 97%);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.clinic-stage .is-cutout .patient-portrait-img,
+.clinic-stage .patient-avatar-silk.is-cutout.aura-recovered .patient-portrait-img {
+  object-fit: contain;
+  object-position: center bottom;
+  filter: saturate(var(--health-sat, 1)) drop-shadow(-3px -1px 6px rgba(255, 176, 90, 0.3)) drop-shadow(16px 14px 12px rgba(6, 3, 1, 0.62));
+}
+.clinic-stage .patient-avatar-silk.is-cutout.aura-recovered .patient-portrait-img {
+  filter: saturate(calc(var(--health-sat, 1) * 1.14)) brightness(1.06) drop-shadow(0 0 14px rgba(255, 214, 140, 0.5))
+    drop-shadow(16px 14px 12px rgba(6, 3, 1, 0.55));
+}
+/* lamp rim light and the complexion wash are clipped to the figure itself */
+.is-cutout::before,
+.is-stage-portrait.is-cutout::after {
+  -webkit-mask: var(--cutout) center bottom / contain no-repeat;
+  mask: var(--cutout) center bottom / contain no-repeat;
+}
+.is-cutout::before {
+  --o: 1;
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at -6% 46%, rgba(255, 186, 104, 0.62), transparent 64%);
+  mix-blend-mode: screen;
+  animation: sceneLightFlicker 3.4s ease-in-out infinite;
+}
+.is-cutout .portrait-symptom-canvas {
+  inset: 0 12%;
+  width: 76%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-cutout::before { animation: none; }
+}
+@media (max-width: 680px) {
+  /* keep the first screen's call to action clear of the tool tray */
+  .patient-at-desk {
+    width: 168px;
+  }
+}
+
+/* the lamp's pool of light on the desk top, flickering with the flame (same timing) */
+.room-light.is-pool {
+  --o: 0.7;
+  aspect-ratio: 2.6;
+  background: radial-gradient(ellipse at 40% 45%, rgba(255, 200, 120, 0.5), rgba(255, 160, 80, 0.16) 45%, transparent 72%);
+}
+/* bamboo shadow swaying on the right-hand wall */
+.room-bamboo-shadow {
+  position: absolute;
+  left: 62%;
+  top: 0;
+  width: 38%;
+  height: 72%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.32;
+  filter: blur(0.45cqw);
+}
+.room-bamboo-shadow path {
+  fill: none;
+  stroke: #1a1008;
+}
+.room-bamboo-shadow ellipse {
+  fill: #1a1008;
+}
+.room-bamboo-shadow .bamboo-sway {
+  transform-origin: 85% 0%;
+  animation: bambooSway 7s ease-in-out infinite;
+}
+.is-night .room-bamboo-shadow {
+  opacity: 0.18;
+}
+@keyframes bambooSway {
+  0%, 100% { transform: rotate(0deg) skewX(0deg); }
+  35% { transform: rotate(1.6deg) skewX(-2deg); }
+  60% { transform: rotate(-0.8deg) skewX(1deg); }
+  78% { transform: rotate(1.1deg) skewX(-1.4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-bamboo-shadow .bamboo-sway { animation: none; }
+}
+
+/* Nội Các stove: steam scales with the fire; the lid rattles once the fan pushes it into Vũ Hỏa */
+.hearth-photo-stage {
+  container-type: inline-size;
+}
+.hearth-kettle-lid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* the lid of the painted kettle, as a box of the 380:186 cover-cropped stage */
+  clip-path: inset(52.6% 21.9% 38.8% 66.4%);
+  transform-origin: 72% 60%;
+}
+.hearth-kettle-lid.is-rattling {
+  animation: kettleLidRattle 0.42s steps(2, jump-none) infinite;
+}
+@keyframes kettleLidRattle {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-0.4%, -1.6%) rotate(-1.4deg); }
+  50% { transform: translate(0.3%, -0.6%) rotate(0.8deg); }
+  75% { transform: translate(-0.2%, -2%) rotate(1.6deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.kettle-steam {
+  z-index: 2;
+  transition: opacity 0.8s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hearth-kettle-lid.is-rattling { animation: none; }
+}
+
+/* Press-and-hold pulse reading on the wrist pillow */
+.pulse-wrist-backdrop {
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.pulse-wrist-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 rgba(20, 8, 4, 0);
+  transition: box-shadow 0.8s ease;
+}
+.pulse-wrist-backdrop.is-pressing.depth-phu::after {
+  box-shadow: inset 0 0 28px rgba(20, 8, 4, 0.35);
+}
+.pulse-wrist-backdrop.is-pressing.depth-tram::after {
+  box-shadow: inset 0 0 60px rgba(20, 8, 4, 0.62);
+}
+.pulse-press-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  z-index: 3;
+  transform: translateX(-50%);
+  overflow: hidden;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #f4e6c8;
+  background: rgba(28, 16, 9, 0.78);
+  border: 1px solid rgba(214, 164, 86, 0.45);
+  pointer-events: none;
+}
+/* fills while you hold, reaching Trầm at 0.8s */
+.pulse-press-hint::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: #d9a24a;
+}
+.is-pressing.depth-phu .pulse-press-hint::after {
+  animation: pulsePressFill 0.8s linear forwards;
+}
+.is-pressing.depth-tram .pulse-press-hint::after {
+  width: 100%;
+  background: #4fa38e;
+}
+@keyframes pulsePressFill {
+  to { width: 100%; }
 }

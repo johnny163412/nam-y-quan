@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { apothecaryAudio } from '../engine/audio';
 import { DecoctionTasteReading, DosingAdvice, FireType } from '../types/tcm';
 import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
 import { AntiqueIcon } from './svg/AntiqueIcons';
@@ -53,6 +54,15 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
   const swipeOriginRef = useRef<{ x: number; y: number; lastTriggerAt: number } | null>(null);
   const activeRange = FIRE_META.find((f) => f.id === fire)?.range ?? [42, 74];
   const isMatched = fanHeat >= activeRange[0] && fanHeat <= activeRange[1];
+  // Vũ Hỏa range: the clay lid starts knocking and the steam thickens with the boil
+  const boiling = fanHeat >= 75;
+  const steam = Math.max(0.15, Math.min(1, (fanHeat - 30) / 60));
+  useEffect(() => {
+    if (!boiling) return;
+    apothecaryAudio.playLidRattle();
+    const id = window.setInterval(() => apothecaryAudio.playLidRattle(), 1700);
+    return () => window.clearInterval(id);
+  }, [boiling]);
 
   const handleHearthPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -101,6 +111,24 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
             className="hearth-photo-img hearth-breathe"
             draggable={false}
           />
+          {/* the kettle lid, cut from the same painting, so it can rattle on the boil */}
+          <img
+            src="./art/tools/decoction-stove.webp"
+            alt=""
+            aria-hidden="true"
+            className={`hearth-photo-img hearth-breathe hearth-kettle-lid ${boiling ? 'is-rattling' : ''}`}
+            draggable={false}
+          />
+          <span
+            className="room-smoke is-l kettle-steam"
+            style={{ '--x': '72%', '--y': '54%', opacity: steam, '--smoke-dur': `${5.6 - steam * 2.4}s` } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
           <ApothecaryVfxCanvas
             mode="hearth"
             intensity={Math.max(0.25, Math.min(1, fanHeat / 100))}
