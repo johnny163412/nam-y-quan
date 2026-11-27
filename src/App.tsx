@@ -1,10 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { AchievementCabinetModal } from './components/AchievementCabinetModal';
+import { AchievementToast } from './components/AchievementToast';
 import { ClinicDesk } from './components/ClinicDesk';
 import { HeaderPlaque, MainTab } from './components/HeaderPlaque';
 import { KhaoThiYMieu } from './components/KhaoThiYMieu';
 import { TangThuCac } from './components/TangThuCac';
+import { TitleGateScreen } from './components/TitleGateScreen';
 import { TuDoanTheChat } from './components/TuDoanTheChat';
 import { InkBrushDefs } from './components/svg/InkBrushDefs';
+import {
+  ACHIEVEMENTS,
+  computeUnlockedAchievements,
+  HonorSealAchievement
+} from './data/achievements';
 import { SONG_AN_PAIRS } from './data/cases';
 import { apothecaryAudio } from './engine/audio';
 import { computeRank } from './engine/examEngine';
@@ -15,13 +23,39 @@ export const App: React.FC = () => {
   const [progress, setProgress] = useState<UserProgress>(() => loadProgress());
   const [activeTab, setActiveTab] = useState<MainTab>('clinic');
   const [codexHerbId, setCodexHerbId] = useState<string | null>(null);
+  const [enteredClinic, setEnteredClinic] = useState<boolean>(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState<boolean>(false);
+  const [toastAchievement, setToastAchievement] = useState<HonorSealAchievement | null>(null);
+  const unlockedIds = computeUnlockedAchievements(progress);
+  const prevUnlockedRef = useRef<Set<string>>(new Set(unlockedIds));
+  const toastTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     apothecaryAudio.setEnabled(progress.soundEnabled);
     apothecaryAudio.setVolumes(progress.sfxVolume ?? 0.8, progress.musicVolume ?? 0.65);
-    apothecaryAudio.setAmbientEnabled(Boolean(progress.ambientEnabled));
+    if (enteredClinic) {
+      apothecaryAudio.setAmbientEnabled(Boolean(progress.ambientEnabled));
+    }
     saveProgress(progress);
-  }, [progress]);
+  }, [progress, enteredClinic]);
+
+  useEffect(() => {
+    const newlyUnlocked = unlockedIds.filter((id) => !prevUnlockedRef.current.has(id));
+    if (newlyUnlocked.length > 0) {
+      newlyUnlocked.forEach((id) => prevUnlockedRef.current.add(id));
+      const found = ACHIEVEMENTS.find((a) => a.id === newlyUnlocked[0]) ?? null;
+      if (found) {
+        setToastAchievement(found);
+        apothecaryAudio.playAchievementSeal();
+        if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
+        toastTimerRef.current = window.setTimeout(() => setToastAchievement(null), 5000);
+      }
+      setProgress((prev) => ({
+        ...prev,
+        unlockedAchievements: unlockedIds
+      }));
+    }
+  }, [unlockedIds.join(',')]);
 
   const handleCaseEvaluated = (
     patientCase: PatientCase,
@@ -168,6 +202,22 @@ export const App: React.FC = () => {
   return (
     <div className="app-shell">
       <InkBrushDefs />
+      {!enteredClinic && (
+        <TitleGateScreen
+          progress={progress}
+          unlockedAchievementCount={unlockedIds.length}
+          onEnterClinic={(withMusic) => {
+            setEnteredClinic(true);
+            setProgress((prev) => ({ ...prev, ambientEnabled: withMusic }));
+            apothecaryAudio.setAmbientEnabled(withMusic);
+            apothecaryAudio.playCurtainBell();
+          }}
+        />
+      )}
+      <AchievementToast
+        achievement={toastAchievement}
+        onDismiss={() => setToastAchievement(null)}
+      />
       <HeaderPlaque
         activeTab={activeTab}
         onSelectTab={(tab) => {
@@ -176,6 +226,12 @@ export const App: React.FC = () => {
           window.scrollTo({ top: 0 });
         }}
         progress={progress}
+        unlockedAchievementCount={unlockedIds.length}
+        totalAchievementCount={ACHIEVEMENTS.length}
+        onOpenAchievements={() => {
+          apothecaryAudio.playPageTurn();
+          setShowAchievementsModal(true);
+        }}
         onToggleSound={() =>
           setProgress((prev) => ({ ...prev, soundEnabled: !prev.soundEnabled }))
         }
@@ -188,6 +244,13 @@ export const App: React.FC = () => {
         onImportProgress={(imported) => setProgress(imported)}
         onResetProgress={() => setProgress(createDefaultProgress())}
       />
+      {showAchievementsModal && (
+        <AchievementCabinetModal
+          progress={progress}
+          unlockedIds={unlockedIds}
+          onClose={() => setShowAchievementsModal(false)}
+        />
+      )}
 
       <main className="main-stage">
         {activeTab === 'clinic' && (

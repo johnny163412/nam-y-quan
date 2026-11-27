@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SONG_AN_PAIRS, STORY_CASES, generateProceduralCase, getSeasonalSolarTerm } from '../data/cases';
 import { detectActiveFormulas } from '../data/formulas';
 import { HERB_MAP, HERBS } from '../data/herbs';
-import { apothecaryAudio } from '../engine/audio';
+import { apothecaryAudio, VoiceArchetype } from '../engine/audio';
+import { FloatingCallout, FloatingJuiceLayer } from './FloatingJuiceLayer';
+import { TypewriterText } from './TypewriterText';
 import {
   assignHerbToSlot,
   computeTreatmentPreview,
@@ -138,7 +140,19 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [slotPaoZhi, setSlotPaoZhi] = useState<SlotPaoZhi>({});
   const [animatingPanRole, setAnimatingPanRole] = useState<RoleSlot | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<RoleSlot>('quan');
-  const [chestFilter, setChestFilter] = useState<'all' | 'warm' | 'cool' | 'neutral'>('all');
+  const [chestFilter, setChestFilter] = useState<'all' | 'warm' | 'cool' | 'neutral' | 'fresh'>('all');
+  const [roomTransitioning, setRoomTransitioning] = useState(false);
+  const [callouts, setCallouts] = useState<FloatingCallout[]>([]);
+  const calloutIdRef = useRef(0);
+
+  const pushCallout = useCallback((text: string, tone: 'gold' | 'jade' | 'cinnabar' = 'gold') => {
+    calloutIdRef.current += 1;
+    const id = calloutIdRef.current;
+    setCallouts((prev) => [...prev.slice(-2), { id, text, tone }]);
+    window.setTimeout(() => {
+      setCallouts((prev) => prev.filter((c) => c.id !== id));
+    }, 1700);
+  }, []);
   const [openDrawerId, setOpenDrawerId] = useState<string | null>(null);
   const [hoveredHerb, setHoveredHerb] = useState<{ herb: Herb; left: number; top: number } | null>(null);
   const [showFoldOverlay, setShowFoldOverlay] = useState(false);
@@ -205,6 +219,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
         if (cur !== nextRoom) {
           apothecaryAudio.playRoomSlide();
           apothecaryAudio.setActiveRoom(nextRoom);
+          setRoomTransitioning(true);
+          window.setTimeout(() => setRoomTransitioning(false), 380);
         }
         return nextRoom;
       });
@@ -247,8 +263,24 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     if (chestFilter === 'warm') return HERBS.filter((h) => h.nature === 'Ôn' || h.nature === 'Nhiệt');
     if (chestFilter === 'cool') return HERBS.filter((h) => h.nature === 'Hàn' || h.nature === 'Lương' || h.nature === 'Đại hàn');
     if (chestFilter === 'neutral') return HERBS.filter((h) => h.nature === 'Bình');
+    if (chestFilter === 'fresh') return HERBS.filter((h) => freshHerbIds.includes(h.id));
     return HERBS;
-  }, [chestFilter]);
+  }, [chestFilter, freshHerbIds]);
+
+  const patientVoice: VoiceArchetype = useMemo(() => {
+    if (selectedCase.age >= 55) return 'elder';
+    if (selectedCase.age <= 20) return 'youth';
+    if (selectedCase.isPregnant || /(Bà|Cô|Chị|Nương|Phu nhân)/i.test(selectedCase.patientName)) return 'lady';
+    return 'merchant';
+  }, [selectedCase]);
+
+  const weatherMoodClass = useMemo(() => {
+    const tag = selectedCase.seasonTag.toLowerCase();
+    if (/mưa|lạnh|đông|gió bấc|ẩm/.test(tag) || selectedCase.initialVector.coldHeat <= -45) return 'atmo-rain';
+    if (/đêm|khuya|mất ngủ|tối/.test(tag)) return 'atmo-night';
+    if (/nắng|hạ|nóng|khô/.test(tag) || selectedCase.initialVector.coldHeat >= 45) return 'atmo-warm';
+    return 'atmo-spring';
+  }, [selectedCase]);
 
   const preview = useMemo(
     () => computeTreatmentPreview(selectedCase, slots, selectedAcupoints, slotPaoZhi),
@@ -392,6 +424,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     setSlotPaoZhi({});
     setSelectedSlot('ta');
     apothecaryAudio.playHerbDrop();
+    pushCallout(`Cộng Hưởng Cổ Phương: ${formula.name}`, 'gold');
     if (nextSlots.quan && HERB_MAP[nextSlots.quan]) {
       triggerScoopAnimation(HERB_MAP[nextSlots.quan]!, 'quan');
     }
@@ -404,10 +437,18 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       setAnimatingPanRole((cur) => (cur === role ? null : cur));
     }, 640);
 
-    if (method === 'gia-dap') apothecaryAudio.playMortarGrind();
-    else if (method === 'sao-vang') apothecaryAudio.playWokSizzle(false);
-    else if (method === 'chich-mat') apothecaryAudio.playWokSizzle(true);
-    else apothecaryAudio.playPageTurn();
+    if (method === 'gia-dap') {
+      apothecaryAudio.playMortarGrind();
+      pushCallout('Giã Dập Tinh Dầu · Tăng Dược Lực!', 'jade');
+    } else if (method === 'sao-vang') {
+      apothecaryAudio.playWokSizzle(false);
+      pushCallout('Sao Vàng Hạ Thổ · Ôn Trung!', 'gold');
+    } else if (method === 'chich-mat') {
+      apothecaryAudio.playWokSizzle(true);
+      pushCallout('Chích Mật Nhuận Phế · Hòa Vị!', 'gold');
+    } else {
+      apothecaryAudio.playPageTurn();
+    }
   };
 
   const handleToggleDrawer = (herb: Herb) => {
@@ -468,16 +509,25 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   };
 
   const handleToggleAcupoint = (ptId: string) => {
-    setSelectedAcupoints((prev) =>
-      prev.includes(ptId) ? prev.filter((id) => id !== ptId) : [...prev, ptId]
-    );
+    setSelectedAcupoints((prev) => {
+      const removing = prev.includes(ptId);
+      if (!removing) pushCallout('Kim Châm Đắc Khí!', 'cinnabar');
+      return removing ? prev.filter((id) => id !== ptId) : [...prev, ptId];
+    });
     apothecaryAudio.playNeedleInsert();
   };
 
   const handleFanStroke = (up: boolean) => {
     apothecaryAudio.playBambooFan();
     setFanBlowing(true);
-    setFanHeat((prev) => Math.max(10, Math.min(100, prev + (up ? 14 : -14))));
+    setFanHeat((prev) => {
+      const next = Math.max(10, Math.min(100, prev + (up ? 14 : -14)));
+      const [lo, hi] = FIRE_TARGET_RANGES[fire];
+      if (next >= lo && next <= hi && (prev < lo || prev > hi)) {
+        pushCallout('Hỏa Hầu Chuẩn! (+2đ)', 'gold');
+      }
+      return next;
+    });
     window.setTimeout(() => setFanBlowing(false), 360);
   };
 
@@ -553,7 +603,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       : 'Mẹo Sư Phụ: Tưới sương sớm & hái lá tươi quanh vườn mang vào Dược Các tăng tinh khiết.';
 
   return (
-    <div className={`clinic-stage ${watchLightingClass} ${stampingActive ? 'stamp-shake' : ''}`}>
+    <div className={`clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}>
+      <div className="ambient-lantern-aura" aria-hidden="true" />
+      <FloatingJuiceLayer callouts={callouts} />
+      {roomTransitioning && <div className="room-transition-veil" aria-hidden="true" />}
       {/* Minimal Diegetic Floating HUD (Zero Stacked Box Toolbars) */}
       <div className="stage-floating-hud">
         <div className="hud-cluster">
@@ -770,7 +823,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                           <span className="tag-badge pregnant">Thai phụ</span>
                         )}
                       </div>
-                      「 <GlossaryText text={selectedCase.chiefComplaint} /> 」
+                      「 <TypewriterText key={`cc-${selectedCase.id}`} text={selectedCase.chiefComplaint} voice={patientVoice} /> 」
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
                       <button type="button" className="btn-cinnabar" onClick={() => switchRoom(1)}>
@@ -860,19 +913,28 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                           </div>
                           {selectedCase.inquiries
                             .filter((q) => askedIds.includes(q.id))
-                            .map((q) => (
-                              <React.Fragment key={q.id}>
-                                <div className="chat-turn-doctor">
-                                  <span className="speaker-seal doctor">Lương Y</span> {q.question}
-                                </div>
-                                <div className="chat-turn-patient">
-                                  <span className="speaker-seal patient">{selectedCase.patientName}</span>“{q.answer}”
-                                  <div style={{ fontSize: '0.78rem', color: 'var(--herbal-jade)', fontWeight: 700, marginTop: '3px' }}>
-                                    Ghi nhận: <GlossaryText text={q.clueTag} />
+                            .map((q) => {
+                              const isLatest = askedIds[askedIds.length - 1] === q.id;
+                              return (
+                                <React.Fragment key={q.id}>
+                                  <div className="chat-turn-doctor">
+                                    <span className="speaker-seal doctor">Lương Y</span> {q.question}
                                   </div>
-                                </div>
-                              </React.Fragment>
-                            ))}
+                                  <div className="chat-turn-patient">
+                                    <span className="speaker-seal patient">{selectedCase.patientName}</span>“
+                                    <TypewriterText
+                                      text={q.answer}
+                                      voice={patientVoice}
+                                      instant={!isLatest}
+                                    />
+                                    ”
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--herbal-jade)', fontWeight: 700, marginTop: '3px' }}>
+                                      Ghi nhận: <GlossaryText text={q.clueTag} />
+                                    </div>
+                                  </div>
+                                </React.Fragment>
+                              );
+                            })}
                         </div>
 
                         <div className="inquiry-grid">
@@ -1056,7 +1118,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       { id: 'all', label: `Tất cả (${HERBS.length})` },
                       { id: 'warm', label: 'Ôn Ấm' },
                       { id: 'cool', label: 'Hàn Lương' },
-                      { id: 'neutral', label: 'Bình Hòa' }
+                      { id: 'neutral', label: 'Bình Hòa' },
+                      { id: 'fresh', label: `Lá Tươi (${freshHerbIds.length})` }
                     ] as const).map((tab) => (
                       <button
                         key={tab.id}
@@ -1309,7 +1372,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     onToggleMoxa={() => {
                       setMoxaEnabled((prev) => {
                         const next = !prev;
-                        if (next) apothecaryAudio.playMoxaWarmth();
+                        if (next) {
+                          apothecaryAudio.playMoxaWarmth();
+                          pushCallout('Hơ Ngải Cứu · Ôn Dương Đắc Khí! (+2đ)', 'gold');
+                        }
                         return next;
                       });
                     }}
@@ -1317,7 +1383,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     onToggleCupping={() => {
                       setCuppingEnabled((prev) => {
                         const next = !prev;
-                        if (next) apothecaryAudio.playCuppingSuction();
+                        if (next) {
+                          apothecaryAudio.playCuppingSuction();
+                          pushCallout('Giác Hơi Ống Tre · Thông Kinh Lạc!', 'jade');
+                        }
                         return next;
                       });
                     }}
@@ -1389,13 +1458,36 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 gardenGrowth={gardenGrowth}
                 freshHerbIds={freshHerbIds}
                 onWaterPlot={onWaterGardenPlot}
-                onHarvestPlot={onHarvestGardenPlot}
+                onHarvestPlot={(herbId) => {
+                  onHarvestGardenPlot(herbId);
+                  const herbName = HERB_MAP[herbId]?.name ?? 'Thảo dược';
+                  pushCallout(`+1 ${herbName} Tươi (+2đ Tinh Khiết)`, 'jade');
+                }}
                 onGoToDispensary={() => switchRoom(1)}
               />
             </section>
           </div>
         </div>
       </div>
+
+      {/* Fixed Mobile Bottom Room Dock (Thumb-Friendly Navigation on Phones) */}
+      <nav className="mobile-room-dock" aria-label="Chuyển phòng nhanh trên điện thoại">
+        {ROOM_NODES.map((node) => {
+          const isCurrent = activeRoom === node.idx;
+          return (
+            <button
+              key={`mob-${node.idx}`}
+              type="button"
+              className={`mobile-dock-btn ${isCurrent ? 'active' : ''}`}
+              onClick={() => switchRoom(node.idx)}
+              aria-current={isCurrent ? 'page' : undefined}
+            >
+              <span className="mobile-dock-roman">{node.roman}</span>
+              <span className="mobile-dock-label">{node.label}</span>
+            </button>
+          );
+        })}
+      </nav>
 
       {/* Directory Drawer Modal (Mục Lục Ca, Y Đức & Sổ Y Án) */}
       {showDirectoryModal && (

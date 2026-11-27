@@ -10,6 +10,9 @@ interface HeaderPlaqueProps {
   activeTab: MainTab;
   onSelectTab: (tab: MainTab) => void;
   progress: UserProgress;
+  unlockedAchievementCount: number;
+  totalAchievementCount: number;
+  onOpenAchievements: () => void;
   onToggleSound: () => void;
   onToggleAmbient: () => void;
   onChangeVolumes: (sfxVolume: number, musicVolume: number) => void;
@@ -21,6 +24,9 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
   activeTab,
   onSelectTab,
   progress,
+  unlockedAchievementCount,
+  totalAchievementCount,
+  onOpenAchievements,
   onToggleSound,
   onToggleAmbient,
   onChangeVolumes,
@@ -104,6 +110,16 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
         </nav>
 
         <div className="header-tools">
+          <button
+            type="button"
+            className="round-gear-btn achievement-trigger-btn"
+            onClick={onOpenAchievements}
+            aria-label="Mở Tủ Ấn Triện Danh Dự"
+            title="Xem 12 Ấn Triện Danh Dự & Sao chép khoe bạn bè"
+          >
+            <AntiqueIcon name="star-seal" size={14} />{' '}
+            <span>Ấn Triện ({unlockedAchievementCount}/{totalAchievementCount})</span>
+          </button>
           <button
             type="button"
             className="round-gear-btn"

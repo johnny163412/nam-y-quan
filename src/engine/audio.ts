@@ -1,5 +1,7 @@
 import { AuscultationType, ElementKey } from '../types/tcm';
 
+export type VoiceArchetype = 'elder' | 'lady' | 'youth' | 'merchant';
+
 const PENTATONIC_BY_ELEMENT: Record<ElementKey, number[]> = {
   moc: [293.66, 329.63, 392.0, 440.0, 523.25, 587.33],
   hoa: [329.63, 392.0, 440.0, 523.25, 659.25],
@@ -23,6 +25,62 @@ class ApothecaryAudio {
   private chimeTimer: number | null = null;
   private crackleTimer: number | null = null;
 
+  // Dual-deck real traditional BGM tracks with smooth room crossfade
+  private tranquilAudio: HTMLAudioElement | null = null;
+  private hearthAudio: HTMLAudioElement | null = null;
+  private bgmMix = 0; // 0 = tranquil-pavilion, 1 = warm-hearth
+  private crossfadeTimer: number | null = null;
+
+  private ensureBgmDecks(): void {
+    if (typeof window === 'undefined' || typeof Audio === 'undefined') return;
+    if (!this.tranquilAudio) {
+      const a = new Audio('./audio/tranquil-pavilion.m4a');
+      a.loop = true;
+      a.preload = 'auto';
+      a.volume = 0;
+      this.tranquilAudio = a;
+    }
+    if (!this.hearthAudio) {
+      const b = new Audio('./audio/warm-hearth.m4a');
+      b.loop = true;
+      b.preload = 'auto';
+      b.volume = 0;
+      this.hearthAudio = b;
+    }
+  }
+
+  private syncBgmVolumes(): void {
+    const master = this.ambientActive ? Math.max(0, Math.min(1, this.musicVolume)) * 0.42 : 0;
+    if (this.tranquilAudio) {
+      this.tranquilAudio.volume = Math.max(0, Math.min(1, master * (1 - this.bgmMix)));
+    }
+    if (this.hearthAudio) {
+      this.hearthAudio.volume = Math.max(0, Math.min(1, master * this.bgmMix));
+    }
+  }
+
+  private startBgmCrossfade(targetMix: 0 | 1): void {
+    if (typeof window === 'undefined') return;
+    if (this.crossfadeTimer !== null) {
+      window.clearInterval(this.crossfadeTimer);
+      this.crossfadeTimer = null;
+    }
+    this.crossfadeTimer = window.setInterval(() => {
+      const diff = targetMix - this.bgmMix;
+      if (Math.abs(diff) < 0.04) {
+        this.bgmMix = targetMix;
+        this.syncBgmVolumes();
+        if (this.crossfadeTimer !== null) {
+          window.clearInterval(this.crossfadeTimer);
+          this.crossfadeTimer = null;
+        }
+        return;
+      }
+      this.bgmMix += Math.sign(diff) * 0.05;
+      this.syncBgmVolumes();
+    }, 55);
+  }
+
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
   }
@@ -31,11 +89,15 @@ class ApothecaryAudio {
     this.sfxVolume = Math.max(0, Math.min(1, sfxVol));
     this.musicVolume = Math.max(0, Math.min(1, musicVol));
     this.applyRoomAcousticProfile();
+    this.syncBgmVolumes();
   }
 
   setActiveRoom(room: 0 | 1 | 2 | 3): void {
     this.activeRoom = room;
     this.applyRoomAcousticProfile();
+    if (this.ambientActive) {
+      this.startBgmCrossfade(room === 2 ? 1 : 0);
+    }
   }
 
   setElementMood(element: ElementKey): void {
@@ -145,6 +207,15 @@ class ApothecaryAudio {
     if (!on) {
       this.stopAmbient();
       return;
+    }
+    try {
+      this.ensureBgmDecks();
+      this.bgmMix = this.activeRoom === 2 ? 1 : 0;
+      this.syncBgmVolumes();
+      void this.tranquilAudio?.play().catch(() => {});
+      void this.hearthAudio?.play().catch(() => {});
+    } catch {
+      // Safe fallback in headless/test browsers
     }
     const ctx = this.getContext(true);
     if (!ctx) return;
@@ -265,6 +336,14 @@ class ApothecaryAudio {
       if (this.crackleTimer !== null && typeof window !== 'undefined') {
         window.clearInterval(this.crackleTimer);
         this.crackleTimer = null;
+      }
+      if (this.crossfadeTimer !== null && typeof window !== 'undefined') {
+        window.clearInterval(this.crossfadeTimer);
+        this.crossfadeTimer = null;
+      }
+      if (!this.ambientActive) {
+        this.tranquilAudio?.pause();
+        this.hearthAudio?.pause();
       }
     } catch {
       // Safe no-op
@@ -851,6 +930,72 @@ class ApothecaryAudio {
       cGain.connect(ctx.destination);
       cling.start(now);
       cling.stop(now + 0.09);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playVoiceBlip(archetype: VoiceArchetype = 'merchant'): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const baseFreq =
+        archetype === 'elder'
+          ? 215
+          : archetype === 'lady'
+          ? 395
+          : archetype === 'youth'
+          ? 470
+          : 300;
+      const jitter = (Math.random() - 0.5) * 38;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = archetype === 'elder' ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(baseFreq + jitter, now);
+      osc.frequency.exponentialRampToValueAtTime((baseFreq + jitter) * 0.92, now + 0.045);
+
+      gain.gain.setValueAtTime(this.sfxLevel(0.018), now);
+      gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.05);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.055);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playAchievementSeal(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      // Resonant bronze temple chime triad + crisp cinnabar seal stamp
+      [587.33, 880.0, 1174.66].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.075);
+        gain.gain.setValueAtTime(this.sfxLevel(0.048 - idx * 0.008), now + idx * 0.075);
+        gain.gain.exponentialRampToValueAtTime(0.0004, now + 1.15 + idx * 0.12);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.075);
+        osc.stop(now + 1.3 + idx * 0.12);
+      });
+      const thump = ctx.createOscillator();
+      const tGain = ctx.createGain();
+      thump.type = 'triangle';
+      thump.frequency.setValueAtTime(140, now);
+      thump.frequency.exponentialRampToValueAtTime(52, now + 0.12);
+      tGain.gain.setValueAtTime(this.sfxLevel(0.09), now);
+      tGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      thump.connect(tGain);
+      tGain.connect(ctx.destination);
+      thump.start(now);
+      thump.stop(now + 0.15);
     } catch {
       // Safe no-op
     }

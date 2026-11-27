@@ -334,6 +334,7 @@ export interface UserProgress {
   dayCount?: number;
   currentStreak?: number;
   songAnClearedIds?: string[];
+  unlockedAchievements?: string[];
 }
 
 export interface DecoctionTasteReading {

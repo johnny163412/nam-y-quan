@@ -200,19 +200,27 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({
     ctx.restore();
   }, [tongue]);
 
-  const width = compact ? 156 : 194;
-  const height = compact ? 184 : 228;
+  const width = compact ? 168 : 208;
+  const height = compact ? 168 : 208;
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
-      <div className="tongue-mirror-stage" style={{ width, height }}>
-        <canvas
-          ref={canvasRef}
-          width={180}
-          height={216}
-          className="tongue-watercolor-canvas"
+      <div className="tongue-mirror-stage watercolor-bronze-mirror" style={{ width, height }}>
+        <img
+          src="./art/tools/bronze-mirror.jpg"
+          alt=""
           aria-hidden="true"
+          className="bronze-mirror-art-frame"
         />
+        <div className="tongue-mirror-aperture">
+          <canvas
+            ref={canvasRef}
+            width={180}
+            height={216}
+            className="tongue-watercolor-canvas"
+            aria-hidden="true"
+          />
+        </div>
 
         <svg
           width={width}
@@ -222,55 +230,15 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({
           aria-label="Gương đồng Bát Hoa soi Thiệt chẩn 5 vùng Tạng Phủ"
           className="tongue-mirror-overlay-svg"
         >
-          <defs>
-            <linearGradient id="bronze-rim-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#DEB45F" />
-              <stop offset="28%" stopColor="#8E5F24" />
-              <stop offset="56%" stopColor="#CFA04E" />
-              <stop offset="84%" stopColor="#5D3C16" />
-              <stop offset="100%" stopColor="#3B240C" />
-            </linearGradient>
-            <mask id="mirror-aperture-cutout">
-              <rect x="0" y="0" width="210" height="248" fill="#FFF" />
-              <ellipse cx="105" cy="121" rx="76" ry="93" fill="#000" />
-            </mask>
-          </defs>
-
-          {/* Outer bronze mirror frame with cutout aperture showing watercolor tongue canvas below */}
-          <g mask="url(#mirror-aperture-cutout)">
-            <circle cx="105" cy="14" r="9" fill="none" stroke="url(#bronze-rim-grad)" strokeWidth="4.2" />
-            <circle cx="105" cy="14" r="5" fill="none" stroke="#36220D" strokeWidth="1" />
-            <path
-              d="M93 222 L117 222 L114 242 Q105 246 96 242 Z"
-              fill="url(#bronze-rim-grad)"
-              stroke="#2E1B0A"
-              strokeWidth="1.6"
-            />
-            <line x1="96" y1="229" x2="114" y2="229" stroke="#36220D" strokeWidth="1.2" />
-            <line x1="97" y1="236" x2="113" y2="236" stroke="#36220D" strokeWidth="1.2" />
-            <path
-              d="M105 21
-                 Q130 19 144 33 Q169 32 178 55 Q197 70 193 96
-                 Q206 121 193 146 Q197 172 178 187 Q169 210 144 209
-                 Q130 223 105 221 Q80 223 66 209 Q41 210 32 187
-                 Q13 172 17 146 Q4 121 17 96 Q13 70 32 55
-                 Q41 32 66 33 Q80 19 105 21 Z"
-              fill="url(#bronze-rim-grad)"
-              stroke="#2A1909"
-              strokeWidth="2.2"
-            />
-          </g>
-
           <ellipse
             cx="105"
             cy="121"
-            rx="80"
-            ry="95"
+            rx="78"
+            ry="88"
             fill="none"
-            stroke="#E7C278"
-            strokeWidth="1.3"
+            stroke="rgba(231, 194, 120, 0.72)"
+            strokeWidth="1.5"
             strokeDasharray="3 3"
-            opacity="0.72"
           />
 
           {/* Interactive Zone Hotspots & High-Contrast Labels */}
