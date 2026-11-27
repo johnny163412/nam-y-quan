@@ -7672,3 +7672,59 @@ button {
   filter: brightness(0.84) saturate(calc(1.04 * var(--room-sat, 1))) blur(var(--focus-blur, 0px));
   transition: filter 0.6s ease;
 }
+
+/* Phone widths: keep the top HUD on one 48px row and shrink the first-case guide so it stops covering the patient */
+@media (max-width: 680px) {
+  .spatial-top-hud .brand-title {
+    display: none;
+  }
+  .spatial-hud-inner {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .spatial-nav-pills {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+  .spatial-nav-pills .calligraphy-tab {
+    padding: 4px 7px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+  .header-tools .round-gear-btn:not(.achievement-trigger-btn) span {
+    display: none;
+  }
+  .spatial-floating-subbar .onboarding-guide-bar {
+    padding: 5px 8px;
+  }
+  .onboarding-guide-top {
+    flex-wrap: nowrap;
+    margin-bottom: 3px;
+  }
+  .onboarding-steps-row {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+  .onboarding-step-pill {
+    padding: 2px;
+  }
+  .onboarding-step-pill > span:last-child:not(.step-num) {
+    display: none;
+  }
+  .onboarding-tip-line {
+    font-size: 0.76rem;
+  }
+  /* The fixed subbar grows to ~162px with the guide open; start room content below it */
+  .spatial-floating-subbar.has-guide ~ * .spatial-room-scrollable,
+  .spatial-floating-subbar.has-guide ~ * .tien-duong-spatial {
+    padding-top: 170px;
+  }
+  .spatial-floating-subbar.has-guide ~ * .spatial-inspector-drawer {
+    scroll-margin-top: 176px;
+  }
+}
+
+/* Clear the fixed HUD + case strip when the drawer is scrolled into view on narrow screens */
+.spatial-inspector-drawer {
+  scroll-margin-top: 112px;
+}
