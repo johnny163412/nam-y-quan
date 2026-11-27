@@ -1,7 +1,7 @@
 import { ACUPOINTS } from '../data/acupoints';
 import { STORY_CASES } from '../data/cases';
 import { HERB_MAP } from '../data/herbs';
-import { ExamQuestion, RankTitle, UserProgress } from '../types/tcm';
+import { EvaluationResult, ExamQuestion, MistakeEntry, PatientCase, PrescriptionSlots, RankTitle, UserProgress } from '../types/tcm';
 
 export function computeRank(progress: UserProgress): RankTitle {
   const clearedCount = Object.values(progress.completedCases).filter((c) => c.bestScore >= 70).length;
@@ -179,11 +179,15 @@ export function buildExamBank(): ExamQuestion[] {
  * lowest mastery ratio or recently missed items surface first.
  */
 export function selectExamSession(progress: UserProgress, count = 5): ExamQuestion[] {
-  const bank = buildExamBank();
+  const review = buildMistakeQuestions(progress.mistakes ?? []);
+  const bank = [...review, ...buildExamBank()];
   const scored = bank.map((q) => {
     const m = progress.mastery[q.targetKey];
+    const isReview = q.type === 'review';
+    // a mistake stays at the front until it has been answered right once
+    if (isReview && !(m && m.correct > 0 && !m.lastMissedAt)) return { q, priority: 130 };
     if (!m || m.seen === 0) {
-      return { q, priority: 100 }; // Unseen items get high priority
+      return { q, priority: isReview ? 0 : 100 }; // Unseen items get high priority
     }
     const accuracy = m.correct / m.seen;
     const recentMissBoost = m.lastMissedAt ? 35 : 0;
@@ -191,5 +195,79 @@ export function selectExamSession(progress: UserProgress, count = 5): ExamQuesti
   });
 
   scored.sort((a, b) => b.priority - a.priority);
-  return scored.slice(0, count).map((item) => item.q);
+  // at most 3 old mistakes per sitting, so the exam still covers the syllabus
+  let reviews = 0;
+  return scored
+    .filter(({ q }) => q.type !== 'review' || ++reviews <= 3)
+    .slice(0, count)
+    .map((item) => item.q);
+}
+
+const MAX_MISTAKES = 12;
+
+/** Turns what went wrong at the desk into review entries: a wrong Quân and any contraindicated herb. */
+export function recordMistakes(
+  prev: MistakeEntry[],
+  patientCase: PatientCase,
+  result: EvaluationResult,
+  slots: PrescriptionSlots
+): MistakeEntry[] {
+  const found: MistakeEntry[] = [];
+  const base = { caseTitle: patientCase.title, patientName: patientCase.patientName, keyHerbIds: [...patientCase.keyHerbs] };
+  const quan = slots.quan;
+  if (quan && patientCase.idealQuanHerb && quan !== patientCase.idealQuanHerb && HERB_MAP[quan] && HERB_MAP[patientCase.idealQuanHerb]) {
+    found.push({
+      ...base,
+      key: `mistake-quan-${patientCase.targetDiagnosis.location}-${patientCase.targetDiagnosis.nature}-${patientCase.targetDiagnosis.state}-${quan}`,
+      kind: 'wrong-quan',
+      herbId: quan,
+      idealHerbId: patientCase.idealQuanHerb,
+      note: patientCase.clinicalExplanation
+    });
+  }
+  for (const al of result.alerts) {
+    if (al.severity !== 'critical' || !HERB_MAP[al.sourceId]) continue;
+    found.push({ ...base, key: `mistake-ck-${patientCase.id}-${al.sourceId}`, kind: 'contraindication', herbId: al.sourceId, note: al.message });
+  }
+  const fresh = found.filter((f, i) => found.findIndex((g) => g.key === f.key) === i);
+  return [...fresh, ...prev.filter((p) => !fresh.some((f) => f.key === p.key))].slice(0, MAX_MISTAKES);
+}
+
+/** Deterministic option order so the same mistake reads the same each time. */
+const rotate = <T,>(items: T[], by: number) => items.map((_, i) => items[(i + by) % items.length]);
+
+export function buildMistakeQuestions(mistakes: MistakeEntry[]): ExamQuestion[] {
+  return mistakes.flatMap((m, idx): ExamQuestion[] => {
+    const herb = HERB_MAP[m.herbId];
+    if (!herb) return [];
+    const others = (ids: string[]) =>
+      Object.keys(HERB_MAP).filter((id) => !ids.includes(id) && !m.keyHerbIds.includes(id));
+    if (m.kind === 'wrong-quan' && m.idealHerbId && HERB_MAP[m.idealHerbId]) {
+      const ideal = HERB_MAP[m.idealHerbId];
+      const ids = rotate([ideal.id, herb.id, ...others([ideal.id, herb.id]).slice(idx % 5, (idx % 5) + 2)], idx);
+      return [{
+        id: `ex-${m.key}`,
+        type: 'review',
+        targetKey: m.key,
+        prompt: `Ôn lỗi cũ — ${m.caseTitle}: vị nào đáng làm Quân?`,
+        subtext: `Lần trước bạn đặt ${herb.name} làm Quân cho ${m.patientName}.`,
+        options: ids.map((id) => ({ id, label: HERB_MAP[id].name, detail: HERB_MAP[id].summary })),
+        correctOptionId: ideal.id,
+        explanation: m.note
+      }];
+    }
+    const safe = m.keyHerbIds.filter((id) => id !== herb.id && HERB_MAP[id]).slice(0, 3);
+    if (safe.length < 2) return [];
+    const ids = rotate([herb.id, ...safe], idx);
+    return [{
+      id: `ex-${m.key}`,
+      type: 'review',
+      targetKey: m.key,
+      prompt: `Ôn lỗi cũ — ${m.caseTitle}: vị nào phạm cấm kỵ với ${m.patientName}?`,
+      subtext: 'Lần trước đơn thuốc của bạn bị dấu cấm kỵ đỏ.',
+      options: ids.map((id) => ({ id, label: HERB_MAP[id].name, detail: HERB_MAP[id].summary })),
+      correctOptionId: herb.id,
+      explanation: m.note
+    }];
+  });
 }

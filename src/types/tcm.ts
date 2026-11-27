@@ -357,6 +357,8 @@ export interface UserProgress {
   crisesAttended?: number;
   /** Hoành phi earned on rainy nights, hung on the Tiền Đường wall. */
   hoanhPhi?: string[];
+  /** Most recent desk mistakes, replayed in Khảo Thí Y Miếu. */
+  mistakes?: MistakeEntry[];
 }
 
 export interface PendingFollowUp {
@@ -389,7 +391,22 @@ export interface SongAnPair {
   clinicalNote: string;
 }
 
-export type ExamQuestionType = 'tongue' | 'pulse' | 'formula' | 'acupoint';
+export type ExamQuestionType = 'tongue' | 'pulse' | 'formula' | 'acupoint' | 'review';
+
+/** A herb the healer got wrong at the desk; it comes back as a Khảo Thí question until answered right. */
+export interface MistakeEntry {
+  key: string;
+  kind: 'wrong-quan' | 'contraindication';
+  caseTitle: string;
+  patientName: string;
+  /** The herb the healer actually used. */
+  herbId: string;
+  /** wrong-quan: the herb that should have led the formula. */
+  idealHerbId?: string;
+  /** Herbs that did belong in this case (distractors for the contraindication question). */
+  keyHerbIds: string[];
+  note: string;
+}
 
 export interface ExamQuestion {
   id: string;

@@ -13,7 +13,7 @@ import {
 } from './data/achievements';
 import { SONG_AN_PAIRS } from './data/cases';
 import { apothecaryAudio } from './engine/audio';
-import { computeRank } from './engine/examEngine';
+import { computeRank, recordMistakes } from './engine/examEngine';
 import { planFollowUp } from './engine/followUp';
 import { createDefaultProgress, loadProgress, saveProgress } from './engine/storage';
 import { CaseLedgerEntry, DecoctionChoice, EvaluationResult, PatientCase, PrescriptionSlots, UserProgress } from './types/tcm';
@@ -72,6 +72,10 @@ export const App: React.FC = () => {
         completedCases: { ...prev.completedCases },
         proceduralCleared: prev.proceduralCleared
       };
+
+      if (meta?.slots) {
+        next.mistakes = recordMistakes(prev.mistakes ?? [], patientCase, result, meta.slots);
+      }
 
       if (patientCase.crisis) {
         next.crisesAttended = (prev.crisesAttended ?? 0) + 1;

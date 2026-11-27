@@ -35,7 +35,7 @@
 # Local dev server
 npm run dev
 
-# Run all 19 unit & integrity tests (data, solvability, contraindications, art existence, zero-emoji check)
+# Run all 30 unit & integrity tests (data, solvability, contraindications, art existence, zero-emoji check)
 npx vitest run
 
 # Type-check + production build

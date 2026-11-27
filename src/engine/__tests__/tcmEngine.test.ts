@@ -9,7 +9,7 @@ import { GLOSSARY_TERMS, segmentTextWithGlossary } from '../../data/glossary';
 import { HERBS } from '../../data/herbs';
 import { GARDEN_PLOTS } from '../../components/HerbGardenRoom';
 import { apothecaryAudio } from '../audio';
-import { selectExamSession } from '../examEngine';
+import { buildMistakeQuestions, recordMistakes, selectExamSession } from '../examEngine';
 import { createDefaultProgress, exportSaveJson, importSaveJson, loadProgress } from '../storage';
 import {
   assignHerbToSlot,
@@ -242,6 +242,27 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     const session = selectExamSession(prog, 5);
     expect(session).toHaveLength(5);
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
+  });
+
+  it('desk mistakes come back as Khảo Thí questions until answered right', () => {
+    const c = STORY_CASES[0];
+    const slots = { quan: 'bac-ha', than: 'kinh-gioi', ta: null, su: null };
+    const res = evaluateCaseSubmission(c, c.targetDiagnosis, slots, []);
+    const mistakes = recordMistakes([], c, res, slots);
+    expect(mistakes[0]).toMatchObject({ kind: 'wrong-quan', herbId: 'bac-ha', idealHerbId: 'tia-to' });
+    // the same mistake again does not pile up
+    expect(recordMistakes(mistakes, c, res, slots)).toHaveLength(mistakes.length);
+
+    const [q] = buildMistakeQuestions(mistakes);
+    expect(q.type).toBe('review');
+    expect(q.options.map((o) => o.id)).toContain('tia-to');
+    expect(q.correctOptionId).toBe('tia-to');
+
+    const prog = createDefaultProgress();
+    prog.mistakes = mistakes;
+    expect(selectExamSession(prog, 5)[0].targetKey).toBe(q.targetKey);
+    prog.mastery[q.targetKey] = { seen: 1, correct: 1 };
+    expect(selectExamSession(prog, 5).some((x) => x.targetKey === q.targetKey)).toBe(false);
   });
 
   it('verifies all 55 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {

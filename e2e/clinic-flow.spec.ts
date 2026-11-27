@@ -160,3 +160,20 @@ test('Đêm Mưa Gõ Cửa: after 3 cures a red-flag night comes; referring it h
   await expect(page.locator('.hoanh-phi-plaque')).toHaveText('Minh Sát Thu Hào');
   await expect(page.locator('.crisis-knock-btn')).toHaveCount(0);
 });
+
+test('a wrong Quân at the desk comes back as the first Khảo Thí question', async ({ page }) => {
+  await enterClinic(page);
+  await goRoom(page, 'Dược Các');
+  await pickHerb(page, 'Bạc hà');
+  await goRoom(page, 'Nội Các');
+  await page.getByRole('button', { name: /Dập Ấn Chu Sa/ }).click();
+  await expect.poll(async () => (await progress(page)).mistakes?.[0]?.herbId).toBe('bac-ha');
+
+  await page.getByRole('button', { name: 'Xem lại đơn trên bàn khám' }).click();
+  await page.getByRole('button', { name: /Y Miếu/ }).first().click();
+  await expect(page.getByText(/^Ôn lỗi cũ — Ca 01/)).toBeVisible();
+  await page.getByRole('button', { name: /^Tía tô/ }).first().click();
+  await page.getByRole('button', { name: 'Nộp bài luận đáp' }).click();
+  const key = (await progress(page)).mistakes[0].key;
+  await expect.poll(async () => (await progress(page)).mastery?.[key]?.correct ?? 0).toBe(1);
+});
