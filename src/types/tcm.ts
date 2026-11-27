@@ -143,6 +143,14 @@ export interface PatientCase {
   isProcedural?: boolean;
   /** Danh Y Hằng Ngày: the same case for every player on a calendar day, played without the balance preview. */
   isDaily?: boolean;
+  /** Đêm Mưa Gõ Cửa: referral=true means the right answer is "Chuyển y viện ngay", not a prescription. */
+  crisis?: {
+    referral: boolean;
+    redFlags: string[];
+    lesson: string;
+    /** Hoành phi text hung on the Tiền Đường wall when this night is handled correctly. */
+    plaque: string;
+  };
   /** Set on a tái khám visit: the story case id this patient first came for. */
   followUpOf?: string;
   patientName: string;
@@ -344,6 +352,11 @@ export interface UserProgress {
   dailyResults?: Record<string, { score: number; grade: EvaluationGrade; passed: boolean }>;
   /** Brush-ink signature as a PNG data URL, shown on the sắc phong and the exported certificate. */
   signature?: string;
+  /** Cured patients since the last Đêm Mưa Gõ Cửa; a knock comes at CURES_PER_CRISIS. */
+  curesSinceCrisis?: number;
+  crisesAttended?: number;
+  /** Hoành phi earned on rainy nights, hung on the Tiền Đường wall. */
+  hoanhPhi?: string[];
 }
 
 export interface PendingFollowUp {

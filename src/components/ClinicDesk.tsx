@@ -3,6 +3,7 @@ import { apothecaryAudio } from '../engine/audio';
 import { FloatingJuiceLayer } from './FloatingJuiceLayer';
 import { buildFollowUpCase, dueFollowUps } from '../engine/followUp';
 import { buildDailyCase, dailyKey } from '../engine/dailyCase';
+import { buildTeacherReview, nextCrisisCase } from '../engine/crisis';
 import { CaseLedgerModal } from './CaseLedgerModal';
 import { FirstCaseGuideBar } from './FirstCaseGuideBar';
 import { FloatingAtmosphereCanvas } from './FloatingAtmosphereCanvas';
@@ -78,7 +79,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
     handleShowRelics,
     handleNextCase,
     dailyResults,
-    signature
+    signature,
+    crisisDue,
+    crisesAttended,
+    slots
   } = ctx;
   const todayKey = dailyKey();
   const todayResult = dailyResults[todayKey];
@@ -112,6 +116,16 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
           >
             <AntiqueIcon name="bell" size={13} /> <span>Đón Khách</span>
           </button>
+          {crisisDue && !selectedCase.crisis && (
+            <button
+              type="button"
+              className="hud-scroll-btn crisis-knock-btn"
+              onClick={() => loadPatient(nextCrisisCase(crisesAttended), true)}
+              title="Có tiếng gõ cửa dồn dập giữa đêm mưa"
+            >
+              <AntiqueIcon name="bell" size={13} /> <span>Đêm Mưa Gõ Cửa</span>
+            </button>
+          )}
           <button
             type="button"
             className="hud-scroll-btn daily-case-btn"
@@ -347,6 +361,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
           patientCase={selectedCase}
           result={outcome}
           signature={signature}
+          review={buildTeacherReview(selectedCase, clues, diagnosis, slots)}
           dailyKey={selectedCase.isDaily ? selectedCase.id.replace(/^daily-/, '') : undefined}
           onClose={() => setOutcome(null)}
           onNextCase={handleNextCase}

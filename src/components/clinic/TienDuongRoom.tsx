@@ -12,7 +12,6 @@ import { VillagerPortrait } from '../svg/VillagerPortrait';
 import { BienChungLedger } from '../clinic/BienChungLedger';
 import type { ClinicCtx } from './useClinicDesk';
 import { RoomBackdrop } from './RoomBackdrop';
-import { SOLAR_TERM_WEATHER } from './WeatherCanvas';
 
 export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -35,6 +34,7 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
     inspectorRef,
     activeWatch,
     watchLight,
+    roomWeather,
     solarTerm,
     switchRoom,
     patientVoice,
@@ -46,7 +46,10 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
     handlePlayAuscultation,
     effectiveMaxInquiries,
     handleAskQuestion,
-    handleSealBienChung
+    handleSealBienChung,
+    hoanhPhi,
+    handleReferral,
+    stampingActive
   } = ctx;
   return (
     <>
@@ -56,10 +59,15 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 1: Tiền Đường Tiếp Bệnh"
     >
       <div className={`spatial-room-bg-layer ${curtainParting ? 'curtain-parting' : ''}`} aria-hidden="true">
-        <RoomBackdrop room="tien-duong" night={watchLight.lamp} healthTinted weather={SOLAR_TERM_WEATHER[solarTerm.name]} />
+        <RoomBackdrop room="tien-duong" night={watchLight.lamp} healthTinted weather={roomWeather} />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
         {solarWeather !== 'rain' && <AmbientParticlesCanvas key={solarWeather} mode={solarWeather} />}
+        {hoanhPhi.length > 0 && (
+          <div className="hoanh-phi-plaque" title={`Hoành phi tạ ơn: ${hoanhPhi.join(' · ')}`}>
+            {hoanhPhi[hoanhPhi.length - 1]}
+          </div>
+        )}
         <div className="curtain-veil left" />
         <div className="curtain-veil right" />
       </div>
@@ -84,6 +92,14 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
           <div className="spatial-dialogue-card">
             <div className="stage-case-meta">
               <h2 className="room-stage-title">{selectedCase.title}</h2>
+              {selectedCase.crisis && !outcome && (
+                <div className="crisis-referral-bar">
+                  <span>Đêm mưa gõ cửa: tự chữa tại quán, hay có dấu hiệu phải chuyển viện?</span>
+                  <button type="button" className="btn-cinnabar crisis-referral-btn" disabled={stampingActive} onClick={handleReferral}>
+                    Chuyển y viện ngay
+                  </button>
+                </div>
+              )}
               <p className="room-stage-sub">
                 {activeWatch.branch} ({activeWatch.organ} vượng) · Tiết {solarTerm.name} ({solarTerm.hint})
               </p>

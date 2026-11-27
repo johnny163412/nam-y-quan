@@ -133,3 +133,30 @@ test('Danh Y Hằng Ngày: same case for the day, first score kept, result copie
   await expect(page.locator('.daily-copy-btn')).toHaveText(/Đã chép kết quả|Không chép được/);
   await expect(page.locator('.daily-case-btn')).toContainText(`${first.score}đ`);
 });
+
+test('Đêm Mưa Gõ Cửa: after 3 cures a red-flag night comes; referring it hangs a hoành phi', async ({ page }) => {
+  await enterClinic(page);
+  await page.evaluate((k) => {
+    const p = JSON.parse(localStorage.getItem(k) ?? '{}');
+    localStorage.setItem(k, JSON.stringify({ ...p, curesSinceCrisis: 3 }));
+  }, STORAGE_KEY);
+  await page.reload();
+  await page.getByText('Vào Y Quán (Im lặng)').click();
+
+  await page.locator('.crisis-knock-btn').click();
+  await expect(page.locator('.room-stage-title')).toContainText('Đêm Mưa Gõ Cửa');
+  await expect(page.locator('.clinic-stage')).toHaveClass(/lighting-night/);
+
+  await page.locator('.tabletop-tool-btn', { hasText: 'Thẻ Vấn' }).click();
+  await page.getByRole('button', { name: /Cụ thử giơ cả hai tay/ }).click();
+  await page.locator('.crisis-referral-btn').click();
+
+  await expect(page.locator('.teacher-review')).toBeVisible();
+  await expect.poll(async () => (await progress(page)).hoanhPhi ?? []).toEqual(['Minh Sát Thu Hào']);
+  const p = await progress(page);
+  expect(p.curesSinceCrisis).toBe(0);
+  expect(p.crisesAttended).toBe(1);
+  await page.getByRole('button', { name: 'Xem lại đơn trên bàn khám' }).click();
+  await expect(page.locator('.hoanh-phi-plaque')).toHaveText('Minh Sát Thu Hào');
+  await expect(page.locator('.crisis-knock-btn')).toHaveCount(0);
+});

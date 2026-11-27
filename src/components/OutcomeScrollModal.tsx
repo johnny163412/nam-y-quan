@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { apothecaryAudio } from '../engine/audio';
 import { downloadOutcomeCertificatePng } from '../engine/cardExporter';
 import { dailyShareText } from '../engine/dailyCase';
+import { TeacherReview } from '../engine/crisis';
 import { EvaluationResult, PatientCase } from '../types/tcm';
 import { GlossaryText } from './GlossaryText';
 import { VillagerPortrait } from './svg/VillagerPortrait';
@@ -15,6 +16,7 @@ interface OutcomeScrollModalProps {
   signature?: string;
   /** Set for Danh Y Hằng Ngày: enables the copy-result button. */
   dailyKey?: string;
+  review?: TeacherReview;
 }
 
 export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
@@ -24,7 +26,8 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
   onNextCase,
   onOpenLedger,
   signature,
-  dailyKey
+  dailyKey,
+  review
 }) => {
   const [downloadedPng, setDownloadedPng] = useState(false);
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle');
@@ -92,7 +95,7 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
           <div className="outcome-recovery-stage">
             <div className={`outcome-portrait-box ${result.passed ? 'recovery-aura-portrait' : ''}`}>
               {result.passed && (
-                <span className="recovery-ribbon-tag">Đã Hồi Phục</span>
+                <span className="recovery-ribbon-tag">{patientCase.crisis?.referral ? 'Đã Chuyển Viện' : 'Đã Hồi Phục'}</span>
               )}
               <VillagerPortrait
                 patientCase={patientCase}
@@ -100,7 +103,11 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
                 mood={result.passed ? 'recovered' : 'sick'}
               />
               <div style={{ fontSize: '0.76rem', fontWeight: 700, color: result.passed ? 'var(--herbal-jade)' : '#7C1A14', marginTop: '4px', textAlign: 'center' }}>
-                {result.passed ? 'Thần sắc hồng nhuận · Khí huyết điều hòa' : 'Bệnh khí chưa lui hết · Cần xem lại đơn'}
+                {result.passed
+                  ? patientCase.crisis?.referral
+                    ? 'Kịp tới y viện trong giờ vàng'
+                    : 'Thần sắc hồng nhuận · Khí huyết điều hòa'
+                  : 'Bệnh khí chưa lui hết · Cần xem lại đơn'}
               </div>
             </div>
 
@@ -137,6 +144,48 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
           </div>
 
           <p style={{ fontWeight: 600, margin: '0 0 10px' }}>{result.summaryFeedback}</p>
+
+          {review && (
+            <details className="teacher-review" open={!result.passed}>
+              <summary>Thầy chấm bài · chuỗi biện chứng</summary>
+              <div className="teacher-review-chain">
+                <div className="teacher-review-col">
+                  <h4>Manh mối vấn chẩn</h4>
+                  <ul>
+                    {review.clues.map((c) => (
+                      <li key={c.tag} className={`${c.found ? 'is-ok' : 'is-missed'} ${c.redFlag ? 'is-red-flag' : ''}`}>
+                        {c.found ? '●' : '○'} {c.tag}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="teacher-review-col">
+                  <h4>Bát Cương</h4>
+                  <ul>
+                    {review.axes.map((a) => (
+                      <li key={a.label} className={a.ok ? 'is-ok' : 'is-missed'}>
+                        {a.label}: <strong>{a.chosen}</strong>
+                        {!a.ok && <span> → đáng ra {a.expected}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {review.herbs.length > 0 && (
+                  <div className="teacher-review-col">
+                    <h4>Quân · Thần</h4>
+                    <ul>
+                      {review.herbs.map((h) => (
+                        <li key={h.role} className={h.ok ? 'is-ok' : 'is-missed'}>
+                          {h.role}: <strong>{h.chosen}</strong>
+                          {!h.ok && <span> → đáng ra {h.expected}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </details>
+          )}
 
           {signature && (
             <div className="sac-phong-signature">

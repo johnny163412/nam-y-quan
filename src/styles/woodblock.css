@@ -6897,3 +6897,33 @@ button {
 }
 .sac-phong-signature { display: flex; flex-direction: column; align-items: flex-end; margin: -4px 0 10px; font-size: 0.78rem; color: #7C4D21; font-family: var(--font-serif); }
 .sac-phong-signature img { width: 180px; height: 60px; object-fit: contain; }
+
+/* ---------- P3: Đêm Mưa Gõ Cửa, hoành phi, Thầy chấm bài ---------- */
+.crisis-knock-btn { border-color: var(--cinnabar); animation: crisisKnock 1.6s ease-in-out infinite; }
+@keyframes crisisKnock { 0%, 70%, 100% { transform: none; } 76% { transform: translateX(-2px); } 82% { transform: translateX(2px); } 88% { transform: translateX(-1px); } }
+.crisis-referral-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0;
+  padding: 6px 10px; border: 1.5px solid var(--cinnabar); border-radius: 3px;
+  background: rgba(158, 38, 28, 0.22); font-size: 0.84rem; font-weight: 600; color: #F3D3B4;
+}
+.hoanh-phi-plaque {
+  position: absolute; top: 12%; left: 50%; transform: translateX(-50%); z-index: 2;
+  padding: 6px 28px; font-family: var(--font-serif); font-weight: 700; letter-spacing: 0.18em;
+  font-size: clamp(0.9rem, 1.6vw, 1.3rem); color: #E7B96A; white-space: nowrap;
+  background: linear-gradient(180deg, #3b2414, #23140a); border: 3px double #B88438; border-radius: 3px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 0 10px rgba(231, 185, 106, 0.18);
+}
+.teacher-review { margin: 0 0 12px; padding: 8px 12px; border: 1.5px solid #5A3E28; border-radius: 3px; background: var(--paper-highlight); }
+.teacher-review summary { cursor: pointer; font-family: var(--font-serif); font-weight: 700; }
+.teacher-review-chain { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 8px; }
+.teacher-review-col h4 { margin: 0 0 4px; font-size: 0.86rem; color: #7C4D21; }
+.teacher-review-col ul { margin: 0; padding: 0; list-style: none; font-size: 0.82rem; }
+.teacher-review-col li { padding: 2px 0; }
+.teacher-review-col li.is-ok { color: var(--herbal-jade); }
+.teacher-review-col li.is-missed { color: #7a6a58; }
+.teacher-review-col li.is-missed span { color: var(--cinnabar); font-weight: 700; }
+.teacher-review-col li.is-red-flag.is-missed { color: var(--cinnabar); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .crisis-knock-btn { animation: none; } }
+@media (max-width: 680px) {
+  .hoanh-phi-plaque { top: 16%; left: auto; right: 3%; transform: none; padding: 4px 10px; font-size: 0.7rem; letter-spacing: 0.08em; }
+}

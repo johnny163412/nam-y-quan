@@ -10,6 +10,8 @@ import { SOLAR_WEATHER, WATCH_LIGHT } from './clinicConstants';
 import { useDecoction } from './useDecoction';
 import { useExamination } from './useExamination';
 import { usePrescription } from './usePrescription';
+import { SOLAR_TERM_WEATHER, WeatherKind } from './WeatherCanvas';
+import { applyCrisisRules, evaluateReferral } from '../../engine/crisis';
 
 export interface ClinicDeskProps {
   unlockedChapter: 1 | 2 | 3;
@@ -36,6 +38,9 @@ export interface ClinicDeskProps {
   dailyResults: Record<string, { score: number; passed: boolean }>;
   signature?: string;
   onSaveSignature: (dataUrl: string | null) => void;
+  crisisDue: boolean;
+  crisesAttended: number;
+  hoanhPhi: string[];
 }
 
 /** All ClinicDesk state and handlers; the rooms read them through `ctx`. */
@@ -60,7 +65,10 @@ export function useClinicDesk(props: ClinicDeskProps) {
   onOpenCodexHerb,
   dailyResults,
   signature,
-  onSaveSignature
+  onSaveSignature,
+  crisisDue,
+  crisesAttended,
+  hoanhPhi
   } = props;
   const [activeChapter, setActiveChapter] = useState<1 | 2 | 3>(1);
   const [selectedCase, setSelectedCase] = useState<PatientCase>(STORY_CASES[0]);
@@ -95,10 +103,13 @@ export function useClinicDesk(props: ClinicDeskProps) {
 
   const nowHour = new Date().getHours();
   const activeWatch = useMemo(() => getTyNgoWatch(nowHour), [nowHour]);
-  const watchLight = WATCH_LIGHT[Math.max(0, TY_NGO_WATCHES.indexOf(activeWatch))];
+  // Đêm Mưa Gõ Cửa always happens at night in the rain, whatever the wall clock says.
+  const crisisNight = Boolean(selectedCase.crisis);
+  const watchLight = crisisNight ? WATCH_LIGHT[0] : WATCH_LIGHT[Math.max(0, TY_NGO_WATCHES.indexOf(activeWatch))];
   const solarTerm = useMemo(() => getSeasonalSolarTerm(dayCount), [dayCount]);
-  const watchLightingClass =
-    nowHour >= 5 && nowHour < 11
+  const watchLightingClass = crisisNight
+    ? 'lighting-night'
+    : nowHour >= 5 && nowHour < 11
       ? 'lighting-morning'
       : nowHour >= 11 && nowHour < 18
       ? 'lighting-afternoon'
@@ -211,7 +222,8 @@ export function useClinicDesk(props: ClinicDeskProps) {
     '--focus-blur': activeToolDrawer ? '3px' : '0px'
   } as React.CSSProperties;
   // Weather follows the solar term rather than the wall clock.
-  const solarWeather = SOLAR_WEATHER[solarTerm.name] ?? 'sunbeams';
+  const solarWeather = crisisNight ? 'rain' : SOLAR_WEATHER[solarTerm.name] ?? 'sunbeams';
+  const roomWeather: WeatherKind | undefined = crisisNight ? 'cold-rain' : SOLAR_TERM_WEATHER[solarTerm.name];
 
   const loadPatient = (nextCase: PatientCase, withCurtain = true) => {
     setSelectedCase(nextCase);
@@ -278,14 +290,14 @@ export function useClinicDesk(props: ClinicDeskProps) {
           }
         : undefined;
 
-    const res = evaluateCaseSubmission(
+    const res = applyCrisisRules(selectedCase, evaluateCaseSubmission(
       selectedCase,
       diagnosis,
       slots,
       selectedAcupoints,
       decoctionPayload,
       bienChung
-    );
+    ));
 
     const followUp = planFollowUp(selectedCase, res, dayCount);
     if (followUp) {
@@ -310,6 +322,18 @@ export function useClinicDesk(props: ClinicDeskProps) {
         acupoints: selectedAcupoints,
         decoction: decoctionPayload
       });
+    }, 520);
+  };
+
+  const handleReferral = () => {
+    const res = evaluateReferral(selectedCase, exam.clues);
+    setStampingActive(true);
+    apothecaryAudio.playSealStamp(res.passed);
+    navigator.vibrate?.(res.passed ? 60 : [30, 40, 30]);
+    window.setTimeout(() => {
+      setStampingActive(false);
+      setOutcome(res);
+      onCaseEvaluated(selectedCase, res, { slots, acupoints: selectedAcupoints });
     }, 520);
   };
 
@@ -408,7 +432,12 @@ export function useClinicDesk(props: ClinicDeskProps) {
     handleNextCase,
     dailyResults,
     signature,
-    onSaveSignature
+    onSaveSignature,
+    crisisDue,
+    crisesAttended,
+    hoanhPhi,
+    roomWeather,
+    handleReferral
   };
 }
 

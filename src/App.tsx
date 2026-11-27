@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { CURES_PER_CRISIS } from './engine/crisis';
 import { AchievementCabinetModal } from './components/AchievementCabinetModal';
 import { AchievementToast } from './components/AchievementToast';
 import { ClinicDesk } from './components/ClinicDesk';
@@ -71,6 +72,17 @@ export const App: React.FC = () => {
         completedCases: { ...prev.completedCases },
         proceduralCleared: prev.proceduralCleared
       };
+
+      if (patientCase.crisis) {
+        next.crisesAttended = (prev.crisesAttended ?? 0) + 1;
+        next.curesSinceCrisis = 0;
+        const plaque = patientCase.crisis.plaque;
+        if (result.passed && !(prev.hoanhPhi ?? []).includes(plaque)) {
+          next.hoanhPhi = [...(prev.hoanhPhi ?? []), plaque];
+        }
+      } else if (result.passed) {
+        next.curesSinceCrisis = (prev.curesSinceCrisis ?? 0) + 1;
+      }
 
       if (patientCase.isDaily) {
         const key = patientCase.id.replace(/^daily-/, '');
@@ -289,6 +301,9 @@ export const App: React.FC = () => {
           mentorDismissed={Boolean(progress.mentorDismissed)}
           dailyResults={progress.dailyResults ?? {}}
           signature={progress.signature}
+          crisisDue={(progress.curesSinceCrisis ?? 0) >= CURES_PER_CRISIS}
+          crisesAttended={progress.crisesAttended ?? 0}
+          hoanhPhi={progress.hoanhPhi ?? []}
           onSaveSignature={(dataUrl) =>
             setProgress((prev) => ({ ...prev, signature: dataUrl ?? undefined }))
           }
