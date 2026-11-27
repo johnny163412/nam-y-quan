@@ -7,7 +7,7 @@ interface EightPrinciplesCompassProps {
   previewVector: EightPrinciplesVector;
   balanceScore: number;
   diagnosis: DiagnosisChoice;
-  onChangeDiagnosis: (next: DiagnosisChoice) => void;
+  onChangeDiagnosis: (next: DiagnosisChoice, axis?: keyof DiagnosisChoice) => void;
   showTreatmentProjection: boolean;
 }
 
@@ -23,7 +23,7 @@ const ELEMENT_ANGLES: Record<ElementKey, number> = {
   thuy: 288
 };
 
-const ELEMENT_FULL: Record<ElementKey, string> = {
+export const ELEMENT_FULL: Record<ElementKey, string> = {
   moc: 'Mộc (Can)',
   hoa: 'Hỏa (Tâm)',
   tho: 'Thổ (Tỳ)',
@@ -172,14 +172,14 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
           <button
             type="button"
             className={`knob-half ${diagnosis.location === 'bieu' ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, location: 'bieu' })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, location: 'bieu' }, 'location')}
           >
             Biểu chứng
           </button>
           <button
             type="button"
             className={`knob-half ${diagnosis.location === 'ly' ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, location: 'ly' })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, location: 'ly' }, 'location')}
           >
             Lý chứng
           </button>
@@ -189,14 +189,14 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
           <button
             type="button"
             className={`knob-half ${diagnosis.nature === 'han' ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, nature: 'han' })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, nature: 'han' }, 'nature')}
           >
             Hàn chứng
           </button>
           <button
             type="button"
             className={`knob-half ${diagnosis.nature === 'nhiet' ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, nature: 'nhiet' })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, nature: 'nhiet' }, 'nature')}
           >
             Nhiệt chứng
           </button>
@@ -206,14 +206,14 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
           <button
             type="button"
             className={`knob-half ${diagnosis.state === 'hu' ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, state: 'hu' })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, state: 'hu' }, 'state')}
           >
             Hư chứng
           </button>
           <button
             type="button"
             className={`knob-half ${diagnosis.state === 'thuc' ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, state: 'thuc' })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, state: 'thuc' }, 'state')}
           >
             Thực chứng
           </button>
@@ -226,7 +226,7 @@ export const EightPrinciplesCompass: React.FC<EightPrinciplesCompassProps> = ({
             key={el}
             type="button"
             className={`element-petal-btn el-${el} ${diagnosis.primaryElement === el ? 'active' : ''}`}
-            onClick={() => onChangeDiagnosis({ ...diagnosis, primaryElement: el })}
+            onClick={() => onChangeDiagnosis({ ...diagnosis, primaryElement: el }, 'primaryElement')}
             title={ELEMENT_FULL[el]}
           >
             {ELEMENT_SHORT[el]}

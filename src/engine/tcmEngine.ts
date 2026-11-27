@@ -416,12 +416,32 @@ export function getIdealPaoZhi(herbId: string): { method: PaoZhiMethod; reason: 
   }
 }
 
+export const BIEN_CHUNG_MAX_ATTEMPTS = 3;
+export const BIEN_CHUNG_MIN_CLUES = 3;
+
+/** Sổ Biện Chứng: chỉ ấn chứng khi đúng trọn cả 4 trục, không tiết lộ trục nào sai. */
+export function checkBienChung(patientCase: PatientCase, d: DiagnosisChoice): boolean {
+  const t = patientCase.targetDiagnosis;
+  return (
+    d.location === t.location &&
+    d.nature === t.nature &&
+    d.state === t.state &&
+    d.primaryElement === t.primaryElement
+  );
+}
+
+export interface BienChungRecord {
+  sealed: boolean;
+  failedAttempts: number;
+}
+
 export function evaluateCaseSubmission(
   patientCase: PatientCase,
   userDiagnosis: DiagnosisChoice,
   slots: PrescriptionSlots,
   selectedAcupoints: string[],
-  decoctionChoice?: DecoctionChoice
+  decoctionChoice?: DecoctionChoice,
+  bienChung?: BienChungRecord
 ): EvaluationResult {
   const preview = computeTreatmentPreview(
     patientCase,
@@ -441,6 +461,7 @@ export function evaluateCaseSubmission(
   if (userDiagnosis.nature === patientCase.targetDiagnosis.nature) diagnosisScore += 10;
   if (userDiagnosis.state === patientCase.targetDiagnosis.state) diagnosisScore += 7;
   if (userDiagnosis.primaryElement === patientCase.targetDiagnosis.primaryElement) diagnosisScore += 5;
+  if (bienChung) diagnosisScore = Math.max(0, diagnosisScore - 4 * bienChung.failedAttempts);
 
   // 2. Treatment score (0..70): 40 pts from vector balance + 30 pts from clinical match
   const residual =
@@ -557,6 +578,11 @@ export function evaluateCaseSubmission(
       craftBonusScore += 1;
       craftBonusNotes.push('Sắc bằng Siêu Gốm Bát Tràng Cổ (bảo vật mở khóa từ Y Đức).');
     }
+  }
+
+  if (bienChung?.sealed && bienChung.failedAttempts === 0) {
+    craftBonusScore += 3;
+    craftBonusNotes.push('Sổ Biện Chứng ấn chứng ngay nét mực đầu tiên.');
   }
 
   // 4. Safety penalties

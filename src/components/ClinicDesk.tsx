@@ -7,6 +7,10 @@ import { FloatingCallout, FloatingJuiceLayer } from './FloatingJuiceLayer';
 import { TypewriterText } from './TypewriterText';
 import {
   assignHerbToSlot,
+  BIEN_CHUNG_MAX_ATTEMPTS,
+  BIEN_CHUNG_MIN_CLUES,
+  BienChungRecord,
+  checkBienChung,
   computeTreatmentPreview,
   describeDecoctionTaste,
   emptySlots,
@@ -31,7 +35,7 @@ import {
 import { AmbientParticlesCanvas } from './AmbientParticlesCanvas';
 import { BrassScaleRig } from './BrassScaleRig';
 import { CaseLedgerModal } from './CaseLedgerModal';
-import { EightPrinciplesCompass } from './EightPrinciplesCompass';
+import { EightPrinciplesCompass, ELEMENT_FULL } from './EightPrinciplesCompass';
 import { FirstCaseGuideBar } from './FirstCaseGuideBar';
 import { FloatingAtmosphereCanvas } from './FloatingAtmosphereCanvas';
 import { GlossaryText } from './GlossaryText';
@@ -140,6 +144,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     state: 'thuc',
     primaryElement: 'kim'
   });
+  const [bienChung, setBienChung] = useState<BienChungRecord>({ sealed: false, failedAttempts: 0 });
+  // Axes the player chose this case; the default diagnosis must never count as a deduction.
+  const [pickedAxes, setPickedAxes] = useState<(keyof DiagnosisChoice)[]>([]);
+  const changeDiagnosis = (next: DiagnosisChoice, axis?: keyof DiagnosisChoice) => {
+    if (bienChung.sealed) return;
+    const changed = axis ? [axis] : (Object.keys(next) as (keyof DiagnosisChoice)[]).filter((k) => next[k] !== diagnosis[k]);
+    setPickedAxes((prev) => [...new Set([...prev, ...changed])]);
+    setDiagnosis(next);
+  };
   const [slots, setSlots] = useState<PrescriptionSlots>(emptySlots());
   const [slotPaoZhi, setSlotPaoZhi] = useState<SlotPaoZhi>({});
   const [animatingPanRole, setAnimatingPanRole] = useState<RoleSlot | null>(null);
@@ -305,6 +318,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     setAskedIds([]);
     setClues([`Chủ chứng: ${nextCase.seasonTag}`]);
     setInspectedAudio(false);
+    setBienChung({ sealed: false, failedAttempts: 0 });
+    setPickedAxes([]);
     setSlots(emptySlots());
     setSlotPaoZhi({});
     setSelectedSlot('quan');
@@ -553,6 +568,22 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     window.setTimeout(() => setFanBlowing(false), 360);
   };
 
+  const bienChungInkLeft = BIEN_CHUNG_MAX_ATTEMPTS - bienChung.failedAttempts;
+  const bienChungReady = clues.length >= BIEN_CHUNG_MIN_CLUES && pickedAxes.length === 4;
+  const axisText = (axis: keyof DiagnosisChoice, text: string) => (pickedAxes.includes(axis) ? text : '?');
+  const handleSealBienChung = () => {
+    if (bienChung.sealed || bienChungInkLeft <= 0 || !bienChungReady) return;
+    const ok = checkBienChung(selectedCase, diagnosis);
+    apothecaryAudio.playSealStamp(ok);
+    if (ok) {
+      setBienChung({ ...bienChung, sealed: true });
+      pushCallout('Sổ Biện Chứng đã ấn chứng!', 'jade');
+    } else {
+      setBienChung({ ...bienChung, failedAttempts: bienChung.failedAttempts + 1 });
+      pushCallout(`Chưa ấn chứng — còn ${bienChungInkLeft - 1} nét mực`, 'cinnabar');
+    }
+  };
+
   const handleFinalStampSubmit = () => {
     const usedFresh = (Object.values(slots).filter(Boolean) as string[]).filter((id) =>
       freshHerbIds.includes(id)
@@ -576,7 +607,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       diagnosis,
       slots,
       selectedAcupoints,
-      decoctionPayload
+      decoctionPayload,
+      bienChung
     );
 
     setStampingActive(true);
@@ -978,9 +1010,62 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                             previewVector={preview.resultingVector}
                             balanceScore={preview.balanceScore}
                             diagnosis={diagnosis}
-                            onChangeDiagnosis={setDiagnosis}
+                            onChangeDiagnosis={changeDiagnosis}
                             showTreatmentProjection={hasAssignedTreatment}
                           />
+                          <section
+                            className={`bien-chung-ledger ${bienChung.sealed ? 'is-sealed' : ''}`}
+                            aria-label="Sổ Biện Chứng"
+                          >
+                            <header className="bien-chung-head">
+                              <strong>Sổ Biện Chứng</strong>
+                              <span className="muted-note">
+                                {bienChung.sealed ? 'Đã ấn chứng' : `Còn ${bienChungInkLeft}/${BIEN_CHUNG_MAX_ATTEMPTS} nét mực`}
+                              </span>
+                            </header>
+                            <p className="bien-chung-line">
+                              {axisText('location', diagnosis.location === 'bieu' ? 'Biểu' : 'Lý')} ·{' '}
+                              {axisText('nature', diagnosis.nature === 'han' ? 'Hàn' : 'Nhiệt')} ·{' '}
+                              {axisText('state', diagnosis.state === 'hu' ? 'Hư' : 'Thực')} · tạng chủ:{' '}
+                              {axisText('primaryElement', ELEMENT_FULL[diagnosis.primaryElement])}
+                            </p>
+                            <div className="clue-list">
+                              {clues.map((c, i) => (
+                                <span key={i} className="clue-chip">
+                                  <GlossaryText text={c} />
+                                </span>
+                              ))}
+                            </div>
+                            {bienChung.sealed ? (
+                              <p className="bien-chung-note">
+                                Biện chứng đúng trọn bốn trục. La bàn đã khóa — hãy lập phương theo đúng chứng này.
+                              </p>
+                            ) : bienChungInkLeft <= 0 ? (
+                              <p className="bien-chung-note">
+                                Đã cạn mực. Vẫn có thể bốc thuốc, nhưng mỗi nét sai trừ 4 điểm Chẩn đoán.
+                              </p>
+                            ) : (
+                              <>
+                                <p className="bien-chung-note">
+                                  Sổ chỉ ấn chứng khi cả Biểu/Lý, Hàn/Nhiệt, Hư/Thực và tạng chủ đều đúng — không chỉ ra trục nào sai.
+                                  Mỗi nét sai trừ 4 điểm Chẩn đoán; đúng ngay nét đầu được thưởng 3 điểm.
+                                </p>
+                                <button
+                                  type="button"
+                                  className="btn-cinnabar"
+                                  style={{ width: '100%' }}
+                                  disabled={!bienChungReady}
+                                  onClick={handleSealBienChung}
+                                >
+                                  {clues.length < BIEN_CHUNG_MIN_CLUES
+                                    ? `Thu thêm chứng trạng (${clues.length}/${BIEN_CHUNG_MIN_CLUES})`
+                                    : pickedAxes.length < 4
+                                    ? `Tự chọn đủ 4 trục trên la bàn (${pickedAxes.length}/4)`
+                                    : 'Ấn chứng vào sổ'}
+                                </button>
+                              </>
+                            )}
+                          </section>
                           <div style={{ marginTop: '12px' }}>
                             <button
                               type="button"
@@ -1069,7 +1154,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   hasDragonScale={hasDragonScale}
                   discoveredFormulas={discoveredFormulas}
                   panRefs={panRefs}
-                  onChangeDiagnosis={setDiagnosis}
+                  onChangeDiagnosis={changeDiagnosis}
                   onSelectSlot={setSelectedSlot}
                   onAssignHerb={handleAssignHerb}
                   onApplyFormula={handleApplyFormula}

@@ -13,6 +13,7 @@ import { selectExamSession } from '../examEngine';
 import { createDefaultProgress, exportSaveJson, importSaveJson, loadProgress } from '../storage';
 import {
   assignHerbToSlot,
+  checkBienChung,
   checkContraindications,
   computeTreatmentPreview,
   describeDecoctionTaste,
@@ -421,5 +422,21 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(craftedPreview.resultingVector.deficiencyExcess).toBeGreaterThan(
       rawPreview.resultingVector.deficiencyExcess
     );
+  });
+
+  it('Sổ Biện Chứng seals only on all four axes and scores attempts', () => {
+    const c = STORY_CASES[0];
+    const t = c.targetDiagnosis;
+    expect(checkBienChung(c, t)).toBe(true);
+    expect(checkBienChung(c, { ...t, primaryElement: t.primaryElement === 'kim' ? 'moc' : 'kim' })).toBe(false);
+    expect(checkBienChung(c, { ...t, state: t.state === 'hu' ? 'thuc' : 'hu' })).toBe(false);
+
+    const slots: PrescriptionSlots = { quan: 'tia-to', than: 'kinh-gioi', ta: 'sinh-khuong', su: 'cam-thao' };
+    const plain = evaluateCaseSubmission(c, t, slots, []);
+    const firstTry = evaluateCaseSubmission(c, t, slots, [], undefined, { sealed: true, failedAttempts: 0 });
+    const thirdTry = evaluateCaseSubmission(c, t, slots, [], undefined, { sealed: true, failedAttempts: 2 });
+    expect(firstTry.diagnosisScore).toBe(plain.diagnosisScore);
+    expect(firstTry.craftBonusNotes).toContain('Sổ Biện Chứng ấn chứng ngay nét mực đầu tiên.');
+    expect(thirdTry.diagnosisScore).toBe(plain.diagnosisScore - 8);
   });
 });

@@ -7470,3 +7470,39 @@ button {
     display: none;
   }
 }
+
+/* Sổ Biện Chứng — Obra-Dinn-style all-axes verification ledger */
+.bien-chung-ledger {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--paper-highlight);
+  color: var(--ink-primary);
+  border: 1px solid var(--border-ink);
+  border-left: 4px solid var(--brass-ochre);
+  border-radius: 4px;
+}
+.bien-chung-ledger.is-sealed {
+  border-left-color: var(--herbal-jade);
+  background: linear-gradient(var(--herbal-jade-soft), var(--herbal-jade-soft)), var(--paper-highlight);
+}
+.bien-chung-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-serif);
+}
+.bien-chung-line {
+  margin: 6px 0;
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+.bien-chung-note {
+  margin: 8px 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+.bien-chung-ledger button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
