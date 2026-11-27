@@ -529,6 +529,17 @@ export function evaluateCaseSubmission(
       craftBonusNotes.push('Hơ điếu Ngải cứu ấm kinh mạch rất hợp với chứng Hàn / Hư Hàn.');
     }
 
+    const hasBackPoint = selectedAcupoints.some((id) => ACUPOINT_MAP[id]?.bodySide === 'back');
+    if (
+      decoctionChoice.cuppingEnabled &&
+      patientCase.allowAcupuncture &&
+      hasBackPoint &&
+      patientCase.targetDiagnosis.nature === 'han'
+    ) {
+      craftBonusScore += 1;
+      craftBonusNotes.push('Úp ống giác tre vùng lưng vai giúp trục Phong Hàn Thấp thông kinh mạch (+1đ).');
+    }
+
     if (decoctionChoice.fanMatched) {
       craftBonusScore += 2;
       craftBonusNotes.push('Quạt nan giữ chuẩn độ lửa hỏa hầu giúp chiết trọn khí vị.');

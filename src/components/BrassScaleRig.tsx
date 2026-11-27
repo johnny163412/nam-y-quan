@@ -18,6 +18,7 @@ import {
   SlotPaoZhi
 } from '../types/tcm';
 import { BotanicalSvg } from './svg/BotanicalSvg';
+import { AntiqueIcon } from './svg/AntiqueIcons';
 
 const ROLE_META: { role: RoleSlot; short: string; weight: string }[] = [
   { role: 'quan', short: 'Quân', weight: 'Chủ lực' },
@@ -239,7 +240,7 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                   onClick={() => setShowFormulaScroll((v) => !v)}
                   title="Áp nhanh bài cổ phương đã lĩnh ngộ lên 4 đĩa cân"
                 >
-                  📜 Bốc Cổ Phương
+                  <AntiqueIcon name="scroll" size={14} /> <span>Bốc Cổ Phương</span>
                 </button>
                 {showFormulaScroll && (
                   <div className="formula-quick-popover" role="dialog" aria-label="Sổ tay Bốc Cổ Phương 1 chạm">
@@ -269,8 +270,14 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '6px', alignItems: 'center' }}>
                               <strong>{f.name}</strong>
-                              <span style={{ fontSize: '0.68rem', color: isKnown ? '#E7B96A' : '#BFA882' }}>
-                                {isKnown ? '★ Đã lĩnh ngộ' : f.category}
+                              <span style={{ fontSize: '0.68rem', color: isKnown ? '#E7B96A' : '#BFA882', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                {isKnown ? (
+                                  <>
+                                    <AntiqueIcon name="star-seal" size={11} /> <span>Đã lĩnh ngộ</span>
+                                  </>
+                                ) : (
+                                  f.category
+                                )}
                               </span>
                             </div>
                             <span style={{ fontSize: '0.72rem', color: '#E8D6B4' }}>

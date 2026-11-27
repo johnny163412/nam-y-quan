@@ -1,6 +1,7 @@
 import React from 'react';
 import { EvaluationResult, PatientCase } from '../types/tcm';
 import { GlossaryText } from './GlossaryText';
+import { VillagerPortrait } from './svg/VillagerPortrait';
 
 interface OutcomeScrollModalProps {
   patientCase: PatientCase;
@@ -28,35 +29,47 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '12px',
-            alignItems: 'center',
-            marginBottom: '12px',
-            padding: '10px 12px',
-            background: 'var(--paper-aged)',
-            border: '1px solid rgba(42,33,27,0.35)',
-            borderRadius: '2px'
-          }}
-        >
-          <div style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', fontWeight: 700, color: result.passed ? 'var(--herbal-jade)' : 'var(--cinnabar)' }}>
-            {result.totalScore}/100 điểm
+        <div className="outcome-recovery-stage">
+          <div className="outcome-portrait-box">
+            <VillagerPortrait
+              patientCase={patientCase}
+              size="compact"
+              mood={result.passed ? 'recovered' : 'sick'}
+            />
+            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: result.passed ? 'var(--herbal-jade)' : '#7C1A14', marginTop: '4px', textAlign: 'center' }}>
+              {result.passed ? 'Thần sắc hồng nhuận · Khí huyết điều hòa' : 'Bệnh khí chưa lui hết · Cần xem lại đơn'}
+            </div>
           </div>
-          <div style={{ fontSize: '0.86rem', color: 'var(--ink-primary)' }}>
-            <div>Biện chứng Bát Cương: <strong>{result.diagnosisScore}/30</strong></div>
-            <div>Phối ngũ &amp; Huyệt đạo: <strong>{result.treatmentScore}/70</strong></div>
-            {(result.craftBonusScore ?? 0) > 0 && (
-              <div style={{ color: 'var(--herbal-jade)', fontWeight: 700 }}>
-                Tay nghề Bào chế / Ngải cứu: +{result.craftBonusScore}đ
+
+          <div className="outcome-bowl-box">
+            <div className="taste-bowl-stage is-outcome">
+              <img
+                src="/art/tools/porcelain-decoction-bowl.jpg"
+                alt="Bát thuốc sứ Bát Tràng dâng người bệnh"
+                className="taste-bowl-thumb"
+              />
+              <span className="bowl-steam-wisp w1" aria-hidden="true" />
+              <span className="bowl-steam-wisp w2" aria-hidden="true" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '1.72rem', fontFamily: 'var(--font-serif)', fontWeight: 700, color: result.passed ? 'var(--herbal-jade)' : 'var(--cinnabar)' }}>
+                {result.totalScore}/100 điểm
               </div>
-            )}
-            {result.safetyPenalty > 0 && (
-              <div style={{ color: 'var(--cinnabar)', fontWeight: 700 }}>
-                Trừ điểm Cấm kỵ Y gia: -{result.safetyPenalty}
+              <div style={{ fontSize: '0.84rem', color: 'var(--ink-primary)' }}>
+                <div>Biện chứng Bát Cương: <strong>{result.diagnosisScore}/30</strong></div>
+                <div>Phối ngũ &amp; Huyệt đạo: <strong>{result.treatmentScore}/70</strong></div>
+                {(result.craftBonusScore ?? 0) > 0 && (
+                  <div style={{ color: 'var(--herbal-jade)', fontWeight: 700 }}>
+                    Tay nghề Bào chế / Châm Cứu: +{result.craftBonusScore}đ
+                  </div>
+                )}
+                {result.safetyPenalty > 0 && (
+                  <div style={{ color: 'var(--cinnabar)', fontWeight: 700 }}>
+                    Trừ điểm Cấm kỵ Y gia: -{result.safetyPenalty}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 

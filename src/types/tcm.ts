@@ -198,6 +198,7 @@ export interface DecoctionChoice {
   dosing: DosingAdvice;
   paoZhi?: SlotPaoZhi;
   moxaEnabled?: boolean;
+  cuppingEnabled?: boolean;
   fanMatched?: boolean;
   usedFreshHerbs?: string[];
   hasBatTrangPot?: boolean;

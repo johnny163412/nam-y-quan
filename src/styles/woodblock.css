@@ -2823,6 +2823,34 @@ button {
   pointer-events: none;
 }
 
+.seal-ink-bleed-ring {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(166, 38, 32, 0.48) 0%, rgba(166, 38, 32, 0.16) 55%, rgba(166, 38, 32, 0) 76%);
+  animation: cinnabarBleed 680ms ease-out forwards;
+}
+
+.seal-ink-bleed-ring.is-jade-seal {
+  background: radial-gradient(circle, rgba(31, 107, 90, 0.48) 0%, rgba(31, 107, 90, 0.16) 55%, rgba(31, 107, 90, 0) 76%);
+}
+
+@keyframes cinnabarBleed {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.65);
+    opacity: 0.92;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
 .seal-chop-stamp {
   padding: 18px 26px;
   border: 6px solid #a62620;
@@ -4987,4 +5015,529 @@ button {
   background: rgba(110, 26, 20, 0.92);
   border-color: #eb7c6e;
   color: #ffece9;
+}
+
+
+/* =====================================================================
+   Tactile Upgrade Pack: Needles, Cupping, Living Portraits, Garden FX
+   ===================================================================== */
+
+/* Room III: Silver Needle Drop-In, Copper Handle Tremor, Smoke & Bamboo Cupping */
+.silver-needle-group {
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: needleDropIn 290ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    needleTremor 2.4s 320ms ease-in-out infinite;
+}
+
+@keyframes needleDropIn {
+  0% {
+    opacity: 0;
+    filter: drop-shadow(0 0 4px rgba(88, 211, 175, 0.8));
+    transform: scale(1.22) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 1px 2px rgba(24, 16, 10, 0.45));
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes needleTremor {
+  0%, 78%, 100% {
+    transform: rotate(0deg);
+  }
+  84% {
+    transform: rotate(-2.5deg);
+  }
+  90% {
+    transform: rotate(2.5deg);
+  }
+  95% {
+    transform: rotate(-1.4deg);
+  }
+}
+
+.moxa-smoke-plume {
+  animation: moxaSmokeFloat 2.8s ease-in-out infinite;
+}
+
+.moxa-smoke-plume.secondary {
+  animation: moxaSmokeFloat 3.4s 0.8s ease-in-out infinite;
+}
+
+@keyframes moxaSmokeFloat {
+  0%, 100% {
+    opacity: 0.85;
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    opacity: 0.42;
+    transform: translateY(-4px) translateX(2px);
+  }
+}
+
+.moxa-ember-spark {
+  animation: emberPulse 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes emberPulse {
+  from {
+    opacity: 0.65;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+.bamboo-cup-overlay {
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bambooSuctionPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes bambooSuctionPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.94;
+  }
+  50% {
+    transform: scale(0.93);
+    opacity: 0.78;
+  }
+}
+
+.moxa-strip.is-cupping {
+  background: linear-gradient(135deg, #4b2d18 0%, #2d1a0d 100%);
+  border-color: #d6984d;
+}
+
+/* Room I: Living Symptom Portrait Canvas & Exam Tool Badge */
+.patient-avatar-silk {
+  position: relative;
+}
+
+.portrait-symptom-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.patient-avatar-silk.aura-recovered {
+  border-color: #3a8b76;
+  box-shadow: 0 0 18px rgba(88, 211, 175, 0.35), 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.patient-avatar-silk.aura-recovered .patient-portrait-img {
+  filter: saturate(1.14) brightness(1.06);
+}
+
+.portrait-tool-callout {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(24, 15, 9, 0.88);
+  border: 1px solid rgba(231, 185, 106, 0.65);
+  color: #f7e6c4;
+  font-size: 0.68rem;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* Sticky Cross-Room Mini Patient Silk Scroll Strip (Rooms II & III) */
+.mini-patient-scroll-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, rgba(226, 206, 170, 0.96) 0%, rgba(239, 224, 194, 0.96) 100%);
+  border: 1.5px solid #6b4928;
+  border-left: 4px solid #a62620;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(24, 15, 9, 0.18);
+  color: var(--ink-primary);
+}
+
+.mini-patient-scroll-strip .patient-avatar-silk {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.mini-patient-meta {
+  flex: 1;
+  min-width: 180px;
+}
+
+.mini-patient-head {
+  font-size: 0.84rem;
+  font-family: var(--font-serif);
+  color: #2f2014;
+}
+
+.mini-patient-vitals {
+  font-size: 0.76rem;
+  color: #533b28;
+  margin-top: 2px;
+  line-height: 1.32;
+}
+
+.mini-patient-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Room II: Hemp Twine Cross-Tying Over Red Paper Packet */
+.hemp-twine-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.twine-strand {
+  stroke: #e7c27d;
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  stroke-dasharray: 210;
+  stroke-dashoffset: 210;
+  filter: drop-shadow(0 1px 2px rgba(20, 10, 4, 0.75));
+}
+
+.twine-strand.vertical {
+  animation: twineDraw 340ms 430ms ease-out forwards;
+}
+
+.twine-strand.horizontal {
+  animation: twineDraw 340ms 520ms ease-out forwards;
+}
+
+.twine-knot,
+.twine-bow {
+  fill: #e7c27d;
+  stroke: #4d2e14;
+  stroke-width: 1.4;
+  opacity: 0;
+  animation: knotPop 220ms 720ms ease-out forwards;
+}
+
+@keyframes twineDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes knotPop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Room III & Outcome Modal: Steaming Bát Tràng Porcelain Bowl & Recovery Split */
+.decoction-taste-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.taste-bowl-stage {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid #7d5228;
+  background: #e6d6b6;
+}
+
+.taste-bowl-stage.is-outcome {
+  width: 82px;
+  height: 82px;
+}
+
+.taste-bowl-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  display: block;
+}
+
+.bowl-steam-wisp {
+  position: absolute;
+  bottom: 42%;
+  width: 12px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 250, 240, 0.75) 0%, rgba(255, 250, 240, 0) 75%);
+  pointer-events: none;
+  animation: bowlSteamRise 2.2s ease-in-out infinite;
+}
+
+.bowl-steam-wisp.w1 {
+  left: 26%;
+}
+
+.bowl-steam-wisp.w2 {
+  right: 26%;
+  animation-delay: 0.9s;
+}
+
+@keyframes bowlSteamRise {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.8);
+  }
+  45% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(1.3);
+  }
+}
+
+.outcome-recovery-stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--paper-aged);
+  border: 1px solid rgba(42, 33, 27, 0.35);
+  border-radius: 4px;
+}
+
+.outcome-portrait-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 112px;
+  flex-shrink: 0;
+}
+
+.outcome-bowl-box {
+  flex: 1;
+  min-width: 210px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Room IV: Herb Garden Props Rack, Terracotta Pots, Ladle Watering & Flying Sprig */
+.garden-tools-rack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.garden-tool-card {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 7px 9px;
+  background: linear-gradient(180deg, var(--paper-highlight) 0%, var(--paper-aged) 100%);
+  border: 1.5px solid #6b4928;
+  border-radius: 5px;
+  font-size: 0.82rem;
+}
+
+.garden-tool-card.basket-card.is-catching {
+  animation: basketCatch 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-color: #23574c;
+  box-shadow: 0 0 14px rgba(88, 211, 175, 0.45);
+}
+
+@keyframes basketCatch {
+  0%, 100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.06) translateY(-3px);
+  }
+}
+
+.garden-tool-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 5px;
+  object-fit: cover;
+  border: 1px solid #5a3e28;
+  flex-shrink: 0;
+  mix-blend-mode: multiply;
+}
+
+.garden-basket-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.garden-pot-card {
+  position: relative;
+  overflow: visible;
+}
+
+.garden-pot-visual {
+  position: relative;
+  width: 74px;
+  padding-top: 8px;
+}
+
+.garden-terracotta-body {
+  width: 58px;
+  height: 22px;
+  margin-top: -2px;
+  border-radius: 2px 2px 12px 12px;
+  background: linear-gradient(135deg, #a65732 0%, #6f3319 100%);
+  border: 1.5px solid #3a1a0c;
+  border-top: none;
+  box-shadow: inset -4px -3px 8px rgba(0, 0, 0, 0.32);
+}
+
+.garden-ladle-fx,
+.garden-harvest-fx {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  pointer-events: none;
+}
+
+.ladle-tilt-img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #6b4928;
+  animation: ladlePourTilt 800ms ease-in-out forwards;
+}
+
+@keyframes ladlePourTilt {
+  0% {
+    opacity: 0;
+    transform: translate(14px, -10px) rotate(12deg);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(4px, -4px) rotate(-26deg);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(4px, -4px) rotate(-28deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, -12px) rotate(0deg);
+  }
+}
+
+.dew-stream {
+  position: absolute;
+  top: 28px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8be2ef;
+  box-shadow: 0 0 6px rgba(139, 226, 239, 0.9);
+  animation: dewFall 620ms ease-in infinite;
+}
+
+.dew-stream.s1 {
+  left: 14px;
+}
+.dew-stream.s2 {
+  left: 22px;
+  animation-delay: 140ms;
+}
+.dew-stream.s3 {
+  left: 30px;
+  animation-delay: 280ms;
+}
+
+@keyframes dewFall {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(44px) scale(1.25);
+  }
+}
+
+.shears-snip-img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #6b4928;
+  animation: shearsSnip 540ms ease-in-out forwards;
+}
+
+@keyframes shearsSnip {
+  0% {
+    opacity: 0;
+    transform: translate(-18px, 6px) rotate(-20deg) scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(6deg) scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, -6px) rotate(14deg) scale(0.9);
+  }
+}
+
+.flying-sprig-fx {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  animation: sprigFlyUp 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sprigFlyUp {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(42px, -95px) scale(0.7) rotate(35deg);
+  }
 }

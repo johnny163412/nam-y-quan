@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { getTyNgoWatch } from '../engine/tcmEngine';
 import { exportSaveJson, importSaveJson } from '../engine/storage';
 import { UserProgress } from '../types/tcm';
+import { AntiqueIcon } from './svg/AntiqueIcons';
 
 export type MainTab = 'clinic' | 'codex' | 'exam' | 'constitution';
 
@@ -113,7 +114,7 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
             aria-label="Cài đặt âm thanh và hồ sơ hành y"
             title="Âm thanh, Nhạc cảnh & Sao lưu Hồ sơ"
           >
-            ⚙ Cài đặt
+            <AntiqueIcon name="brass-cog" size={14} /> <span>Cài đặt</span>
           </button>
         </div>
       </div>

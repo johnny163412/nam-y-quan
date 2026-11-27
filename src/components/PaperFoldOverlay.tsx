@@ -29,6 +29,17 @@ export const PaperFoldOverlay: React.FC<PaperFoldOverlayProps> = ({ visible, her
             alt="Gói thuốc Giấy Hồng Điều thắt dây gai"
             className="fold-painted-reveal"
           />
+          <svg
+            viewBox="0 0 220 220"
+            className="hemp-twine-svg"
+            aria-hidden="true"
+          >
+            <line x1="110" y1="12" x2="110" y2="208" className="twine-strand vertical" />
+            <line x1="12" y1="110" x2="208" y2="110" className="twine-strand horizontal" />
+            <circle cx="110" cy="110" r="6" className="twine-knot" />
+            <path d="M110 110 Q92 92 84 102 Q96 112 110 110 Z" className="twine-bow" />
+            <path d="M110 110 Q128 92 136 102 Q124 112 110 110 Z" className="twine-bow" />
+          </svg>
           <div className="fold-seal-label">Tuệ Tâm Đường · Bốc Đủ Thang</div>
         </div>
         <p className="fold-caption">Đang gấp 4 góc Giấy Hồng Điều &amp; thắt dây gai mang sang Lò sắc...</p>

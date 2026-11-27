@@ -770,6 +770,91 @@ class ApothecaryAudio {
       // Safe no-op
     }
   }
+
+  playNeedleInsert(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1420, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.14);
+      gain.gain.setValueAtTime(this.sfxLevel(0.042), now);
+      gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.16);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.17);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playCuppingSuction(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(165, now);
+      osc.frequency.exponentialRampToValueAtTime(64, now + 0.16);
+      gain.gain.setValueAtTime(this.sfxLevel(0.065), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch {
+      // Safe no-op
+    }
+  }
+
+  playHerbSnip(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const len = Math.floor(ctx.sampleRate * 0.08);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.2);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2400, now);
+      filter.Q.setValueAtTime(2.6, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(this.sfxLevel(0.065), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(now);
+
+      const cling = ctx.createOscillator();
+      const cGain = ctx.createGain();
+      cling.type = 'triangle';
+      cling.frequency.setValueAtTime(1880, now);
+      cling.frequency.exponentialRampToValueAtTime(1240, now + 0.07);
+      cGain.gain.setValueAtTime(this.sfxLevel(0.032), now);
+      cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      cling.connect(cGain);
+      cGain.connect(ctx.destination);
+      cling.start(now);
+      cling.stop(now + 0.09);
+    } catch {
+      // Safe no-op
+    }
+  }
 }
 
 export const apothecaryAudio = new ApothecaryAudio();

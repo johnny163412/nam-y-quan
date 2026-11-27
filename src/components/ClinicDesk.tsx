@@ -39,6 +39,7 @@ import { PaperFoldOverlay } from './PaperFoldOverlay';
 import { PulseCanvas } from './PulseCanvas';
 import { StoveAndSealRig } from './StoveAndSealRig';
 import { BotanicalSvg } from './svg/BotanicalSvg';
+import { AntiqueIcon, AntiqueIconName } from './svg/AntiqueIcons';
 import { HealerHandOverlay, ScoopAnimationState } from './svg/HealerHandOverlay';
 import { TongueMirror } from './svg/TongueMirror';
 import { VillagerPortrait } from './svg/VillagerPortrait';
@@ -80,11 +81,11 @@ const ROOM_NODES: { idx: 0 | 1 | 2 | 3; roman: string; label: string }[] = [
   { idx: 3, roman: 'IV', label: 'Hậu Viên' }
 ];
 
-const EXAM_INSTRUMENTS: { id: ExamTab; label: string; glyph: string }[] = [
-  { id: 'vong', label: 'Soi Gương', glyph: '🪞' },
-  { id: 'van', label: 'Nghe Thở', glyph: '👂' },
-  { id: 'van-hoi', label: 'Thẻ Vấn', glyph: '🎋' },
-  { id: 'thiet', label: 'Gối Mạch', glyph: '✋' }
+const EXAM_INSTRUMENTS: { id: ExamTab; label: string; icon: AntiqueIconName }[] = [
+  { id: 'vong', label: 'Soi Gương', icon: 'mirror' },
+  { id: 'van', label: 'Nghe Thở', icon: 'ear-wave' },
+  { id: 'van-hoi', label: 'Thẻ Vấn', icon: 'bamboo-slips' },
+  { id: 'thiet', label: 'Gối Mạch', icon: 'pulse-pillow' }
 ];
 
 const FIRE_TARGET_RANGES: Record<FireType, [number, number]> = {
@@ -143,6 +144,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [packetWrapped, setPacketWrapped] = useState(false);
   const [selectedAcupoints, setSelectedAcupoints] = useState<string[]>([]);
   const [moxaEnabled, setMoxaEnabled] = useState(false);
+  const [cuppingEnabled, setCuppingEnabled] = useState(false);
   const [fire, setFire] = useState<FireType>('van-vu');
   const [fanHeat, setFanHeat] = useState<number>(56);
   const [fanBlowing, setFanBlowing] = useState(false);
@@ -272,6 +274,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     setShowFoldOverlay(false);
     setSelectedAcupoints([]);
     setMoxaEnabled(false);
+    setCuppingEnabled(false);
     setFire('van-vu');
     setFanHeat(56);
     setDosing('am-duong-tang');
@@ -465,7 +468,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     setSelectedAcupoints((prev) =>
       prev.includes(ptId) ? prev.filter((id) => id !== ptId) : [...prev, ptId]
     );
-    apothecaryAudio.playHerbDrop();
+    apothecaryAudio.playNeedleInsert();
   };
 
   const handleFanStroke = (up: boolean) => {
@@ -486,6 +489,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             dosing,
             paoZhi: slotPaoZhi,
             moxaEnabled,
+            cuppingEnabled,
             fanMatched: isFanMatched,
             usedFreshHerbs: usedFresh,
             hasBatTrangPot
@@ -558,7 +562,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
               setShowDirectoryModal(true);
             }}
           >
-            📜 Ca &amp; Sổ Y Án
+            <AntiqueIcon name="scroll" size={14} /> <span>Ca &amp; Sổ Y Án</span>
           </button>
           <button
             type="button"
@@ -566,7 +570,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             onClick={handleSpawnProcedural}
             title="Gõ mõ vén rèm đón người bệnh mới"
           >
-            🔔 Đón Khách
+            <AntiqueIcon name="bell" size={14} /> <span>Đón Khách</span>
           </button>
         </div>
 
@@ -596,7 +600,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           </span>
           {currentStreak >= 2 && (
             <span className="streak-badge-mini" title="Chuỗi chữa khỏi liên tiếp (+5đ Y Đức mỗi bậc)">
-              🔥 x{currentStreak}
+              <AntiqueIcon name="flame" size={13} /> <span>x{currentStreak}</span>
             </span>
           )}
           <span className="yduc-badge-mini" title="Điểm Y Đức mở khóa Bảo vật Trấn Quán">
@@ -611,7 +615,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             }}
             aria-expanded={showCluesPopover}
           >
-            📋 Chứng trạng ({clues.length})
+            <AntiqueIcon name="tally-board" size={14} /> <span>Chứng trạng ({clues.length})</span>
           </button>
 
           {showCluesPopover && (
@@ -715,7 +719,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   <div className="stage-patient-centerpiece">
                     <div className="silk-scroll-mount" aria-hidden="true">
                       <div className="scroll-rod-cap stage-cap" />
-                      <VillagerPortrait patientCase={selectedCase} size="stage" />
+                      <VillagerPortrait patientCase={selectedCase} size="stage" activeExamTool={examTab} />
                       <div className="scroll-rod-cap stage-cap" />
                     </div>
                   </div>
@@ -736,8 +740,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                           (completedCases[pair.caseBId]?.bestScore ?? 0) >= 70;
                         return (
                           <div className="songan-active-ribbon">
-                            <span>
-                              <strong>☯ {pair.title}</strong> — {bothDone ? 'Đã hoàn thành Song Án!' : 'Chữa đủ 2 ca đối chứng để nhận +40 Y Đức.'}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                              <AntiqueIcon name="yin-yang" size={14} />
+                              <strong>{pair.title}</strong> — {bothDone ? 'Đã hoàn thành Song Án!' : 'Chữa đủ 2 ca đối chứng để nhận +40 Y Đức.'}
                             </span>
                             {partnerCase && (
                               <button
@@ -789,7 +794,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                           apothecaryAudio.playPageTurn();
                         }}
                       >
-                        <span className="instrument-glyph" aria-hidden="true">{inst.glyph}</span>
+                        <span className="instrument-glyph" aria-hidden="true">
+                          <AntiqueIcon name={inst.icon} size={18} />
+                        </span>
                         <span className="instrument-name">
                           {inst.id === 'van-hoi'
                             ? `${inst.label} (${askedIds.length}/${selectedCase.maxInquiries})`
@@ -953,6 +960,33 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
               </div>
 
               <div ref={deskRoom2Ref} className="woodblock-sheet desk-right-col">
+                {/* Sticky Mini Patient Silk Scroll Strip for Effortless Cross-Room Deduction */}
+                <div className="mini-patient-scroll-strip" aria-label="Tóm tắt bệnh án đang khám">
+                  <VillagerPortrait patientCase={selectedCase} size="compact" />
+                  <div className="mini-patient-meta">
+                    <div className="mini-patient-head">
+                      <strong>{selectedCase.patientName}</strong> ({selectedCase.age}t) · {selectedCase.seasonTag}
+                      {selectedCase.isPregnant && (
+                        <span className="tag-badge pregnant" style={{ marginLeft: '6px', padding: '1px 6px', fontSize: '0.68rem' }}>Thai phụ</span>
+                      )}
+                    </div>
+                    <div className="mini-patient-vitals">
+                      <span><strong>Lưỡi:</strong> {selectedCase.tongue.summary.split('—')[0].trim()}</span>
+                      <span> · <strong>Mạch:</strong> {selectedCase.pulse.name}</span>
+                    </div>
+                  </div>
+                  <div className="mini-patient-actions">
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      style={{ padding: '3px 8px', fontSize: '0.73rem' }}
+                      onClick={() => switchRoom(0)}
+                    >
+                      ← Tiền Đường
+                    </button>
+                  </div>
+                </div>
+
                 <HealerHandOverlay
                   scoop={scoopAnim}
                   onComplete={(doneId) =>
@@ -1218,6 +1252,33 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 </div>
               </div>
 
+              {/* Sticky Mini Patient Silk Scroll Strip in Room III */}
+              <div className="mini-patient-scroll-strip in-room3" aria-label="Tóm tắt bệnh án đang khám">
+                <VillagerPortrait patientCase={selectedCase} size="compact" />
+                <div className="mini-patient-meta">
+                  <div className="mini-patient-head">
+                    <strong>{selectedCase.patientName}</strong> ({selectedCase.age}t) · {selectedCase.seasonTag}
+                    {selectedCase.isPregnant && (
+                      <span className="tag-badge pregnant" style={{ marginLeft: '6px', padding: '1px 6px', fontSize: '0.68rem' }}>Thai phụ</span>
+                    )}
+                  </div>
+                  <div className="mini-patient-vitals">
+                    <span><strong>Lưỡi:</strong> {selectedCase.tongue.summary.split('—')[0].trim()}</span>
+                    <span> · <strong>Mạch:</strong> {selectedCase.pulse.name}</span>
+                  </div>
+                </div>
+                <div className="mini-patient-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ padding: '3px 8px', fontSize: '0.73rem' }}
+                    onClick={() => switchRoom(1)}
+                  >
+                    ← Dược Các
+                  </button>
+                </div>
+              </div>
+
               <div className="desk-grid room-inner-grid">
                 <div className="woodblock-sheet">
                   <MeridianBodyMap
@@ -1229,6 +1290,14 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       setMoxaEnabled((prev) => {
                         const next = !prev;
                         if (next) apothecaryAudio.playMoxaWarmth();
+                        return next;
+                      });
+                    }}
+                    cuppingEnabled={cuppingEnabled}
+                    onToggleCupping={() => {
+                      setCuppingEnabled((prev) => {
+                        const next = !prev;
+                        if (next) apothecaryAudio.playCuppingSuction();
                         return next;
                       });
                     }}
@@ -1308,7 +1377,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
         </div>
       </div>
 
-      {/* Directory Drawer Modal (📜 Mục Lục Ca, Y Đức & Sổ Y Án) */}
+      {/* Directory Drawer Modal (Mục Lục Ca, Y Đức & Sổ Y Án) */}
       {showDirectoryModal && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Mục lục ca bệnh và Sổ Y Án">
           <div className="woodblock-sheet modal-scroll sac-phong-frame">
@@ -1322,13 +1391,13 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             <div className="yduc-relics-pill" style={{ marginBottom: '12px' }}>
               <strong>Điểm Y Đức: {yDucPoints}</strong>
               <span className={`relic-dot ${hasDragonScale ? 'unlocked' : ''}`}>
-                {hasDragonScale ? '✓ Cân Giao Long' : '25đ: Cân Long'}
+                {hasDragonScale ? 'Đã mở: Cân Giao Long' : '25đ: Cân Long'}
               </span>
               <span className={`relic-dot ${hasBatTrangPot ? 'unlocked' : ''}`}>
-                {hasBatTrangPot ? '✓ Siêu Bát Tràng (+1đ)' : '60đ: Siêu Bát Tràng'}
+                {hasBatTrangPot ? 'Đã mở: Siêu Bát Tràng (+1đ)' : '60đ: Siêu Bát Tràng'}
               </span>
               <span className={`relic-dot ${hasJadeSeal ? 'unlocked' : ''}`}>
-                {hasJadeSeal ? '✓ Ấn Bạch Ngọc' : '100đ: Ấn Bạch Ngọc'}
+                {hasJadeSeal ? 'Đã mở: Ấn Bạch Ngọc' : '100đ: Ấn Bạch Ngọc'}
               </span>
             </div>
 
@@ -1374,8 +1443,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
             <div className="songan-directory-box">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <strong style={{ fontFamily: 'var(--font-serif)', color: '#fff3d6', fontSize: '0.92rem' }}>
-                  ☯ Thử Thách Song Án Đồng Bệnh Dị Trị (+40 Y Đức)
+                <strong style={{ fontFamily: 'var(--font-serif)', color: '#fff3d6', fontSize: '0.92rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <AntiqueIcon name="yin-yang" size={15} />
+                  <span>Thử Thách Song Án Đồng Bệnh Dị Trị (+40 Y Đức)</span>
                 </strong>
                 <span style={{ fontSize: '0.75rem', color: '#E7B96A' }}>
                   Đã đạt {songAnClearedIds.length}/{SONG_AN_PAIRS.length}
@@ -1399,8 +1469,14 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '6px' }}>
                         <strong>{pair.title}</strong>
-                        <span style={{ fontSize: '0.72rem', color: isCleared ? '#95E3B3' : '#F3CA78' }}>
-                          {isCleared ? '✓ Hoàn thành' : `+${pair.rewardYDuc}đ`}
+                        <span style={{ fontSize: '0.72rem', color: isCleared ? '#95E3B3' : '#F3CA78', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                          {isCleared ? (
+                            <>
+                              <AntiqueIcon name="check-seal" size={12} /> <span>Hoàn thành</span>
+                            </>
+                          ) : (
+                            `+${pair.rewardYDuc}đ`
+                          )}
                         </span>
                       </div>
                       <div style={{ fontSize: '0.74rem', color: '#E4CFA8', marginTop: '2px' }}>
@@ -1434,6 +1510,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       {/* Physical Seal Stamp Slam Overlay */}
       {stampingActive && (
         <div className="seal-slam-overlay" aria-hidden="true">
+          <div className={`seal-ink-bleed-ring ${hasJadeSeal ? 'is-jade-seal' : ''}`} />
           <div className={`seal-chop-stamp ${hasJadeSeal ? 'is-jade-seal' : ''}`}>
             惠心堂印
           </div>

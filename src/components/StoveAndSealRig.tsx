@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DecoctionTasteReading, DosingAdvice, FireType } from '../types/tcm';
 import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
+import { AntiqueIcon } from './svg/AntiqueIcons';
 
 const FIRE_META: { id: FireType; title: string; badge: string; range: [number, number] }[] = [
   { id: 'vu-hoa', title: 'Vũ Hỏa', badge: '75–100%', range: [75, 100] },
@@ -72,7 +73,7 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
 
           {hasBatTrangPot && (
             <span className="hearth-pot-relic-badge" title="Siêu Sứ Men Lam Bát Tràng (+1đ Dược hiệu)">
-              🏺 Siêu Bát Tràng
+              <AntiqueIcon name="porcelain-pot" size={14} /> <span>Siêu Bát Tràng</span>
             </span>
           )}
         </div>
@@ -136,23 +137,34 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
             onClick={() => setShowTasteCard((v) => !v)}
             title="Nhấp thử một thìa nước thuốc đang sắc để cảm nhận Khí - Vị - Chiều hướng"
           >
-            🍵 Nhấp Thử
+            <AntiqueIcon name="tea-cup" size={14} /> <span>Nhấp Thử</span>
           </button>
         </div>
       </div>
 
       {showTasteCard && (
         <div className={`decoction-taste-card tone-${tasteReading.matchTone}`} role="status">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <strong style={{ fontFamily: 'var(--font-serif)', color: '#3b1e0a' }}>
-              Nếm Thử Thìa Thuốc Trước Khi Ra Đơn
-            </strong>
-            <span className="muted-note" style={{ fontSize: '0.74rem' }}>{tasteReading.aroma}</span>
+          <div className="taste-bowl-stage">
+            <img
+              src="/art/tools/porcelain-decoction-bowl.jpg"
+              alt="Bát thuốc sứ Bát Tràng sóng sánh nước thuốc ấm"
+              className="taste-bowl-thumb"
+            />
+            <span className="bowl-steam-wisp w1" aria-hidden="true" />
+            <span className="bowl-steam-wisp w2" aria-hidden="true" />
           </div>
-          <div style={{ fontSize: '0.82rem', color: '#2b1d12', lineHeight: 1.4 }}>
-            <div><strong>Khí &amp; Vị:</strong> {tasteReading.flavorNote}</div>
-            <div><strong>Hàn – Nhiệt:</strong> {tasteReading.thermalBalance}</div>
-            <div style={{ marginTop: '3px', fontWeight: 600 }}>{tasteReading.recommendation}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+              <strong style={{ fontFamily: 'var(--font-serif)', color: '#3b1e0a' }}>
+                Nếm Thử Thìa Thuốc Trước Khi Ra Đơn
+              </strong>
+              <span className="muted-note" style={{ fontSize: '0.74rem' }}>{tasteReading.aroma}</span>
+            </div>
+            <div style={{ fontSize: '0.82rem', color: '#2b1d12', lineHeight: 1.4 }}>
+              <div><strong>Khí &amp; Vị:</strong> {tasteReading.flavorNote}</div>
+              <div><strong>Hàn – Nhiệt:</strong> {tasteReading.thermalBalance}</div>
+              <div style={{ marginTop: '3px', fontWeight: 600 }}>{tasteReading.recommendation}</div>
+            </div>
           </div>
         </div>
       )}

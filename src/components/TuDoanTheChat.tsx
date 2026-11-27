@@ -97,7 +97,7 @@ export const TuDoanTheChat: React.FC<TuDoanTheChatProps> = ({
                   onClick={() => setStepIdx(i)}
                 >
                   {i + 1}
-                  {answers[q.id] ? ' ✓' : ''}
+                  {answers[q.id] ? ' ·' : ''}
                 </button>
               ))}
             </div>

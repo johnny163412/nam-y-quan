@@ -208,6 +208,9 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(() => apothecaryAudio.playAuscultation('cold-sniffle')).not.toThrow();
     expect(() => apothecaryAudio.playSealStamp(true)).not.toThrow();
     expect(() => apothecaryAudio.playPageTurn()).not.toThrow();
+    expect(() => apothecaryAudio.playNeedleInsert()).not.toThrow();
+    expect(() => apothecaryAudio.playCuppingSuction()).not.toThrow();
+    expect(() => apothecaryAudio.playHerbSnip()).not.toThrow();
     apothecaryAudio.setEnabled(true);
     expect(() => apothecaryAudio.playPulseBeat(0.8)).not.toThrow();
   });
@@ -233,7 +236,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
   });
 
-  it('verifies all 50 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
+  it('verifies all 55 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
       'meridians/meridian-front.jpg',
@@ -246,6 +249,11 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'tools/wok-closeup.jpg',
       'tools/red-herb-packet.jpg',
       'tools/moxa-stick.jpg',
+      'tools/bamboo-cupping.jpg',
+      'tools/porcelain-decoction-bowl.jpg',
+      'tools/coconut-ladle.jpg',
+      'tools/bronze-shears.jpg',
+      'tools/bamboo-basket.jpg',
       'scenes/clinic-hall.jpg',
       'scenes/room-tien-duong.jpg',
       'scenes/room-duoc-cac.jpg',
@@ -260,13 +268,32 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'patients/clinic-bg.jpg'
     ];
 
-    expect(requiredAssets).toHaveLength(50);
+    expect(requiredAssets).toHaveLength(55);
 
     requiredAssets.forEach((rel) => {
       const fullPath = path.join(root, rel);
       expect(fs.existsSync(fullPath), `Missing asset: ${rel}`).toBe(true);
       const stat = fs.statSync(fullPath);
       expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(8000);
+    });
+  });
+
+  it('contains zero OS Unicode pictographic emojis across all src UI files', () => {
+    const srcRoot = path.resolve(process.cwd(), 'src');
+    const walk = (dir: string): string[] =>
+      fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) return walk(full);
+        if ((entry.name.endsWith('.ts') || entry.name.endsWith('.tsx')) && !entry.name.endsWith('.test.ts')) {
+          return [full];
+        }
+        return [];
+      });
+
+    const emojiRegex = /[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u;
+    walk(srcRoot).forEach((file) => {
+      const content = fs.readFileSync(file, 'utf8');
+      expect(emojiRegex.test(content), `Found system emoji in ${path.relative(srcRoot, file)}`).toBe(false);
     });
   });
 
@@ -288,12 +315,13 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
         dosing: 'am-duong-tang',
         paoZhi: { ta: 'sao-vang', su: 'chich-mat' },
         moxaEnabled: true,
+        cuppingEnabled: true,
         fanMatched: true,
         usedFreshHerbs: ['ngai-cuu', 'la-lot'],
         hasBatTrangPot: true
       }
     );
-    expect(crafted.craftBonusScore).toBeGreaterThanOrEqual(7);
+    expect(crafted.craftBonusScore).toBeGreaterThanOrEqual(8);
     expect(crafted.followUpLetter).toBeTruthy();
     expect(crafted.passed).toBe(true);
   });

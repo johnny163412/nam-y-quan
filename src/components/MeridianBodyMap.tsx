@@ -12,6 +12,8 @@ interface MeridianBodyMapProps {
   hideDetails?: boolean;
   moxaEnabled?: boolean;
   onToggleMoxa?: () => void;
+  cuppingEnabled?: boolean;
+  onToggleCupping?: () => void;
 }
 
 export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
@@ -22,7 +24,9 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
   isPregnant = false,
   hideDetails = false,
   moxaEnabled = false,
-  onToggleMoxa
+  onToggleMoxa,
+  cuppingEnabled = false,
+  onToggleCupping
 }) => {
   const [side, setSide] = useState<'front' | 'back'>(forcedSide ?? 'front');
   const [inspected, setInspected] = useState<Acupoint | null>(null);
@@ -254,13 +258,44 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 )}
                 {isSelected && moxaEnabled && !hideDetails && (
                   <g className="moxa-aura-group" aria-hidden="true">
-                    <circle cx={pt.x} cy={pt.y} r="14" fill="rgba(235, 118, 38, 0.28)" />
+                    <circle cx={pt.x} cy={pt.y} r="14" fill="rgba(235, 118, 38, 0.30)" />
+                    <circle cx={pt.x + 1} cy={pt.y - 4} r="2.2" fill="#FF9838" className="moxa-ember-spark" />
                     <path
-                      d={`M ${pt.x - 2} ${pt.y - 7} Q ${pt.x - 7} ${pt.y - 16} ${pt.x} ${pt.y - 25} Q ${pt.x + 6} ${pt.y - 31} ${pt.x + 1} ${pt.y - 37}`}
-                      stroke="rgba(255, 244, 224, 0.85)"
-                      strokeWidth="1.6"
+                      className="moxa-smoke-plume"
+                      d={`M ${pt.x - 2} ${pt.y - 7} Q ${pt.x - 8} ${pt.y - 16} ${pt.x} ${pt.y - 25} Q ${pt.x + 7} ${pt.y - 32} ${pt.x + 1} ${pt.y - 40}`}
+                      stroke="rgba(255, 244, 224, 0.88)"
+                      strokeWidth="1.7"
                       fill="none"
                       strokeLinecap="round"
+                    />
+                    <path
+                      className="moxa-smoke-plume secondary"
+                      d={`M ${pt.x + 2} ${pt.y - 8} Q ${pt.x + 9} ${pt.y - 18} ${pt.x + 2} ${pt.y - 27} Q ${pt.x - 5} ${pt.y - 35} ${pt.x - 1} ${pt.y - 42}`}
+                      stroke="rgba(246, 226, 192, 0.56)"
+                      strokeWidth="1.25"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                )}
+                {isSelected && cuppingEnabled && pt.bodySide === 'back' && !hideDetails && (
+                  <g className="bamboo-cup-overlay" aria-hidden="true">
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r="12.5"
+                      fill="rgba(164, 96, 44, 0.16)"
+                      stroke="#7D491D"
+                      strokeWidth="2.8"
+                    />
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r="10.2"
+                      fill="none"
+                      stroke="#E0B272"
+                      strokeWidth="0.9"
+                      strokeDasharray="3 2"
                     />
                   </g>
                 )}
@@ -270,6 +305,23 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                   r={2.6}
                   fill={isSelected ? '#FFF8ED' : '#A62620'}
                 />
+                {isSelected && !hideDetails && (
+                  <g
+                    className="silver-needle-group"
+                    transform={`translate(${pt.x}, ${pt.y})`}
+                    aria-hidden="true"
+                  >
+                    {/* Angled fine silver acupuncture needle + wound copper handle */}
+                    <g transform="rotate(32)">
+                      <line x1="0" y1="0" x2="0" y2="-16" stroke="#F4F6F8" strokeWidth="1.4" strokeLinecap="round" />
+                      <line x1="0.3" y1="0" x2="0.3" y2="-16" stroke="#4D5B66" strokeWidth="0.6" strokeLinecap="round" />
+                      <line x1="0" y1="-16" x2="0" y2="-23" stroke="#B66E2E" strokeWidth="2.7" strokeLinecap="round" />
+                      <line x1="-1.1" y1="-17.5" x2="1.1" y2="-17.5" stroke="#5A3012" strokeWidth="0.7" />
+                      <line x1="-1.1" y1="-19.5" x2="1.1" y2="-19.5" stroke="#5A3012" strokeWidth="0.7" />
+                      <line x1="-1.1" y1="-21.5" x2="1.1" y2="-21.5" stroke="#5A3012" strokeWidth="0.7" />
+                    </g>
+                  </g>
+                )}
                 {!hideDetails && (
                   <text
                     x={labelX}
@@ -316,6 +368,33 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 aria-pressed={moxaEnabled}
               >
                 {moxaEnabled ? 'Đang hơ ấm' : 'Châm điếu ngải'}
+              </button>
+            </div>
+          )}
+
+          {onToggleCupping && (
+            <div className={`moxa-strip ${cuppingEnabled ? 'is-cupping' : ''}`}>
+              <img
+                src="/art/tools/bamboo-cupping.jpg"
+                alt="Ống giác hơi tre cổ truyền"
+                className="moxa-thumb"
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.84rem', color: cuppingEnabled ? '#FFF3D6' : 'var(--ink-primary)' }}>
+                  Úp Ống Giác Tre (Trục Phong Hàn lưng vai)
+                </div>
+                <div style={{ fontSize: '0.75rem', color: cuppingEnabled ? '#E5C693' : 'var(--ink-muted)' }}>
+                  Hút phong hàn thấp trên các huyệt Mặt Sau lưng vai (+1đ thưởng khi hợp chứng).
+                </div>
+              </div>
+              <button
+                type="button"
+                className={`toggle-pill ${cuppingEnabled ? 'active' : ''}`}
+                style={{ flex: 'none', padding: '5px 10px' }}
+                onClick={onToggleCupping}
+                aria-pressed={cuppingEnabled}
+              >
+                {cuppingEnabled ? 'Đang giác tre' : 'Úp ống giác'}
               </button>
             </div>
           )}
