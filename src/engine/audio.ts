@@ -22,7 +22,8 @@ class ApothecaryAudio {
   private bgmMix = 0; // 0 = tranquil-pavilion, 1 = warm-hearth
   private crossfadeTimer: number | null = null;
 
-  private ensureBgmDecks(): void {
+  /** The hearth track is only fetched once the player first reaches the stove room (room 2). */
+  private ensureBgmDecks(withHearth: boolean): void {
     if (typeof window === 'undefined' || typeof Audio === 'undefined') return;
     if (!this.tranquilAudio) {
       const a = new Audio('./audio/tranquil-pavilion.m4a');
@@ -31,7 +32,7 @@ class ApothecaryAudio {
       a.volume = 0;
       this.tranquilAudio = a;
     }
-    if (!this.hearthAudio) {
+    if (withHearth && !this.hearthAudio) {
       const b = new Audio('./audio/warm-hearth.m4a');
       b.loop = true;
       b.preload = 'auto';
@@ -87,6 +88,16 @@ class ApothecaryAudio {
     this.activeRoom = room;
     this.applyRoomAcousticProfile();
     if (this.ambientActive) {
+      if (room === 2 && !this.hearthAudio) {
+        try {
+          this.ensureBgmDecks(true);
+          // re-read: TS still narrows the field to null from the guard above
+          const hearth = this.hearthAudio as HTMLAudioElement | null;
+          void hearth?.play().catch(() => {});
+        } catch {
+          // Safe fallback in headless/test browsers
+        }
+      }
       this.startBgmCrossfade(room === 2 ? 1 : 0);
     }
   }
@@ -150,7 +161,7 @@ class ApothecaryAudio {
       return;
     }
     try {
-      this.ensureBgmDecks();
+      this.ensureBgmDecks(this.activeRoom === 2);
       this.bgmMix = this.activeRoom === 2 ? 1 : 0;
       this.syncBgmVolumes();
       void this.tranquilAudio?.play().catch(() => {});
