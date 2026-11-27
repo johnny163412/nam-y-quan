@@ -84,6 +84,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
     const isMortar = craftSession.method === 'gia-dap';
     if (isMortar) {
       apothecaryAudio.playMortarGrind();
+      navigator.vibrate?.(25);
     } else {
       apothecaryAudio.playWokSizzle(craftSession.method === 'chich-mat');
     }

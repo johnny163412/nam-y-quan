@@ -1,4 +1,4 @@
-import { AuscultationType, ElementKey } from '../types/tcm';
+import { AuscultationType, BotanicalMotif, ElementKey } from '../types/tcm';
 
 export type VoiceArchetype = 'elder' | 'lady' | 'youth' | 'merchant';
 
@@ -219,6 +219,24 @@ class ApothecaryAudio {
             g.connect(c.destination);
             osc.start(now);
             osc.stop(now + 0.05);
+          } else if (this.activeRoom === 3 && Math.random() < 0.5) {
+            // Hậu Viên: a garden bird's two-note chirp
+            for (let i = 0; i < 2; i++) {
+              const t = now + i * 0.13;
+              const osc = c.createOscillator();
+              const g = c.createGain();
+              osc.type = 'sine';
+              const base = 2300 + Math.random() * 700;
+              osc.frequency.setValueAtTime(base, t);
+              osc.frequency.exponentialRampToValueAtTime(base * 1.45, t + 0.07);
+              g.gain.setValueAtTime(0.0001, t);
+              g.gain.exponentialRampToValueAtTime(0.012 * this.musicVolume, t + 0.015);
+              g.gain.exponentialRampToValueAtTime(0.0003, t + 0.09);
+              osc.connect(g);
+              g.connect(c.destination);
+              osc.start(t);
+              osc.stop(t + 0.1);
+            }
           } else if (this.activeRoom === 1 && Math.random() < 0.45) {
             const osc = c.createOscillator();
             const g = c.createGain();
@@ -669,11 +687,71 @@ class ApothecaryAudio {
     }
   }
 
-  playHerbDrop(): void {
+  /** Each kind of material lands with its own sound: leaves rustle, roots knock, seeds tick, flowers whisper. */
+  playHerbDrop(motif?: BotanicalMotif): void {
     const ctx = this.getContext();
     if (!ctx) return;
+    const detune = 0.92 + Math.random() * 0.16; // avoid machine-gun repetition
     try {
       const now = ctx.currentTime;
+      if (motif) {
+        const kind = motif.startsWith('leaf') || motif === 'vine-tendril'
+          ? 'rustle'
+          : motif === 'root-tuber' || motif === 'rhizome' || motif === 'bark-quill'
+          ? 'knock'
+          : motif === 'seed-core' || motif === 'berry-cluster'
+          ? 'tick'
+          : 'whisper';
+        if (kind === 'knock') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(210 * detune, now);
+          osc.frequency.exponentialRampToValueAtTime(120 * detune, now + 0.08);
+          gain.gain.setValueAtTime(this.sfxLevel(0.09), now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+          return;
+        }
+        if (kind === 'tick') {
+          for (let i = 0; i < 3; i++) {
+            const t = now + i * (0.035 + Math.random() * 0.02);
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime((1800 + Math.random() * 600) * detune, t);
+            gain.gain.setValueAtTime(this.sfxLevel(0.018), t);
+            gain.gain.exponentialRampToValueAtTime(0.0005, t + 0.018);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.02);
+          }
+          return;
+        }
+        // rustle / whisper: filtered noise burst
+        const dur = kind === 'rustle' ? 0.16 : 0.1;
+        const len = Math.floor(ctx.sampleRate * dur);
+        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.6);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime((kind === 'rustle' ? 2400 : 4200) * detune, now);
+        filter.Q.setValueAtTime(kind === 'rustle' ? 0.9 : 1.6, now);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(this.sfxLevel(kind === 'rustle' ? 0.12 : 0.07), now);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(now);
+        return;
+      }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';

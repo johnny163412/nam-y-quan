@@ -7618,3 +7618,57 @@ button {
 .bien-chung-ledger.is-sealed .bien-chung-head {
   padding-right: 54px;
 }
+
+/* Room change: a single ink brush stroke sweeps across instead of a flat fade */
+.room-transition-veil.brush-sweep {
+  background: none;
+  animation: none;
+  overflow: hidden;
+}
+.room-transition-veil.brush-sweep svg {
+  position: absolute;
+  top: 10%;
+  left: -20%;
+  width: 140%;
+  height: 80%;
+  fill: rgba(18, 10, 6, 0.9);
+  animation: brushSweepAcross 520ms cubic-bezier(0.55, 0.05, 0.35, 1) forwards;
+}
+@keyframes brushSweepAcross {
+  0% { transform: translateX(-110%) skewX(-8deg); }
+  45%, 55% { transform: translateX(0) skewX(0); }
+  100% { transform: translateX(110%) skewX(8deg); }
+}
+
+/* 12-watch Tý Ngọ lighting laid over every room backdrop (vars set on .clinic-stage) */
+.watch-light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(var(--sun-angle, 180deg), var(--watch-tint, transparent), transparent 85%);
+  opacity: var(--watch-strength, 0);
+  mix-blend-mode: soft-light;
+  transition: opacity 2s ease;
+}
+.watch-light.is-lamplit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 16% 78%, rgba(255, 176, 84, 0.55), transparent 38%);
+  mix-blend-mode: screen;
+  animation: oilLampFlicker 3.2s ease-in-out infinite;
+}
+@keyframes oilLampFlicker {
+  0%, 100% { opacity: 0.85; }
+  18% { opacity: 0.7; }
+  22% { opacity: 0.95; }
+  47% { opacity: 0.78; }
+  63% { opacity: 1; }
+  81% { opacity: 0.74; }
+}
+
+/* Depth of field: the Tiền Đường backdrop softens while an examination drawer is open */
+.clinic-stage .spatial-full-bg.health-tinted {
+  filter: brightness(0.84) saturate(calc(1.04 * var(--room-sat, 1))) blur(var(--focus-blur, 0px));
+  transition: filter 0.6s ease;
+}

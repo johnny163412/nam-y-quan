@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SONG_AN_PAIRS, STORY_CASES, generateProceduralCase, getSeasonalSolarTerm } from '../data/cases';
+import { TY_NGO_WATCHES } from '../data/acupoints';
 import { detectActiveFormulas } from '../data/formulas';
 import { HERB_MAP, HERBS } from '../data/herbs';
 import { apothecaryAudio, VoiceArchetype } from '../engine/audio';
@@ -106,6 +107,29 @@ const FIRE_TARGET_RANGES: Record<FireType, [number, number]> = {
 };
 
 type ExamTab = 'vong' | 'van' | 'van-hoi' | 'thiet';
+
+/** Light over the rooms for each of the 12 Tý Ngọ watches, in TY_NGO_WATCHES order (Tý … Hợi). */
+const WATCH_LIGHT: { tint: string; strength: number; angle: string; lamp: boolean }[] = [
+  { tint: 'rgb(24, 34, 72)', strength: 0.62, angle: '180deg', lamp: true }, // Tý
+  { tint: 'rgb(20, 30, 66)', strength: 0.66, angle: '180deg', lamp: true }, // Sửu
+  { tint: 'rgb(46, 50, 96)', strength: 0.52, angle: '200deg', lamp: true }, // Dần — trời sắp rạng
+  { tint: 'rgb(255, 168, 120)', strength: 0.34, angle: '250deg', lamp: false }, // Mão — bình minh
+  { tint: 'rgb(255, 214, 150)', strength: 0.26, angle: '240deg', lamp: false }, // Thìn
+  { tint: 'rgb(255, 238, 200)', strength: 0.16, angle: '200deg', lamp: false }, // Tỵ
+  { tint: 'rgb(255, 250, 228)', strength: 0.12, angle: '180deg', lamp: false }, // Ngọ — chính trưa
+  { tint: 'rgb(255, 222, 160)', strength: 0.18, angle: '160deg', lamp: false }, // Mùi
+  { tint: 'rgb(240, 170, 90)', strength: 0.28, angle: '120deg', lamp: false }, // Thân
+  { tint: 'rgb(228, 108, 58)', strength: 0.4, angle: '110deg', lamp: false }, // Dậu — hoàng hôn
+  { tint: 'rgb(84, 60, 112)', strength: 0.5, angle: '160deg', lamp: true }, // Tuất
+  { tint: 'rgb(34, 40, 80)', strength: 0.58, angle: '180deg', lamp: true } // Hợi
+];
+
+const SOLAR_WEATHER: Record<string, 'rain' | 'sunbeams' | 'garden'> = {
+  'Xuân Vũ': 'rain',
+  'Hạ Thử': 'sunbeams',
+  'Thu Táo': 'garden',
+  'Đông Hàn': 'rain'
+};
 type TabletopTool = ExamTab | 'bat-cuong';
 
 export const ClinicDesk: React.FC<ClinicDeskProps> = ({
@@ -213,6 +237,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   const nowHour = new Date().getHours();
   const activeWatch = useMemo(() => getTyNgoWatch(nowHour), [nowHour]);
+  const watchLight = WATCH_LIGHT[Math.max(0, TY_NGO_WATCHES.indexOf(activeWatch))];
   const solarTerm = useMemo(() => getSeasonalSolarTerm(dayCount), [dayCount]);
   const tasteReading = useMemo(
     () => describeDecoctionTaste(selectedCase, slots, fire, selectedAcupoints, slotPaoZhi),
@@ -244,7 +269,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           apothecaryAudio.playRoomSlide();
           apothecaryAudio.setActiveRoom(nextRoom);
           setRoomTransitioning(true);
-          window.setTimeout(() => setRoomTransitioning(false), 380);
+          window.setTimeout(() => setRoomTransitioning(false), 540);
         }
         return nextRoom;
       });
@@ -319,8 +344,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const health = outcome?.passed ? 1 : preview.balanceScore / 100;
   const healthColorVars = {
     '--health-sat': (outcome?.passed ? 1.15 : 0.3 + 0.75 * health).toFixed(2),
-    '--room-sat': (0.7 + 0.3 * health).toFixed(2)
+    '--room-sat': (0.7 + 0.3 * health).toFixed(2),
+    '--watch-tint': watchLight.tint,
+    '--watch-strength': watchLight.strength,
+    '--sun-angle': watchLight.angle,
+    // depth of field: the examination room blurs behind an open instrument drawer
+    '--focus-blur': activeToolDrawer ? '3px' : '0px'
   } as React.CSSProperties;
+  // Weather follows the solar term rather than the wall clock.
+  const solarWeather = SOLAR_WEATHER[solarTerm.name] ?? 'sunbeams';
 
   const activeFireRange = FIRE_TARGET_RANGES[fire];
   const isFanMatched = fanHeat >= activeFireRange[0] && fanHeat <= activeFireRange[1];
@@ -448,7 +480,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       [role]: herbId ? prev[role] ?? 'sinh-dung' : undefined
     }));
     if (herbId) {
-      apothecaryAudio.playHerbDrop();
+      apothecaryAudio.playHerbDrop(HERB_MAP[herbId]?.motif);
       const herbObj = HERB_MAP[herbId];
       if (herbObj) triggerScoopAnimation(herbObj, role);
       const nextOrder: RoleSlot[] = ['quan', 'than', 'ta', 'su'];
@@ -570,6 +602,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   const handleFanStroke = (up: boolean) => {
     apothecaryAudio.playBambooFan();
+    navigator.vibrate?.(8);
     setFanBlowing(true);
     setFanHeat((prev) => {
       const next = Math.max(10, Math.min(100, prev + (up ? 14 : -14)));
@@ -644,6 +677,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
     setStampingActive(true);
     apothecaryAudio.playSealStamp(res.passed);
+    navigator.vibrate?.(res.passed ? 60 : [30, 40, 30]);
     window.setTimeout(() => {
       setStampingActive(false);
       setOutcome(res);
@@ -687,7 +721,22 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       <div className="ambient-lantern-aura" aria-hidden="true" />
       <FloatingAtmosphereCanvas activeRoom={activeRoom} hasIncenseBurner={yDucPoints >= 20} />
       <FloatingJuiceLayer callouts={callouts} />
-      {roomTransitioning && <div className="room-transition-veil" aria-hidden="true" />}
+      {roomTransitioning && (
+        <div className="room-transition-veil brush-sweep" aria-hidden="true">
+          <svg viewBox="0 0 400 100" preserveAspectRatio="none">
+            <defs>
+              <filter id="brushSweepEdge">
+                <feTurbulence type="fractalNoise" baseFrequency="0.035 0.6" numOctaves="2" seed="7" />
+                <feDisplacementMap in="SourceGraphic" scale="16" />
+              </filter>
+            </defs>
+            <path
+              d="M0,28 C70,16 150,40 230,24 S350,18 400,30 L400,74 C330,86 250,62 170,78 S60,88 0,72 Z"
+              filter="url(#brushSweepEdge)"
+            />
+          </svg>
+        </div>
+      )}
 
       {/* Floating Case Action Strip + Compact Onboarding (Overlays top-left cleanly without pushing layout) */}
       <div className="spatial-floating-subbar">
@@ -833,8 +882,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   alt=""
                   className="room-bg-img spatial-full-bg health-tinted"
                 />
+                <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
                 <div className="spatial-bg-vignette" />
-                <AmbientParticlesCanvas mode={watchLightingClass === 'lighting-night' ? 'rain' : 'sunbeams'} />
+                <AmbientParticlesCanvas key={solarWeather} mode={solarWeather} />
                 <div className="curtain-veil left" />
                 <div className="curtain-veil right" />
               </div>
@@ -1156,6 +1206,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   alt=""
                   className="room-bg-img spatial-full-bg"
                 />
+                <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
                 <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode="sunbeams" />
               </div>
@@ -1467,6 +1518,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   alt=""
                   className="room-bg-img spatial-full-bg"
                 />
+                <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
                 <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode="embers" />
               </div>
@@ -1581,6 +1633,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   alt=""
                   className="room-bg-img spatial-full-bg"
                 />
+                <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
                 <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode="garden" />
               </div>
