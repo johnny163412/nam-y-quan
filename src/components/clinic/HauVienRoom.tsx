@@ -3,6 +3,7 @@ import { HERB_MAP } from '../../data/herbs';
 import { AmbientParticlesCanvas } from '../AmbientParticlesCanvas';
 import { HerbGardenRoom } from '../HerbGardenRoom';
 import type { ClinicCtx } from './useClinicDesk';
+import { RoomBackdrop } from './RoomBackdrop';
 
 export const HauVienRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -23,11 +24,7 @@ export const HauVienRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 4: Hậu Viên Vườn Thuốc Nam"
     >
       <div className="spatial-room-bg-layer" aria-hidden="true">
-        <img
-          src="./art/scenes/room-hau-vien.webp"
-          alt=""
-          className="room-bg-img spatial-full-bg"
-        />
+        <RoomBackdrop room="hau-vien" night={watchLight.lamp} />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
         <AmbientParticlesCanvas mode="garden" />

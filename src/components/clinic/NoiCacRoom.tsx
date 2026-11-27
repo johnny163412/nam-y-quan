@@ -6,6 +6,7 @@ import { StoveAndSealRig } from '../StoveAndSealRig';
 import { VillagerPortrait } from '../svg/VillagerPortrait';
 import { FIRE_TARGET_RANGES } from '../clinic/clinicConstants';
 import type { ClinicCtx } from './useClinicDesk';
+import { RoomBackdrop } from './RoomBackdrop';
 
 export const NoiCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -44,11 +45,7 @@ export const NoiCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 3: Nội Các Châm Cứu và Bếp Sắc"
     >
       <div className="spatial-room-bg-layer" aria-hidden="true">
-        <img
-          src="./art/scenes/room-noi-cac.webp"
-          alt=""
-          className="room-bg-img spatial-full-bg"
-        />
+        <RoomBackdrop room="noi-cac" night={watchLight.lamp} />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
         <AmbientParticlesCanvas mode="embers" />

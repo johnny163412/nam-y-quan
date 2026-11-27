@@ -9,6 +9,7 @@ import { HealerHandOverlay } from '../svg/HealerHandOverlay';
 import { VillagerPortrait } from '../svg/VillagerPortrait';
 import { ROLE_TITLES } from '../clinic/clinicConstants';
 import type { ClinicCtx } from './useClinicDesk';
+import { RoomBackdrop } from './RoomBackdrop';
 
 export const DuocCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -63,11 +64,7 @@ export const DuocCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 2: Dược Các và Bào Chế"
     >
       <div className="spatial-room-bg-layer" aria-hidden="true">
-        <img
-          src="./art/scenes/room-duoc-cac.webp"
-          alt=""
-          className="room-bg-img spatial-full-bg"
-        />
+        <RoomBackdrop room="duoc-cac" night={watchLight.lamp} />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
         <AmbientParticlesCanvas mode="sunbeams" />

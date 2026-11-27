@@ -11,6 +11,7 @@ import { TongueMirror } from '../svg/TongueMirror';
 import { VillagerPortrait } from '../svg/VillagerPortrait';
 import { BienChungLedger } from '../clinic/BienChungLedger';
 import type { ClinicCtx } from './useClinicDesk';
+import { RoomBackdrop } from './RoomBackdrop';
 
 export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -53,12 +54,7 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 1: Tiền Đường Tiếp Bệnh"
     >
       <div className={`spatial-room-bg-layer ${curtainParting ? 'curtain-parting' : ''}`} aria-hidden="true">
-        <img
-          src="./art/scenes/room-tien-duong.webp"
-          alt=""
-          fetchPriority="high"
-          className="room-bg-img spatial-full-bg health-tinted"
-        />
+        <RoomBackdrop room="tien-duong" night={watchLight.lamp} healthTinted />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
         <AmbientParticlesCanvas key={solarWeather} mode={solarWeather} />
