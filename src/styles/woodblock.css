@@ -7512,3 +7512,109 @@ button {
   border-color: var(--cinnabar);
   box-shadow: 0 0 0 1px var(--cinnabar-soft), 0 0 10px var(--cinnabar-soft);
 }
+
+/* Colour = health: portrait saturation follows the live balance score (--health-sat set on .clinic-stage) */
+.clinic-stage .patient-portrait-img {
+  filter: saturate(var(--health-sat, 1));
+  transition: filter 1.2s ease;
+}
+.clinic-stage .patient-avatar-silk.aura-recovered .patient-portrait-img {
+  filter: saturate(calc(var(--health-sat, 1) * 1.14)) brightness(1.06);
+}
+.clinic-stage .spatial-full-bg.health-tinted {
+  filter: brightness(0.84) saturate(calc(1.04 * var(--room-sat, 1)));
+  transition: filter 1.6s ease;
+}
+
+/* Sổ Biện Chứng seal moment */
+.bien-chung-ledger {
+  position: relative;
+}
+.bien-chung-seal {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--paper-highlight);
+  background: var(--cinnabar);
+  border: 2px solid var(--cinnabar);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px var(--paper-highlight);
+  transform: rotate(-8deg);
+  opacity: 0.88;
+  pointer-events: none;
+}
+.bien-chung-seal.is-slamming {
+  animation: bienChungSealSlam 520ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes bienChungSealSlam {
+  0% {
+    transform: scale(2.6) rotate(-18deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(0.92) rotate(-7deg);
+    opacity: 1;
+    box-shadow: inset 0 0 0 2px var(--paper-highlight), 0 0 0 10px var(--cinnabar-soft);
+  }
+  100% {
+    transform: rotate(-8deg);
+    opacity: 0.88;
+    box-shadow: inset 0 0 0 2px var(--paper-highlight), 0 0 0 0 transparent;
+  }
+}
+.bien-chung-ledger.is-rejected {
+  animation: bienChungReject 360ms ease-in-out;
+  border-left-color: var(--cinnabar);
+}
+@keyframes bienChungReject {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+/* Reduced motion: stop looping animations entirely (a 0.01ms infinite loop flickers) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Tái khám letter: the call button drops onto the HUD like a delivered note, then unfolds */
+.hud-scroll-btn.follow-up-btn {
+  animation: followUpLetterDrop 620ms cubic-bezier(0.25, 1.4, 0.4, 1) both;
+}
+@keyframes followUpLetterDrop {
+  0% { transform: translateY(-40px) rotate(-10deg); opacity: 0; }
+  70% { transform: translateY(3px) rotate(2deg); opacity: 1; }
+  100% { transform: none; }
+}
+.follow-up-letter-sheet {
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 18px 20px;
+  transform-origin: top center;
+  animation: followUpLetterUnfold 480ms ease-out both;
+}
+.follow-up-letter-body {
+  font-family: var(--font-serif);
+  font-style: italic;
+  line-height: 1.6;
+  margin: 10px 0 16px;
+}
+@keyframes followUpLetterUnfold {
+  0% { transform: perspective(700px) rotateX(-75deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+.bien-chung-ledger.is-sealed .bien-chung-head {
+  padding-right: 54px;
+}

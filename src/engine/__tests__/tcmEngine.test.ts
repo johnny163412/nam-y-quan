@@ -24,7 +24,7 @@ import {
   simulateFiveElements
 } from '../tcmEngine';
 import { EvaluationResult, PrescriptionSlots } from '../../types/tcm';
-import { buildFollowUpCase, dueFollowUps, planFollowUp } from '../followUp';
+import { buildFollowUpCase, dueFollowUps, followUpLetterText, planFollowUp } from '../followUp';
 
 describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
   it('contains 20 herbs, 20 garden plots, and 24 acupoints (12 front, 12 back) across 3 chapters', () => {
@@ -467,6 +467,8 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(overCase.targetDiagnosis.nature).toBe('nhiet');
     expect(overCase.patientName).toBe(phongHan.patientName);
     expect(overCase.isProcedural).toBe(false);
+    expect(over.letter).toContain('đổi khác');
+    expect(followUpLetterText({ ...under, letter: undefined })).toContain(phongHan.patientName);
 
     const unsafe = planFollowUp(phongHan, fake(85, { exteriorInterior: 0, coldHeat: 0, deficiencyExcess: 0 }, true), 5)!;
     expect(unsafe).toMatchObject({ kind: 'chua-lui', residual: phongHan.initialVector });

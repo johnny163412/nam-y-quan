@@ -17,7 +17,7 @@ import {
   evaluateCaseSubmission,
   getTyNgoWatch
 } from '../engine/tcmEngine';
-import { buildFollowUpCase, dueFollowUps, planFollowUp } from '../engine/followUp';
+import { buildFollowUpCase, dueFollowUps, followUpLetterText, planFollowUp } from '../engine/followUp';
 import {
   CaseLedgerEntry,
   ClassicalFormula,
@@ -150,6 +150,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   });
   const [bienChung, setBienChung] = useState<BienChungRecord>({ sealed: false, failedAttempts: 0 });
   // Axes the player chose this case; the default diagnosis must never count as a deduction.
+  const [openLetter, setOpenLetter] = useState<PendingFollowUp | null>(null);
+  const [ledgerFx, setLedgerFx] = useState<'sealed' | 'rejected' | null>(null);
   const [pickedAxes, setPickedAxes] = useState<(keyof DiagnosisChoice)[]>([]);
   const changeDiagnosis = (next: DiagnosisChoice, axis?: keyof DiagnosisChoice) => {
     if (bienChung.sealed) return;
@@ -313,6 +315,13 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const hasAssignedHerbs = Object.values(slots).some(Boolean);
   const hasAssignedTreatment = hasAssignedHerbs || selectedAcupoints.length > 0;
 
+  // Colour = health: the patient's portrait (and, faintly, the room) regain colour as the prescription rebalances them.
+  const health = outcome?.passed ? 1 : preview.balanceScore / 100;
+  const healthColorVars = {
+    '--health-sat': (outcome?.passed ? 1.15 : 0.3 + 0.75 * health).toFixed(2),
+    '--room-sat': (0.7 + 0.3 * health).toFixed(2)
+  } as React.CSSProperties;
+
   const activeFireRange = FIRE_TARGET_RANGES[fire];
   const isFanMatched = fanHeat >= activeFireRange[0] && fanHeat <= activeFireRange[1];
 
@@ -324,6 +333,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     setInspectedAudio(false);
     setBienChung({ sealed: false, failedAttempts: 0 });
     setPickedAxes([]);
+    setLedgerFx(null);
     setSlots(emptySlots());
     setSlotPaoZhi({});
     setSelectedSlot('quan');
@@ -579,9 +589,14 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     if (bienChung.sealed || bienChungInkLeft <= 0 || !bienChungReady) return;
     const ok = checkBienChung(selectedCase, diagnosis);
     apothecaryAudio.playSealStamp(ok);
+    setLedgerFx(ok ? 'sealed' : 'rejected');
+    window.setTimeout(() => setLedgerFx(null), 700);
     if (ok) {
       setBienChung({ ...bienChung, sealed: true });
       pushCallout('Sổ Biện Chứng đã ấn chứng!', 'jade');
+      setStampingActive(true);
+      window.setTimeout(() => setStampingActive(false), 300);
+      navigator.vibrate?.(40);
     } else {
       setBienChung({ ...bienChung, failedAttempts: bienChung.failedAttempts + 1 });
       pushCallout(`Chưa ấn chứng — còn ${bienChungInkLeft - 1} nét mực`, 'cinnabar');
@@ -665,7 +680,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const assignedHerbsSummary = assignedHerbObjects.map((h) => h.name);
 
   return (
-    <div className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}>
+    <div
+      className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}
+      style={healthColorVars}
+    >
       <div className="ambient-lantern-aura" aria-hidden="true" />
       <FloatingAtmosphereCanvas activeRoom={activeRoom} hasIncenseBurner={yDucPoints >= 20} />
       <FloatingJuiceLayer callouts={callouts} />
@@ -700,7 +718,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 key={fu.caseId}
                 type="button"
                 className="hud-scroll-btn follow-up-btn"
-                onClick={() => loadPatient(fuCase, true)}
+                onClick={() => {
+                  apothecaryAudio.playPaperFold();
+                  setOpenLetter(fu);
+                }}
                 title={fu.kind === 'chuyen-the' ? 'Bệnh đã chuyển sang thể khác' : 'Bệnh chưa lui hẳn'}
               >
                 <AntiqueIcon name="bell" size={13} /> <span>Tái khám: {fu.patientName}</span>
@@ -784,6 +805,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           className="apothecary-room-viewport"
           onScroll={lockViewportScrollZero}
           onMouseMove={(e) => {
+            if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
             const el = e.currentTarget;
             const r = el.getBoundingClientRect();
             const px = ((e.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2;
@@ -809,7 +831,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 <img
                   src="./art/scenes/room-tien-duong.jpg"
                   alt=""
-                  className="room-bg-img spatial-full-bg"
+                  className="room-bg-img spatial-full-bg health-tinted"
                 />
                 <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode={watchLightingClass === 'lighting-night' ? 'rain' : 'sunbeams'} />
@@ -1046,9 +1068,16 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                             showTreatmentProjection={hasAssignedTreatment}
                           />
                           <section
-                            className={`bien-chung-ledger ${bienChung.sealed ? 'is-sealed' : ''}`}
+                            className={`bien-chung-ledger ${bienChung.sealed ? 'is-sealed' : ''} ${
+                              ledgerFx === 'rejected' ? 'is-rejected' : ''
+                            }`}
                             aria-label="Sổ Biện Chứng"
                           >
+                            {bienChung.sealed && (
+                              <span className={`bien-chung-seal ${ledgerFx === 'sealed' ? 'is-slamming' : ''}`} aria-hidden="true">
+                                證
+                              </span>
+                            )}
                             <header className="bien-chung-head">
                               <strong>Sổ Biện Chứng</strong>
                               <span className="muted-note">
@@ -1853,6 +1882,35 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           entries={caseLedger}
           onClose={() => setShowLedgerModal(false)}
         />
+      )}
+
+      {openLetter && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={`Thư của ${openLetter.patientName}`}>
+          <div className="woodblock-sheet follow-up-letter-sheet">
+            <div className="section-heading">
+              <span>Thư báo tái khám</span>
+            </div>
+            <p className="follow-up-letter-body">
+              <GlossaryText text={followUpLetterText(openLetter)} />
+            </p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button type="button" className="btn-secondary" onClick={() => setOpenLetter(null)}>
+                Để sau
+              </button>
+              <button
+                type="button"
+                className="btn-cinnabar"
+                onClick={() => {
+                  const fuCase = buildFollowUpCase(openLetter);
+                  setOpenLetter(null);
+                  if (fuCase) loadPatient(fuCase, true);
+                }}
+              >
+                Mời {openLetter.patientName} vào
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {outcome && (

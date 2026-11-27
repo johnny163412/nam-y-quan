@@ -30,7 +30,14 @@ export function planFollowUp(
     dueDay: currentDay + 1 + FOLLOW_UP_DELAY_DAYS
   };
   // Unsafe prescription: the family stopped the decoction, so the original pattern persists untouched.
-  if (unsafe) return { ...base, kind: 'chua-lui', residual: { ...patientCase.initialVector } };
+  if (unsafe) {
+    return {
+      ...base,
+      kind: 'chua-lui',
+      residual: { ...patientCase.initialVector },
+      letter: `Người nhà ${patientCase.patientName} nhắn: "Thưa thầy, nhà tôi đọc thấy thang thuốc có vị phạm cấm kỵ nên chưa dám cho uống. Bệnh vẫn y như cũ, xin thầy khám lại."`
+    };
+  }
 
   const flipped = flippedAxes(patientCase.initialVector, result.resultingVector);
   if (flipped.length > 0) {
@@ -40,10 +47,20 @@ export function planFollowUp(
       AXES.reduce((n, a) => n + (Math.sign(v[a]) === Math.sign(want[a]) ? (flipped.includes(a) ? 10 : 1) : 0), 0);
     const best = [...PROCEDURAL_TEMPLATES].sort((x, y) => score(y.initialVector) - score(x.initialVector))[0];
     if (best && flipped.every((a) => Math.sign(best.initialVector[a]) === Math.sign(want[a]))) {
-      return { ...base, kind: 'chuyen-the', residual: { ...best.initialVector }, templateCode: best.code };
+      return {
+        ...base,
+        kind: 'chuyen-the',
+        residual: { ...best.initialVector },
+        templateCode: best.code,
+        letter: `${patientCase.patientName} nhờ người nhắn: "Thưa thầy, uống thang hôm trước xong thì bệnh đổi khác hẳn — ${best.seasonTag.toLowerCase()}. Xin thầy cho tôi qua khám lại."`
+      };
     }
   }
-  return { ...base, kind: 'chua-lui', residual: { ...result.resultingVector } };
+  return { ...base, kind: 'chua-lui', residual: { ...result.resultingVector }, letter: result.followUpLetter };
+}
+
+export function followUpLetterText(fu: PendingFollowUp): string {
+  return fu.letter ?? `${fu.patientName} nhắn: "Thưa thầy, bệnh của tôi vẫn chưa lui hẳn, xin thầy cho qua khám lại."`;
 }
 
 export function buildFollowUpCase(fu: PendingFollowUp): PatientCase | null {

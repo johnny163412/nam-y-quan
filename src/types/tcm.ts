@@ -348,6 +348,8 @@ export interface PendingFollowUp {
   residual: EightPrinciplesVector;
   /** chuyen-the only: procedural template the disease turned into. */
   templateCode?: string;
+  /** Note the patient sends ahead of the visit (absent in saves made before letters existed). */
+  letter?: string;
 }
 
 export interface DecoctionTasteReading {
