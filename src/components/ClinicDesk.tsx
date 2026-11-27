@@ -18,7 +18,7 @@ import {
   evaluateCaseSubmission,
   getTyNgoWatch
 } from '../engine/tcmEngine';
-import { buildFollowUpCase, dueFollowUps, followUpLetterText, planFollowUp } from '../engine/followUp';
+import { buildFollowUpCase, dueFollowUps, planFollowUp } from '../engine/followUp';
 import {
   CaseLedgerEntry,
   ClassicalFormula,
@@ -38,7 +38,7 @@ import {
 import { AmbientParticlesCanvas } from './AmbientParticlesCanvas';
 import { BrassScaleRig } from './BrassScaleRig';
 import { CaseLedgerModal } from './CaseLedgerModal';
-import { EightPrinciplesCompass, ELEMENT_FULL } from './EightPrinciplesCompass';
+import { EightPrinciplesCompass } from './EightPrinciplesCompass';
 import { FirstCaseGuideBar } from './FirstCaseGuideBar';
 import { FloatingAtmosphereCanvas } from './FloatingAtmosphereCanvas';
 import { GlossaryText } from './GlossaryText';
@@ -50,10 +50,22 @@ import { PaperFoldOverlay } from './PaperFoldOverlay';
 import { PulseCanvas } from './PulseCanvas';
 import { StoveAndSealRig } from './StoveAndSealRig';
 import { BotanicalSvg } from './svg/BotanicalSvg';
-import { AntiqueIcon, AntiqueIconName } from './svg/AntiqueIcons';
+import { AntiqueIcon } from './svg/AntiqueIcons';
 import { HealerHandOverlay, ScoopAnimationState } from './svg/HealerHandOverlay';
 import { TongueMirror } from './svg/TongueMirror';
 import { VillagerPortrait } from './svg/VillagerPortrait';
+import { BienChungLedger } from './clinic/BienChungLedger';
+import { CaseDirectoryModal } from './clinic/CaseDirectoryModal';
+import { FollowUpLetterModal } from './clinic/FollowUpLetterModal';
+import { TabletopDesk } from './clinic/TabletopDesk';
+import {
+  FIRE_TARGET_RANGES,
+  ROLE_TITLES,
+  ROOM_NODES,
+  SOLAR_WEATHER,
+  TabletopTool,
+  WATCH_LIGHT
+} from './clinic/clinicConstants';
 
 interface ClinicDeskProps {
   unlockedChapter: 1 | 2 | 3;
@@ -78,59 +90,6 @@ interface ClinicDeskProps {
   ) => void;
   onOpenCodexHerb: (herbId: string) => void;
 }
-
-const ROLE_TITLES: Record<RoleSlot, string> = {
-  quan: 'Quân dược',
-  than: 'Thần dược',
-  ta: 'Tá dược',
-  su: 'Sứ dược'
-};
-
-const ROOM_NODES: { idx: 0 | 1 | 2 | 3; roman: string; label: string }[] = [
-  { idx: 0, roman: 'I', label: 'Tiền Đường' },
-  { idx: 1, roman: 'II', label: 'Dược Các' },
-  { idx: 2, roman: 'III', label: 'Nội Các & Lò' },
-  { idx: 3, roman: 'IV', label: 'Hậu Viên' }
-];
-
-const EXAM_INSTRUMENTS: { id: ExamTab; label: string; icon: AntiqueIconName }[] = [
-  { id: 'vong', label: 'Soi Gương', icon: 'mirror' },
-  { id: 'van', label: 'Nghe Thở', icon: 'ear-wave' },
-  { id: 'van-hoi', label: 'Thẻ Vấn', icon: 'bamboo-slips' },
-  { id: 'thiet', label: 'Gối Mạch', icon: 'pulse-pillow' }
-];
-
-const FIRE_TARGET_RANGES: Record<FireType, [number, number]> = {
-  'vu-hoa': [75, 100],
-  'van-vu': [42, 74],
-  'van-hoa': [15, 41]
-};
-
-type ExamTab = 'vong' | 'van' | 'van-hoi' | 'thiet';
-
-/** Light over the rooms for each of the 12 Tý Ngọ watches, in TY_NGO_WATCHES order (Tý … Hợi). */
-const WATCH_LIGHT: { tint: string; strength: number; angle: string; lamp: boolean }[] = [
-  { tint: 'rgb(24, 34, 72)', strength: 0.62, angle: '180deg', lamp: true }, // Tý
-  { tint: 'rgb(20, 30, 66)', strength: 0.66, angle: '180deg', lamp: true }, // Sửu
-  { tint: 'rgb(46, 50, 96)', strength: 0.52, angle: '200deg', lamp: true }, // Dần — trời sắp rạng
-  { tint: 'rgb(255, 168, 120)', strength: 0.34, angle: '250deg', lamp: false }, // Mão — bình minh
-  { tint: 'rgb(255, 214, 150)', strength: 0.26, angle: '240deg', lamp: false }, // Thìn
-  { tint: 'rgb(255, 238, 200)', strength: 0.16, angle: '200deg', lamp: false }, // Tỵ
-  { tint: 'rgb(255, 250, 228)', strength: 0.12, angle: '180deg', lamp: false }, // Ngọ — chính trưa
-  { tint: 'rgb(255, 222, 160)', strength: 0.18, angle: '160deg', lamp: false }, // Mùi
-  { tint: 'rgb(240, 170, 90)', strength: 0.28, angle: '120deg', lamp: false }, // Thân
-  { tint: 'rgb(228, 108, 58)', strength: 0.4, angle: '110deg', lamp: false }, // Dậu — hoàng hôn
-  { tint: 'rgb(84, 60, 112)', strength: 0.5, angle: '160deg', lamp: true }, // Tuất
-  { tint: 'rgb(34, 40, 80)', strength: 0.58, angle: '180deg', lamp: true } // Hợi
-];
-
-const SOLAR_WEATHER: Record<string, 'rain' | 'sunbeams' | 'garden'> = {
-  'Xuân Vũ': 'rain',
-  'Hạ Thử': 'sunbeams',
-  'Thu Táo': 'garden',
-  'Đông Hàn': 'rain'
-};
-type TabletopTool = ExamTab | 'bat-cuong';
 
 export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   unlockedChapter: _unlockedChapter,
@@ -213,6 +172,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [fanBlowing, setFanBlowing] = useState(false);
   const [dosing, setDosing] = useState<DosingAdvice>('am-duong-tang');
   const [stampingActive, setStampingActive] = useState(false);
+  const [deskShake, setDeskShake] = useState(false);
 
   // Minimal HUD Overlays & Modals
   const [showDirectoryModal, setShowDirectoryModal] = useState(false);
@@ -226,6 +186,13 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const deskRoom2Ref = useRef<HTMLDivElement | null>(null);
   const chestWrapRef = useRef<HTMLDivElement | null>(null);
+  const inspectorRef = useRef<HTMLElement | null>(null);
+
+  // On phones the drawer stacks below the patient, under the fixed tray — bring it into view when a tool opens.
+  useEffect(() => {
+    if (!activeToolDrawer || !window.matchMedia('(max-width: 960px)').matches) return;
+    inspectorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [activeToolDrawer]);
   const panRefs = useRef<Record<RoleSlot, HTMLDivElement | null>>({
     quan: null,
     than: null,
@@ -617,7 +584,6 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   const bienChungInkLeft = BIEN_CHUNG_MAX_ATTEMPTS - bienChung.failedAttempts;
   const bienChungReady = clues.length >= BIEN_CHUNG_MIN_CLUES && pickedAxes.length === 4;
-  const axisText = (axis: keyof DiagnosisChoice, text: string) => (pickedAxes.includes(axis) ? text : '?');
   const handleSealBienChung = () => {
     if (bienChung.sealed || bienChungInkLeft <= 0 || !bienChungReady) return;
     const ok = checkBienChung(selectedCase, diagnosis);
@@ -627,13 +593,29 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     if (ok) {
       setBienChung({ ...bienChung, sealed: true });
       pushCallout('Sổ Biện Chứng đã ấn chứng!', 'jade');
-      setStampingActive(true);
-      window.setTimeout(() => setStampingActive(false), 300);
+      setDeskShake(true);
+      window.setTimeout(() => setDeskShake(false), 300);
       navigator.vibrate?.(40);
     } else {
       setBienChung({ ...bienChung, failedAttempts: bienChung.failedAttempts + 1 });
       pushCallout(`Chưa ấn chứng — còn ${bienChungInkLeft - 1} nét mực`, 'cinnabar');
     }
+  };
+
+  const handleShowRelics = () => {
+    apothecaryAudio.playPageTurn();
+    const unlockedList = [
+      yDucPoints >= 20 ? 'Đỉnh Trầm Hương' : null,
+      hasDragonScale ? 'Cân Giao Long' : null,
+      hasBatTrangPot ? 'Siêu Bát Tràng' : null,
+      hasJadeSeal ? 'Ấn Ngọc Bích' : null
+    ].filter(Boolean);
+    pushCallout(
+      unlockedList.length > 0
+        ? `Bảo vật hiện hữu: ${unlockedList.join(' · ')}`
+        : 'Tích 20 Y Đức để thỉnh Đỉnh Trầm Hương về bàn khám',
+      hasJadeSeal ? 'jade' : 'gold'
+    );
   };
 
   const handleFinalStampSubmit = () => {
@@ -715,7 +697,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   return (
     <div
-      className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}
+      className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive || deskShake ? 'stamp-shake' : ''}`}
       style={healthColorVars}
     >
       <div className="ambient-lantern-aura" aria-hidden="true" />
@@ -739,7 +721,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       )}
 
       {/* Floating Case Action Strip + Compact Onboarding (Overlays top-left cleanly without pushing layout) */}
-      <div className="spatial-floating-subbar">
+      <div className={`spatial-floating-subbar ${mentorDismissed ? '' : 'has-guide'}`}>
         <div className="hud-cluster">
           <button
             type="button"
@@ -972,7 +954,11 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
                 {/* Right Floating Parchment Inspector Sheet (Slides in when picking up any tabletop tool) */}
                 {activeToolDrawer && (
-                  <aside className="spatial-inspector-drawer woodblock-sheet stitched-binding" aria-label="Bảng pháp khí đang nhấc">
+                  <aside
+                    ref={inspectorRef}
+                    className="spatial-inspector-drawer woodblock-sheet stitched-binding"
+                    aria-label="Bảng pháp khí đang nhấc"
+                  >
                     <div className="spatial-inspector-head">
                       <strong>
                         {activeToolDrawer === 'vong'
@@ -1118,66 +1104,14 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                             onChangeDiagnosis={changeDiagnosis}
                             showTreatmentProjection={hasAssignedTreatment}
                           />
-                          <section
-                            className={`bien-chung-ledger ${bienChung.sealed ? 'is-sealed' : ''} ${
-                              ledgerFx === 'rejected' ? 'is-rejected' : ''
-                            }`}
-                            aria-label="Sổ Biện Chứng"
-                          >
-                            {bienChung.sealed && (
-                              <span className={`bien-chung-seal ${ledgerFx === 'sealed' ? 'is-slamming' : ''}`} aria-hidden="true">
-                                證
-                              </span>
-                            )}
-                            <header className="bien-chung-head">
-                              <strong>Sổ Biện Chứng</strong>
-                              <span className="muted-note">
-                                {bienChung.sealed ? 'Đã ấn chứng' : `Còn ${bienChungInkLeft}/${BIEN_CHUNG_MAX_ATTEMPTS} nét mực`}
-                              </span>
-                            </header>
-                            <p className="bien-chung-line">
-                              {axisText('location', diagnosis.location === 'bieu' ? 'Biểu' : 'Lý')} ·{' '}
-                              {axisText('nature', diagnosis.nature === 'han' ? 'Hàn' : 'Nhiệt')} ·{' '}
-                              {axisText('state', diagnosis.state === 'hu' ? 'Hư' : 'Thực')} · tạng chủ:{' '}
-                              {axisText('primaryElement', ELEMENT_FULL[diagnosis.primaryElement])}
-                            </p>
-                            <div className="clue-list">
-                              {clues.map((c, i) => (
-                                <span key={i} className="clue-chip">
-                                  <GlossaryText text={c} />
-                                </span>
-                              ))}
-                            </div>
-                            {bienChung.sealed ? (
-                              <p className="bien-chung-note">
-                                Biện chứng đúng trọn bốn trục. La bàn đã khóa — hãy lập phương theo đúng chứng này.
-                              </p>
-                            ) : bienChungInkLeft <= 0 ? (
-                              <p className="bien-chung-note">
-                                Đã cạn mực. Vẫn có thể bốc thuốc, nhưng mỗi nét sai trừ 4 điểm Chẩn đoán.
-                              </p>
-                            ) : (
-                              <>
-                                <p className="bien-chung-note">
-                                  Sổ chỉ ấn chứng khi cả Biểu/Lý, Hàn/Nhiệt, Hư/Thực và tạng chủ đều đúng — không chỉ ra trục nào sai.
-                                  Mỗi nét sai trừ 4 điểm Chẩn đoán; đúng ngay nét đầu được thưởng 3 điểm.
-                                </p>
-                                <button
-                                  type="button"
-                                  className="btn-cinnabar"
-                                  style={{ width: '100%' }}
-                                  disabled={!bienChungReady}
-                                  onClick={handleSealBienChung}
-                                >
-                                  {clues.length < BIEN_CHUNG_MIN_CLUES
-                                    ? `Thu thêm chứng trạng (${clues.length}/${BIEN_CHUNG_MIN_CLUES})`
-                                    : pickedAxes.length < 4
-                                    ? `Tự chọn đủ 4 trục trên la bàn (${pickedAxes.length}/4)`
-                                    : 'Ấn chứng vào sổ'}
-                                </button>
-                              </>
-                            )}
-                          </section>
+                          <BienChungLedger
+                            diagnosis={diagnosis}
+                            pickedAxes={pickedAxes}
+                            clues={clues}
+                            bienChung={bienChung}
+                            ledgerFx={ledgerFx}
+                            onSeal={handleSealBienChung}
+                          />
                           <div style={{ marginTop: '12px' }}>
                             <button
                               type="button"
@@ -1659,115 +1593,20 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
       {/* Physical Tabletop Props & 5-Instrument Tray — rendered OUTSIDE transformed track so fixed centering is 100% exact */}
       {activeRoom === 0 && (
-        <div className="tien-duong-desk-foreground">
-          {/* Physical Relic 1 on Left Side of Desk: Antique Bronze Incense Burner */}
-          <button
-            type="button"
-            className={`desk-physical-relic relic-incense ${yDucPoints >= 20 ? 'is-unlocked' : 'is-locked'} ${
-              incenseLitCaseId === selectedCase.id ? 'is-lit' : ''
-            }`}
-            onClick={handleLightDeskIncense}
-            title={
-              yDucPoints >= 20
-                ? 'Đỉnh Trầm Hương — Nhấp để thắp trầm định thần (+1 lượt hỏi Thẻ Vấn cho ca này)'
-                : `Đỉnh Trầm Hương — Mở khóa tại 20 Y Đức (hiện có ${yDucPoints})`
-            }
-          >
-            <span className="desk-relic-art-wrap">
-              <img
-                src="./art/tools/bronze-incense-burner.webp"
-                alt="Đỉnh Trầm Hương đặt trên bàn khám"
-                className="desk-relic-img"
-              />
-              {yDucPoints >= 20 && (
-                <>
-                  <span className="desk-smoke-plume s1" aria-hidden="true" />
-                  <span className="desk-smoke-plume s2" aria-hidden="true" />
-                </>
-              )}
-            </span>
-            <span className="desk-relic-caption">
-              {yDucPoints >= 20
-                ? incenseLitCaseId === selectedCase.id
-                  ? 'Trầm Đang Tỏa (+1 Vấn)'
-                  : 'Thắp Đỉnh Trầm'
-                : 'Đỉnh Trầm (20 YĐ)'}
-            </span>
-          </button>
-
-          {/* Center 5 Tactile Examination Instruments directly on the Wooden Desk */}
-          <div className="spatial-tabletop-tray" role="toolbar" aria-label="Khay 5 pháp khí trên bàn khám">
-            {EXAM_INSTRUMENTS.map((inst) => {
-              const isOpen = activeToolDrawer === inst.id;
-              return (
-                <button
-                  key={inst.id}
-                  type="button"
-                  className={`tabletop-tool-btn ${isOpen ? 'active' : ''}`}
-                  onClick={() => {
-                    setActiveToolDrawer((cur) => (cur === inst.id ? null : inst.id));
-                    apothecaryAudio.playPageTurn();
-                  }}
-                >
-                  <span className="tabletop-tool-icon" aria-hidden="true">
-                    <AntiqueIcon name={inst.icon} size={18} />
-                  </span>
-                  <span className="tabletop-tool-label">
-                    {inst.id === 'van-hoi'
-                      ? `${inst.label} (${askedIds.length}/${effectiveMaxInquiries})`
-                      : inst.label}
-                  </span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              className={`tabletop-tool-btn is-compass ${activeToolDrawer === 'bat-cuong' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveToolDrawer((cur) => (cur === 'bat-cuong' ? null : 'bat-cuong'));
-                apothecaryAudio.playPageTurn();
-              }}
-            >
-              <span className="tabletop-tool-icon" aria-hidden="true">
-                <AntiqueIcon name="yin-yang" size={18} />
-              </span>
-              <span className="tabletop-tool-label">Đĩa Bát Quái</span>
-            </button>
-          </div>
-
-          {/* Physical Relic 2 on Right Side of Desk: Jade / Cinnabar Clinic Seal */}
-          <button
-            type="button"
-            className={`desk-physical-relic relic-seal ${hasJadeSeal ? 'is-jade-unlocked' : 'is-wood-active'}`}
-            onClick={() => {
-              apothecaryAudio.playPageTurn();
-              const unlockedList = [
-                yDucPoints >= 20 ? 'Đỉnh Trầm Hương' : null,
-                hasDragonScale ? 'Cân Giao Long' : null,
-                hasBatTrangPot ? 'Siêu Bát Tràng' : null,
-                hasJadeSeal ? 'Ấn Ngọc Bích' : null
-              ].filter(Boolean);
-              pushCallout(
-                unlockedList.length > 0
-                  ? `Bảo vật hiện hữu: ${unlockedList.join(' · ')}`
-                  : 'Tích 20 Y Đức để thỉnh Đỉnh Trầm Hương về bàn khám',
-                hasJadeSeal ? 'jade' : 'gold'
-              );
-            }}
-            title={
-              hasJadeSeal
-                ? 'Ấn Ngọc Bích Trấn Quán (120 Y Đức) — Nhấp xem danh sách bảo vật đang hiện hữu'
-                : 'Ấn Gỗ Tuệ Tâm Đường — Đạt 120 Y Đức sẽ hóa Ấn Ngọc Bích'
-            }
-          >
-            <span className={`desk-seal-block ${hasJadeSeal ? 'is-jade' : ''}`} aria-hidden="true">
-              惠心
-            </span>
-            <span className="desk-relic-caption">
-              {hasJadeSeal ? 'Ấn Ngọc Bích' : 'Ấn Y Quán'}
-            </span>
-          </button>
-        </div>
+        <TabletopDesk
+          yDucPoints={yDucPoints}
+          incenseLit={incenseLitCaseId === selectedCase.id}
+          onLightIncense={handleLightDeskIncense}
+          activeToolDrawer={activeToolDrawer}
+          onToggleTool={(tool) => {
+            setActiveToolDrawer((cur) => (cur === tool ? null : tool));
+            apothecaryAudio.playPageTurn();
+          }}
+          askedCount={askedIds.length}
+          maxInquiries={effectiveMaxInquiries}
+          hasJadeSeal={hasJadeSeal}
+          onShowRelics={handleShowRelics}
+        />
       )}
 
       {/* Unified Floating Bottom 4-Room Dock (Desktop & Mobile) */}
@@ -1791,131 +1630,34 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
       {/* Directory Drawer Modal (Mục Lục Ca, Y Đức & Sổ Y Án) */}
       {showDirectoryModal && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Mục lục ca bệnh và Sổ Y Án">
-          <div className="woodblock-sheet modal-scroll sac-phong-frame">
-            <div className="section-heading">
-              <span>Mục Lục Bệnh Án &amp; Công Đức Tuệ Tâm Đường</span>
-              <button type="button" className="btn-secondary" onClick={() => setShowDirectoryModal(false)}>
-                Đóng lại
-              </button>
-            </div>
-
-            <div className="yduc-relics-pill" style={{ marginBottom: '12px' }}>
-              <strong>Điểm Y Đức: {yDucPoints}</strong>
-              <span className={`relic-dot ${hasDragonScale ? 'unlocked' : ''}`}>
-                {hasDragonScale ? 'Đã mở: Cân Giao Long' : '25đ: Cân Long'}
-              </span>
-              <span className={`relic-dot ${hasBatTrangPot ? 'unlocked' : ''}`}>
-                {hasBatTrangPot ? 'Đã mở: Siêu Bát Tràng (+1đ)' : '60đ: Siêu Bát Tràng'}
-              </span>
-              <span className={`relic-dot ${hasJadeSeal ? 'unlocked' : ''}`}>
-                {hasJadeSeal ? 'Đã mở: Ấn Bạch Ngọc' : '100đ: Ấn Bạch Ngọc'}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
-              {([1, 2, 3] as const).map((ch) => (
-                <button
-                  key={ch}
-                  type="button"
-                  className={`chapter-btn ${activeChapter === ch ? 'active' : ''}`}
-                  onClick={() => handleSelectChapter(ch)}
-                >
-                  Chương {ch}: {ch === 1 ? 'Biểu Lý Hàn Nhiệt' : ch === 2 ? 'Tạng Phủ Ngũ Hành' : 'Kinh Lạc'}
-                </button>
-              ))}
-            </div>
-
-              <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
-              {chapterCases.map((c) => {
-                const done = completedCases[c.id];
-                const isCur = c.id === selectedCase.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    className={`exam-option-plaque ${isCur ? 'picked' : ''}`}
-                    onClick={() => {
-                      setActiveSongAnId(null);
-                      loadPatient(c, true);
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
-                      <strong>{c.title}</strong>
-                      <span style={{ color: '#E7B96A', fontSize: '0.8rem' }}>
-                        {done ? `Đã đạt ${done.bestScore}đ` : 'Chưa trị'}
-                      </span>
-                    </div>
-                    <div className="opt-detail">{c.patientName} · {c.seasonTag}</div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="songan-directory-box">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <strong style={{ fontFamily: 'var(--font-serif)', color: '#fff3d6', fontSize: '0.92rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  <AntiqueIcon name="yin-yang" size={15} />
-                  <span>Thử Thách Song Án Đồng Bệnh Dị Trị (+40 Y Đức)</span>
-                </strong>
-                <span style={{ fontSize: '0.75rem', color: '#E7B96A' }}>
-                  Đã đạt {songAnClearedIds.length}/{SONG_AN_PAIRS.length}
-                </span>
-              </div>
-              <div className="songan-grid">
-                {SONG_AN_PAIRS.map((pair) => {
-                  const isCleared = songAnClearedIds.includes(pair.id);
-                  const caseA = STORY_CASES.find((c) => c.id === pair.caseAId);
-                  return (
-                    <button
-                      key={pair.id}
-                      type="button"
-                      className={`songan-challenge-btn ${isCleared ? 'cleared' : ''}`}
-                      onClick={() => {
-                        if (!caseA) return;
-                        setActiveChapter(caseA.chapter);
-                        setActiveSongAnId(pair.id);
-                        loadPatient(caseA, true);
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '6px' }}>
-                        <strong>{pair.title}</strong>
-                        <span style={{ fontSize: '0.72rem', color: isCleared ? '#95E3B3' : '#F3CA78', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          {isCleared ? (
-                            <>
-                              <AntiqueIcon name="check-seal" size={12} /> <span>Hoàn thành</span>
-                            </>
-                          ) : (
-                            `+${pair.rewardYDuc}đ`
-                          )}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: '#E4CFA8', marginTop: '2px' }}>
-                        {pair.subtitle}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => {
-                  setShowDirectoryModal(false);
-                  setShowLedgerModal(true);
-                }}
-              >
-                Mở Sổ Lưu Y Án ({caseLedger.length})
-              </button>
-              <button type="button" className="btn-cinnabar" onClick={handleSpawnProcedural}>
-                Gõ Mõ Đón Khách Vãng Lai mới
-              </button>
-            </div>
-          </div>
-        </div>
+        <CaseDirectoryModal
+          yDucPoints={yDucPoints}
+          hasDragonScale={hasDragonScale}
+          hasBatTrangPot={hasBatTrangPot}
+          hasJadeSeal={hasJadeSeal}
+          activeChapter={activeChapter}
+          onSelectChapter={handleSelectChapter}
+          chapterCases={chapterCases}
+          completedCases={completedCases}
+          selectedCaseId={selectedCase.id}
+          songAnClearedIds={songAnClearedIds}
+          ledgerCount={caseLedger.length}
+          onPickCase={(c) => {
+            setActiveSongAnId(null);
+            loadPatient(c, true);
+          }}
+          onPickSongAn={(caseA, pairId) => {
+            setActiveChapter(caseA.chapter);
+            setActiveSongAnId(pairId);
+            loadPatient(caseA, true);
+          }}
+          onClose={() => setShowDirectoryModal(false)}
+          onOpenLedger={() => {
+            setShowDirectoryModal(false);
+            setShowLedgerModal(true);
+          }}
+          onSpawnProcedural={handleSpawnProcedural}
+        />
       )}
 
       {/* Physical Seal Stamp Slam Overlay */}
@@ -1939,32 +1681,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       )}
 
       {openLetter && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={`Thư của ${openLetter.patientName}`}>
-          <div className="woodblock-sheet follow-up-letter-sheet">
-            <div className="section-heading">
-              <span>Thư báo tái khám</span>
-            </div>
-            <p className="follow-up-letter-body">
-              <GlossaryText text={followUpLetterText(openLetter)} />
-            </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-              <button type="button" className="btn-secondary" onClick={() => setOpenLetter(null)}>
-                Để sau
-              </button>
-              <button
-                type="button"
-                className="btn-cinnabar"
-                onClick={() => {
-                  const fuCase = buildFollowUpCase(openLetter);
-                  setOpenLetter(null);
-                  if (fuCase) loadPatient(fuCase, true);
-                }}
-              >
-                Mời {openLetter.patientName} vào
-              </button>
-            </div>
-          </div>
-        </div>
+        <FollowUpLetterModal
+          fu={openLetter}
+          onClose={() => setOpenLetter(null)}
+          onInvite={() => {
+            const fuCase = buildFollowUpCase(openLetter);
+            setOpenLetter(null);
+            if (fuCase) loadPatient(fuCase, true);
+          }}
+        />
       )}
 
       {outcome && (
