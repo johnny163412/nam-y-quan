@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DecoctionTasteReading, DosingAdvice, FireType } from '../types/tcm';
 import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
 import { AntiqueIcon } from './svg/AntiqueIcons';
@@ -49,18 +49,57 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
   onStampSubmit
 }) => {
   const [showTasteCard, setShowTasteCard] = useState(false);
+  const [fanGesture, setFanGesture] = useState<{ x: number; y: number; angle: number } | null>(null);
+  const swipeOriginRef = useRef<{ x: number; y: number; lastTriggerAt: number } | null>(null);
   const activeRange = FIRE_META.find((f) => f.id === fire)?.range ?? [42, 74];
   const isMatched = fanHeat >= activeRange[0] && fanHeat <= activeRange[1];
+
+  const handleHearthPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    swipeOriginRef.current = { x: e.clientX, y: e.clientY, lastTriggerAt: 0 };
+    setFanGesture({ x: e.clientX - rect.left, y: e.clientY - rect.top, angle: -18 });
+  };
+
+  const handleHearthPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!swipeOriginRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const dx = e.clientX - swipeOriginRef.current.x;
+    const dy = e.clientY - swipeOriginRef.current.y;
+    const tilt = Math.max(-35, Math.min(35, dx * 0.45));
+    setFanGesture({ x: e.clientX - rect.left, y: e.clientY - rect.top, angle: tilt });
+
+    const now = performance.now();
+    if (Math.hypot(dx, dy) >= 34 && now - swipeOriginRef.current.lastTriggerAt > 260) {
+      // Swipe right/up = stoke fire (+), swipe left/down = damp embers (-)
+      const stokeUp = dx >= -10 && dy <= 24;
+      onFanStroke(stokeUp);
+      swipeOriginRef.current = { x: e.clientX, y: e.clientY, lastTriggerAt: now };
+    }
+  };
+
+  const handleHearthPointerEnd = () => {
+    swipeOriginRef.current = null;
+    setFanGesture(null);
+  };
 
   return (
     <div className="stove-seal-rig">
       {/* Pure Hand-Painted Terracotta Stove + 60fps Volumetric Steam & Coal Spark Canvas */}
       <div className={`live-hearth-stage fire-${fire} ${fanBlowing ? 'is-fanning' : ''}`}>
-        <div className="hearth-photo-stage">
+        <div
+          className={`hearth-photo-stage is-swipeable-hearth ${fanGesture ? 'is-waving-fan' : ''}`}
+          onPointerDown={handleHearthPointerDown}
+          onPointerMove={handleHearthPointerMove}
+          onPointerUp={handleHearthPointerEnd}
+          onPointerLeave={handleHearthPointerEnd}
+          onPointerCancel={handleHearthPointerEnd}
+          title="Kéo hoặc vuốt ngang trực tiếp trên bếp để vẫy quạt nan thổi lửa"
+        >
           <img
             src="./art/tools/decoction-stove.jpg"
             alt="Bếp than hồng sắc siêu đất nung truyền thống"
             className="hearth-photo-img hearth-breathe"
+            draggable={false}
           />
           <ApothecaryVfxCanvas
             mode="hearth"
@@ -68,6 +107,37 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
             burstActive={fanBlowing}
             className="hearth-vfx-canvas"
           />
+
+          <span className="hearth-swipe-hint" aria-hidden="true">
+            Vuốt ngang để quạt lò
+          </span>
+
+          {fanGesture && (
+            <div
+              className="live-bamboo-fan-cursor"
+              style={{
+                left: `${fanGesture.x}px`,
+                top: `${fanGesture.y}px`,
+                transform: `translate(-50%, -50%) rotate(${fanGesture.angle}deg)`
+              }}
+              aria-hidden="true"
+            >
+              <svg width="62" height="54" viewBox="0 0 64 56">
+                <path
+                  d="M32 46 L8 18 Q32 2 56 18 Z"
+                  fill="#D8B372"
+                  stroke="#5B3816"
+                  strokeWidth="2.2"
+                />
+                <path
+                  d="M32 46 L18 14 M32 46 L26 10 M32 46 L38 10 M32 46 L46 14"
+                  stroke="#7D4E20"
+                  strokeWidth="1.2"
+                />
+                <rect x="29" y="42" width="6" height="12" rx="2" fill="#4A2A10" />
+              </svg>
+            </div>
+          )}
 
           {fanBlowing && <div className="fan-gust-sweep" aria-hidden="true" />}
 

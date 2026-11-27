@@ -31,8 +31,10 @@ import {
 import { AmbientParticlesCanvas } from './AmbientParticlesCanvas';
 import { BrassScaleRig } from './BrassScaleRig';
 import { CaseLedgerModal } from './CaseLedgerModal';
+import { ClinicRelicShelf } from './ClinicRelicShelf';
 import { EightPrinciplesCompass } from './EightPrinciplesCompass';
 import { FirstCaseGuideBar } from './FirstCaseGuideBar';
+import { FloatingAtmosphereCanvas } from './FloatingAtmosphereCanvas';
 import { GlossaryText } from './GlossaryText';
 import { HerbGardenRoom } from './HerbGardenRoom';
 import { MeridianBodyMap } from './MeridianBodyMap';
@@ -155,6 +157,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     }, 1700);
   }, []);
   const [openDrawerId, setOpenDrawerId] = useState<string | null>(null);
+  const [draggingHerbId, setDraggingHerbId] = useState<string | null>(null);
   const [hoveredHerb, setHoveredHerb] = useState<{ herb: Herb; left: number; top: number } | null>(null);
   const [showFoldOverlay, setShowFoldOverlay] = useState(false);
   const [packetWrapped, setPacketWrapped] = useState(false);
@@ -606,6 +609,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   return (
     <div className={`clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}>
       <div className="ambient-lantern-aura" aria-hidden="true" />
+      <FloatingAtmosphereCanvas activeRoom={activeRoom} hasIncenseBurner={yDucPoints >= 20} />
       <FloatingJuiceLayer callouts={callouts} />
       {roomTransitioning && <div className="room-transition-veil" aria-hidden="true" />}
       {!mentorDismissed && (
@@ -787,7 +791,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   <div className="stage-patient-centerpiece">
                     <div className="silk-scroll-mount" aria-hidden="true">
                       <div className="scroll-rod-cap stage-cap" />
-                      <VillagerPortrait patientCase={selectedCase} size="stage" activeExamTool={examTab} />
+                      <VillagerPortrait
+                        patientCase={selectedCase}
+                        size="stage"
+                        activeExamTool={examTab}
+                        coughing={auscultating}
+                      />
                       <div className="scroll-rod-cap stage-cap" />
                     </div>
                   </div>
@@ -1009,6 +1018,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   </div>
                 </div>
               </div>
+
+              <ClinicRelicShelf yDucPoints={yDucPoints} />
             </section>
 
             {/* ================= ROOM 2: DƯỢC CÁC — CÂN ĐĨA TREO & ĐẠO CỤ BÀO CHẾ ================= */}
@@ -1036,7 +1047,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                 </div>
               </div>
 
-              <div ref={deskRoom2Ref} className="woodblock-sheet desk-right-col">
+              <div
+                ref={deskRoom2Ref}
+                className={`woodblock-sheet desk-right-col ${draggingHerbId ? 'is-dragging-herb' : ''}`}
+              >
                 {/* Sticky Mini Patient Silk Scroll Strip for Effortless Cross-Room Deduction */}
                 <div className="mini-patient-scroll-strip" aria-label="Tóm tắt bệnh án đang khám">
                   <VillagerPortrait patientCase={selectedCase} size="compact" />
@@ -1214,7 +1228,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                               herbRefs.current[herb.id] = el;
                             }}
                             draggable
-                            onDragStart={(e) => e.dataTransfer.setData('text/plain', herb.id)}
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData('text/plain', herb.id);
+                              setDraggingHerbId(herb.id);
+                              setHoveredHerb(null);
+                            }}
+                            onDragEnd={() => setDraggingHerbId(null)}
                             onMouseEnter={(e) => handleDrawerHover(herb, e.currentTarget)}
                             onFocus={(e) => handleDrawerHover(herb, e.currentTarget)}
                             className={`wood-drawer ${isOpen ? 'is-open' : ''} ${

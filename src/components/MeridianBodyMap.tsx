@@ -38,6 +38,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
     if (candidateIds && !candidateIds.includes(p.id)) return false;
     return true;
   });
+  const selectedVisiblePoints = visiblePoints.filter((p) => selectedIds.includes(p.id));
 
   const handleClickPoint = (pt: Acupoint) => {
     const activating = !selectedIds.includes(pt.id);
@@ -89,6 +90,15 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
             boxShadow: 'inset 0 0 18px rgba(70, 44, 18, 0.14)'
           }}
         >
+          <defs>
+            <filter id="qi-glow-filter" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2.6" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           {/* Antique Rosewood & Brass Scroll Rollers top & bottom */}
           <g>
             <rect x="-14" y="2" width="278" height="6" rx="2" fill="#3B2314" stroke="#8C6234" strokeWidth="0.9" />
@@ -171,6 +181,35 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 </g>
               )}
             </>
+          )}
+
+          {/* Luminous Connecting Qi Flow Arcs between active acupoints */}
+          {selectedVisiblePoints.length >= 2 && !hideDetails && (
+            <g filter="url(#qi-glow-filter)" fill="none">
+              {selectedVisiblePoints.slice(0, -1).map((ptA, idx) => {
+                const ptB = selectedVisiblePoints[idx + 1];
+                const midX = (ptA.x + ptB.x) / 2 + (idx % 2 === 0 ? -14 : 14);
+                const midY = (ptA.y + ptB.y) / 2;
+                const d = `M ${ptA.x} ${ptA.y} Q ${midX} ${midY} ${ptB.x} ${ptB.y}`;
+                return (
+                  <g key={`arc-${ptA.id}-${ptB.id}`}>
+                    <path
+                      d={d}
+                      stroke={moxaEnabled ? 'rgba(255, 162, 68, 0.45)' : 'rgba(92, 224, 186, 0.42)'}
+                      strokeWidth="4.2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d={d}
+                      className="meridian-qi-arc-flow"
+                      stroke={moxaEnabled ? '#FFD479' : '#B8FFF0'}
+                      strokeWidth="2.1"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                );
+              })}
+            </g>
           )}
 
           {/* Acupoint Nodes & Crisp Non-Overlapping Labels */}

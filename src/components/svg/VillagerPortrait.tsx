@@ -9,6 +9,7 @@ interface VillagerPortraitProps {
   size?: 'compact' | 'stage';
   mood?: 'sick' | 'recovered';
   activeExamTool?: ExamToolType | null;
+  coughing?: boolean;
 }
 
 const EXAM_TOOL_META: Record<ExamToolType, { icon: AntiqueIconName; label: string }> = {
@@ -47,7 +48,8 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
   patientCase,
   size = 'compact',
   mood = 'sick',
-  activeExamTool = null
+  activeExamTool = null,
+  coughing = false
 }) => {
   const portraitSrc = resolvePortraitSrc(patientCase);
   const coldHeat = patientCase.initialVector.coldHeat;
@@ -192,7 +194,9 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
 
   return (
     <div
-      className={`patient-avatar-silk ${size === 'stage' ? 'is-stage-portrait' : ''} ${conditionClass}`}
+      className={`patient-avatar-silk ${size === 'stage' ? 'is-stage-portrait' : ''} ${conditionClass} ${
+        coughing ? 'is-coughing' : ''
+      } ${mood === 'recovered' ? 'is-bowing-recovered' : ''}`}
       aria-hidden="true"
     >
       <img
