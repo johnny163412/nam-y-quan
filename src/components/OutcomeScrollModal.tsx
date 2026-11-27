@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apothecaryAudio } from '../engine/audio';
 import { downloadOutcomeCertificatePng } from '../engine/cardExporter';
+import { dailyShareText } from '../engine/dailyCase';
 import { EvaluationResult, PatientCase } from '../types/tcm';
 import { GlossaryText } from './GlossaryText';
 import { VillagerPortrait } from './svg/VillagerPortrait';
@@ -11,6 +12,9 @@ interface OutcomeScrollModalProps {
   onClose: () => void;
   onNextCase: () => void;
   onOpenLedger?: () => void;
+  signature?: string;
+  /** Set for Danh Y Hằng Ngày: enables the copy-result button. */
+  dailyKey?: string;
 }
 
 export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
@@ -18,9 +22,12 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
   result,
   onClose,
   onNextCase,
-  onOpenLedger
+  onOpenLedger,
+  signature,
+  dailyKey
 }) => {
   const [downloadedPng, setDownloadedPng] = useState(false);
+  const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle');
   // Sắc phong moment: the scroll unrolls, the score counts up, then the grade seal slams down.
   const [phase, setPhase] = useState<'unroll' | 'count' | 'sealed'>(() =>
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'sealed' : 'unroll'
@@ -55,9 +62,19 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
   };
 
   const handleDownloadCertificate = () => {
-    downloadOutcomeCertificatePng(patientCase, result);
+    void downloadOutcomeCertificatePng(patientCase, result, signature);
     setDownloadedPng(true);
     window.setTimeout(() => setDownloadedPng(false), 2600);
+  };
+
+  const handleCopyResult = () => {
+    if (!dailyKey) return;
+    const text = dailyShareText(dailyKey, result);
+    (navigator.clipboard?.writeText(text) ?? Promise.reject()).then(
+      () => setCopied('ok'),
+      () => setCopied('fail')
+    );
+    window.setTimeout(() => setCopied('idle'), 2600);
   };
 
   return (
@@ -120,6 +137,13 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
           </div>
 
           <p style={{ fontWeight: 600, margin: '0 0 10px' }}>{result.summaryFeedback}</p>
+
+          {signature && (
+            <div className="sac-phong-signature">
+              <span>Lương y ngự bút</span>
+              <img src={signature} alt="Chữ ký lương y" />
+            </div>
+          )}
 
           {result.followUpLetter && (
             <blockquote className="follow-up-letter">
@@ -214,6 +238,11 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
               <button type="button" className="btn-secondary" onClick={handleDownloadCertificate}>
                 {downloadedPng ? 'Đã tải Bằng Khen (.PNG)!' : 'Tải Ảnh Bằng Khen (.PNG)'}
               </button>
+              {dailyKey && (
+                <button type="button" className="btn-secondary daily-copy-btn" onClick={handleCopyResult}>
+                  {copied === 'ok' ? 'Đã chép kết quả!' : copied === 'fail' ? 'Không chép được' : 'Sao chép kết quả'}
+                </button>
+              )}
               {onOpenLedger && (
                 <button type="button" className="btn-secondary" onClick={onOpenLedger}>
                   Mở Sổ Lưu Y Án

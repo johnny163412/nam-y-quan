@@ -134,10 +134,11 @@ function triggerCanvasDownload(canvas: HTMLCanvasElement, filename: string) {
   a.click();
 }
 
-export function downloadOutcomeCertificatePng(
+export async function downloadOutcomeCertificatePng(
   patientCase: PatientCase,
-  result: EvaluationResult
-): void {
+  result: EvaluationResult,
+  signature?: string
+): Promise<void> {
   if (typeof document === 'undefined') return;
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
@@ -215,6 +216,20 @@ export function downloadOutcomeCertificatePng(
     ctx.font = 'italic 24px Georgia, "Times New Roman", serif';
     const letterLines = wrapLines(ctx, `“${result.followUpLetter}”`, 804, 4);
     letterLines.forEach((line, i) => ctx.fillText(line, 138, y + 84 + i * 34));
+  }
+
+  if (signature) {
+    const img = new Image();
+    img.src = signature;
+    // a broken signature must not block the certificate
+    const loaded = await img.decode().then(() => true, () => false);
+    if (loaded) {
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#7C4D21';
+      ctx.font = '600 20px Georgia, "Times New Roman", serif';
+      ctx.fillText('Lương y ngự bút', 705, 1118);
+      ctx.drawImage(img, 580, 1130, 250, 90);
+    }
   }
 
   triggerCanvasDownload(canvas, `nam-y-quan-bang-khen-${patientCase.id}.png`);

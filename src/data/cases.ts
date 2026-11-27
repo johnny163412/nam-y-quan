@@ -844,7 +844,7 @@ export const PROCEDURAL_TEMPLATES: ProceduralTemplate[] = [
   }
 ];
 
-const VILLAGER_NAMES = [
+export const VILLAGER_NAMES = [
   { name: 'Chú Sáu Vườn', role: 'Người trồng hoa kiểng', age: 44 },
   { name: 'Cô Út Dệt', role: 'Thợ dệt lụa tơ tằm', age: 31 },
   { name: 'Bác Hai Đánh Cá', role: 'Ngư dân cửa biển', age: 55 },

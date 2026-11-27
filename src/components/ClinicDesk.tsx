@@ -2,6 +2,7 @@ import React from 'react';
 import { apothecaryAudio } from '../engine/audio';
 import { FloatingJuiceLayer } from './FloatingJuiceLayer';
 import { buildFollowUpCase, dueFollowUps } from '../engine/followUp';
+import { buildDailyCase, dailyKey } from '../engine/dailyCase';
 import { CaseLedgerModal } from './CaseLedgerModal';
 import { FirstCaseGuideBar } from './FirstCaseGuideBar';
 import { FloatingAtmosphereCanvas } from './FloatingAtmosphereCanvas';
@@ -75,8 +76,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
     handleLightDeskIncense,
     assignedHerbObjects,
     handleShowRelics,
-    handleNextCase
+    handleNextCase,
+    dailyResults,
+    signature
   } = ctx;
+  const todayKey = dailyKey();
+  const todayResult = dailyResults[todayKey];
   return (
     <div
       className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive || deskShake ? 'stamp-shake' : ''} ${roomPan ? 'room-panning' : ''}`}
@@ -106,6 +111,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
             title="Gõ mõ vén rèm đón người bệnh mới"
           >
             <AntiqueIcon name="bell" size={13} /> <span>Đón Khách</span>
+          </button>
+          <button
+            type="button"
+            className="hud-scroll-btn daily-case-btn"
+            onClick={() => loadPatient(buildDailyCase(todayKey), true)}
+            title="Mọi người cùng một ca mỗi ngày · cân Bát Cương bị che, chỉ dựa vào biện chứng"
+          >
+            <AntiqueIcon name="scroll" size={13} />{' '}
+            <span>{todayResult ? `Danh Y Hằng Ngày · ${todayResult.score}đ` : 'Danh Y Hằng Ngày'}</span>
           </button>
           {dueFollowUps(pendingFollowUps, dayCount).map((fu) => {
             const fuCase = buildFollowUpCase(fu);
@@ -332,6 +346,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
         <OutcomeScrollModal
           patientCase={selectedCase}
           result={outcome}
+          signature={signature}
+          dailyKey={selectedCase.isDaily ? selectedCase.id.replace(/^daily-/, '') : undefined}
           onClose={() => setOutcome(null)}
           onNextCase={handleNextCase}
           onOpenLedger={() => {

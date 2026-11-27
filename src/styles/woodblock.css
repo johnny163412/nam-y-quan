@@ -6885,3 +6885,15 @@ button {
 @keyframes pulsePressFill {
   to { width: 100%; }
 }
+
+/* ---------- P2: Danh Y Hằng Ngày + brush signature ---------- */
+.daily-case-btn { border-color: var(--cinnabar); }
+.brush-signature { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 8px; }
+.brush-signature-sheet { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.brush-signature-canvas {
+  width: min(300px, 70vw); aspect-ratio: 3 / 1; touch-action: none; cursor: crosshair;
+  background: var(--paper-highlight, #f6ecd6);
+  border: 1.5px dashed #9C6B30; border-radius: 3px;
+}
+.sac-phong-signature { display: flex; flex-direction: column; align-items: flex-end; margin: -4px 0 10px; font-size: 0.78rem; color: #7C4D21; font-family: var(--font-serif); }
+.sac-phong-signature img { width: 180px; height: 60px; object-fit: contain; }

@@ -33,6 +33,9 @@ export interface ClinicDeskProps {
     meta: { slots: PrescriptionSlots; acupoints: string[]; decoction?: DecoctionChoice }
   ) => void;
   onOpenCodexHerb: (herbId: string) => void;
+  dailyResults: Record<string, { score: number; passed: boolean }>;
+  signature?: string;
+  onSaveSignature: (dataUrl: string | null) => void;
 }
 
 /** All ClinicDesk state and handlers; the rooms read them through `ctx`. */
@@ -54,7 +57,10 @@ export function useClinicDesk(props: ClinicDeskProps) {
   onWaterGardenPlot,
   onHarvestGardenPlot,
   onCaseEvaluated,
-  onOpenCodexHerb
+  onOpenCodexHerb,
+  dailyResults,
+  signature,
+  onSaveSignature
   } = props;
   const [activeChapter, setActiveChapter] = useState<1 | 2 | 3>(1);
   const [selectedCase, setSelectedCase] = useState<PatientCase>(STORY_CASES[0]);
@@ -182,10 +188,13 @@ export function useClinicDesk(props: ClinicDeskProps) {
     return 'atmo-spring';
   }, [selectedCase]);
 
-  const preview = useMemo(
-    () => computeTreatmentPreview(selectedCase, slots, selectedAcupoints, slotPaoZhi),
-    [selectedCase, slots, selectedAcupoints, slotPaoZhi]
-  );
+  const preview = useMemo(() => {
+    const real = computeTreatmentPreview(selectedCase, slots, selectedAcupoints, slotPaoZhi);
+    if (!selectedCase.isDaily) return real;
+    // Danh Y Hằng Ngày is played blind: the scale and compass stay at the untreated state, but safety alerts still show.
+    const blind = computeTreatmentPreview(selectedCase, { quan: null, than: null, ta: null, su: null }, [], {});
+    return { ...real, resultingVector: blind.resultingVector, balanceScore: blind.balanceScore };
+  }, [selectedCase, slots, selectedAcupoints, slotPaoZhi]);
 
   const hasAssignedTreatment = hasAssignedHerbs || selectedAcupoints.length > 0;
 
@@ -396,7 +405,10 @@ export function useClinicDesk(props: ClinicDeskProps) {
     handleSpawnProcedural,
     handleShowRelics,
     handleFinalStampSubmit,
-    handleNextCase
+    handleNextCase,
+    dailyResults,
+    signature,
+    onSaveSignature
   };
 }
 

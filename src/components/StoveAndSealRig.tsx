@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { apothecaryAudio } from '../engine/audio';
 import { DecoctionTasteReading, DosingAdvice, FireType } from '../types/tcm';
 import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
+import { BrushSignaturePad } from './BrushSignaturePad';
 import { AntiqueIcon } from './svg/AntiqueIcons';
 
 const FIRE_META: { id: FireType; title: string; badge: string; range: [number, number] }[] = [
@@ -31,6 +32,8 @@ interface StoveAndSealRigProps {
   onSelectDosing: (d: DosingAdvice) => void;
   onFanStroke: (up: boolean) => void;
   onStampSubmit: () => void;
+  signature?: string;
+  onSaveSignature: (dataUrl: string | null) => void;
 }
 
 export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
@@ -47,7 +50,9 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
   onSelectFire,
   onSelectDosing,
   onFanStroke,
-  onStampSubmit
+  onStampSubmit,
+  signature,
+  onSaveSignature
 }) => {
   const [showTasteCard, setShowTasteCard] = useState(false);
   const [fanGesture, setFanGesture] = useState<{ x: number; y: number; angle: number } | null>(null);
@@ -281,6 +286,8 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
           </button>
         ))}
       </div>
+
+      <BrushSignaturePad signature={signature} onSave={onSaveSignature} />
 
       {/* Physical Wood Dragon Seal Stamp on Vermilion Pad */}
       <div className="physical-seal-dock">

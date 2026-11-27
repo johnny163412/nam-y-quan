@@ -25,6 +25,8 @@ export const NoiCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
     dosing,
     setDosing,
     stampingActive,
+    signature,
+    onSaveSignature,
     pushCallout,
     watchLight,
     tasteReading,
@@ -135,6 +137,8 @@ export const NoiCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
             }}
             onFanStroke={handleFanStroke}
             onStampSubmit={handleFinalStampSubmit}
+            signature={signature}
+            onSaveSignature={onSaveSignature}
           />
 
           {preview.alerts.map((al, i) => (

@@ -141,6 +141,8 @@ export interface PatientCase {
   title: string;
   chapter: 1 | 2 | 3;
   isProcedural?: boolean;
+  /** Danh Y Hằng Ngày: the same case for every player on a calendar day, played without the balance preview. */
+  isDaily?: boolean;
   /** Set on a tái khám visit: the story case id this patient first came for. */
   followUpOf?: string;
   patientName: string;
@@ -338,6 +340,10 @@ export interface UserProgress {
   songAnClearedIds?: string[];
   unlockedAchievements?: string[];
   pendingFollowUps?: PendingFollowUp[];
+  /** Danh Y Hằng Ngày: first attempt per day key (YYYY-MM-DD); retries do not overwrite it. */
+  dailyResults?: Record<string, { score: number; grade: EvaluationGrade; passed: boolean }>;
+  /** Brush-ink signature as a PNG data URL, shown on the sắc phong and the exported certificate. */
+  signature?: string;
 }
 
 export interface PendingFollowUp {

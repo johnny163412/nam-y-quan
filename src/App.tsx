@@ -72,6 +72,16 @@ export const App: React.FC = () => {
         proceduralCleared: prev.proceduralCleared
       };
 
+      if (patientCase.isDaily) {
+        const key = patientCase.id.replace(/^daily-/, '');
+        if (!prev.dailyResults?.[key]) {
+          next.dailyResults = {
+            ...prev.dailyResults,
+            [key]: { score: result.totalScore, grade: result.grade, passed: result.passed }
+          };
+        }
+      }
+
       if (patientCase.isProcedural) {
         if (result.passed) next.proceduralCleared += 1;
       } else if (!patientCase.followUpOf) {
@@ -277,6 +287,11 @@ export const App: React.FC = () => {
           freshHerbIds={progress.freshHerbIds ?? []}
           gardenGrowth={progress.gardenGrowth ?? {}}
           mentorDismissed={Boolean(progress.mentorDismissed)}
+          dailyResults={progress.dailyResults ?? {}}
+          signature={progress.signature}
+          onSaveSignature={(dataUrl) =>
+            setProgress((prev) => ({ ...prev, signature: dataUrl ?? undefined }))
+          }
           onDismissMentor={() =>
             setProgress((prev) => ({ ...prev, mentorDismissed: true }))
           }

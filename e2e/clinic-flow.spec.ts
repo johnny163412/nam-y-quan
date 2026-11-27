@@ -101,7 +101,14 @@ test('holding a finger on the wrist reads Phù, then sinks to Trầm', async ({ 
   await enterClinic(page);
   await page.locator('.tabletop-tool-btn', { hasText: 'Gối Mạch' }).click();
   const wrist = page.locator('.pulse-wrist-backdrop');
-  await page.waitForTimeout(600); // the drawer scrolls itself into view on phones
+  // the drawer smooth-scrolls itself into view on phones: wait until the wrist stops moving
+  let lastY = -1;
+  await expect.poll(async () => {
+    const y = (await wrist.boundingBox())?.y ?? -2;
+    const still = Math.abs(y - lastY) < 0.5;
+    lastY = y;
+    return still;
+  }, { intervals: [150] }).toBe(true);
   await wrist.hover({ position: { x: 40, y: 30 } });
   await page.mouse.down();
   await expect(wrist).toHaveClass(/depth-phu/);
@@ -109,4 +116,20 @@ test('holding a finger on the wrist reads Phù, then sinks to Trầm', async ({ 
   await page.mouse.up();
   await expect(wrist).not.toHaveClass(/is-pressing/);
   await expect(page.locator('.knob-half.active', { hasText: 'Trầm thủ' })).toBeVisible();
+});
+
+test('Danh Y Hằng Ngày: same case for the day, first score kept, result copies to clipboard', async ({ page, context, browserName }) => {
+  await enterClinic(page);
+  await page.locator('.daily-case-btn').click();
+  await expect(page.locator('.room-stage-title')).toContainText('Danh Y Hằng Ngày');
+
+  await goRoom(page, 'Nội Các');
+  await page.getByRole('button', { name: /Dập Ấn Chu Sa/ }).click();
+  await expect.poll(async () => Object.keys((await progress(page)).dailyResults ?? {}).length).toBe(1);
+  const first = Object.values((await progress(page)).dailyResults)[0] as { score: number };
+
+  if (browserName === 'chromium') await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.locator('.daily-copy-btn').click();
+  await expect(page.locator('.daily-copy-btn')).toHaveText(/Đã chép kết quả|Không chép được/);
+  await expect(page.locator('.daily-case-btn')).toContainText(`${first.score}đ`);
 });
