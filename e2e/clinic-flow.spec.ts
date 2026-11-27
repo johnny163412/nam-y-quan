@@ -75,3 +75,10 @@ test('a poor prescription brings the patient back for tái khám with a letter',
   await page.getByRole('button', { name: /Mời Ông Ba Đò vào/ }).click();
   await expect(page.getByText(/^Tái khám — /).first()).toBeVisible();
 });
+
+test('clinic dialogs sit above the fixed guide bar, tray and dock', async ({ page }) => {
+  await enterClinic(page);
+  await page.locator('button', { hasText: 'Ca & Sổ Y Án' }).first().click();
+  await page.getByRole('button', { name: 'Đóng lại' }).click({ timeout: 3000 });
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
