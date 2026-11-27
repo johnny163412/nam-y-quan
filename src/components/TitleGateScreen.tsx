@@ -30,7 +30,7 @@ export const TitleGateScreen: React.FC<TitleGateScreenProps> = ({
   return (
     <div className={`title-gate-overlay ${opening ? 'is-opening' : ''}`} role="dialog" aria-modal="true" aria-label="Cổng Nam Y Quán — Tuệ Tâm Đường">
       <img
-        src="./art/scenes/title-gate.jpg"
+        src="./art/scenes/title-gate.webp"
         alt="Cổng gỗ Nam Y Quán Tuệ Tâm Đường dưới ánh đèn lồng sau mưa"
         className="title-gate-bg"
       />

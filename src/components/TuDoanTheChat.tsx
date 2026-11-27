@@ -53,7 +53,7 @@ export const TuDoanTheChat: React.FC<TuDoanTheChatProps> = ({
     <div className="woodblock-sheet stitched-binding" style={{ maxWidth: '1040px', margin: '0 auto' }}>
       <div className="scene-diorama-banner">
         <img
-          src="./art/scenes/duong-sinh-scroll.jpg"
+          src="./art/scenes/duong-sinh-scroll.webp"
           alt="Tranh dân gian Đông Hồ và bản thảo Dưỡng Sinh"
           className="scene-diorama-img"
         />

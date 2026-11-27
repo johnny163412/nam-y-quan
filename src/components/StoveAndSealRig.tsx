@@ -96,7 +96,7 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
           title="Kéo hoặc vuốt ngang trực tiếp trên bếp để vẫy quạt nan thổi lửa"
         >
           <img
-            src="./art/tools/decoction-stove.jpg"
+            src="./art/tools/decoction-stove.webp"
             alt="Bếp than hồng sắc siêu đất nung truyền thống"
             className="hearth-photo-img hearth-breathe"
             draggable={false}
@@ -216,7 +216,7 @@ export const StoveAndSealRig: React.FC<StoveAndSealRigProps> = ({
         <div className={`decoction-taste-card tone-${tasteReading.matchTone}`} role="status">
           <div className="taste-bowl-stage">
             <img
-              src="./art/tools/porcelain-decoction-bowl.jpg"
+              src="./art/tools/porcelain-decoction-bowl.webp"
               alt="Bát thuốc sứ Bát Tràng sóng sánh nước thuốc ấm"
               className="taste-bowl-thumb"
             />

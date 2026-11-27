@@ -247,33 +247,33 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
   it('verifies all 55 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
-      'meridians/meridian-front.jpg',
-      'meridians/meridian-back.jpg',
-      'tools/healer-hand.png',
-      'tools/pulse-pillow.jpg',
-      'tools/decoction-stove.jpg',
-      'tools/paozhi-workbench.jpg',
-      'tools/mortar-closeup.jpg',
-      'tools/wok-closeup.jpg',
-      'tools/red-herb-packet.jpg',
-      'tools/moxa-stick.jpg',
-      'tools/bamboo-cupping.jpg',
-      'tools/porcelain-decoction-bowl.jpg',
-      'tools/coconut-ladle.jpg',
-      'tools/bronze-shears.jpg',
-      'tools/bamboo-basket.jpg',
-      'scenes/clinic-hall.jpg',
-      'scenes/room-tien-duong.jpg',
-      'scenes/room-duoc-cac.jpg',
-      'scenes/room-noi-cac.jpg',
-      'scenes/room-hau-vien.jpg',
-      'scenes/tang-thu-library.jpg',
-      'scenes/y-mieu-temple.jpg',
-      'scenes/duong-sinh-scroll.jpg',
-      'scenes/ancient-meridian-woodblock.jpg',
-      ...HERBS.map((h) => `herbs/${h.id}.jpg`),
-      ...STORY_CASES.map((c) => `patients/${c.id}.jpg`),
-      'patients/clinic-bg.jpg'
+      'meridians/meridian-front.webp',
+      'meridians/meridian-back.webp',
+      'tools/healer-hand.webp',
+      'tools/pulse-pillow.webp',
+      'tools/decoction-stove.webp',
+      'tools/paozhi-workbench.webp',
+      'tools/mortar-closeup.webp',
+      'tools/wok-closeup.webp',
+      'tools/red-herb-packet.webp',
+      'tools/moxa-stick.webp',
+      'tools/bamboo-cupping.webp',
+      'tools/porcelain-decoction-bowl.webp',
+      'tools/coconut-ladle.webp',
+      'tools/bronze-shears.webp',
+      'tools/bamboo-basket.webp',
+      'scenes/clinic-hall.webp',
+      'scenes/room-tien-duong.webp',
+      'scenes/room-duoc-cac.webp',
+      'scenes/room-noi-cac.webp',
+      'scenes/room-hau-vien.webp',
+      'scenes/tang-thu-library.webp',
+      'scenes/y-mieu-temple.webp',
+      'scenes/duong-sinh-scroll.webp',
+      'scenes/ancient-meridian-woodblock.webp',
+      ...HERBS.map((h) => `herbs/${h.id}.webp`),
+      ...STORY_CASES.map((c) => `patients/${c.id}.webp`),
+      'patients/clinic-bg.webp'
     ];
 
     expect(requiredAssets).toHaveLength(55);
@@ -282,8 +282,23 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       const fullPath = path.join(root, rel);
       expect(fs.existsSync(fullPath), `Missing asset: ${rel}`).toBe(true);
       const stat = fs.statSync(fullPath);
-      expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(8000);
+      expect(stat.size, `Empty or corrupt asset: ${rel}`).toBeGreaterThan(2000);
     });
+  });
+
+  it('every literal ./art/ path referenced in src exists on disk', () => {
+    const srcRoot = path.resolve(process.cwd(), 'src');
+    const walk = (dir: string): string[] =>
+      fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+        e.isDirectory() ? walk(path.join(dir, e.name)) : /\.(tsx?|css)$/.test(e.name) ? [path.join(dir, e.name)] : []
+      );
+    const refs = new Set<string>();
+    walk(srcRoot).forEach((f) => {
+      for (const m of fs.readFileSync(f, 'utf8').matchAll(/\.\/art\/([A-Za-z0-9_\/.-]+\.[a-z]+)/g)) refs.add(m[1]);
+    });
+    expect(refs.size).toBeGreaterThan(20);
+    const missing = [...refs].filter((r) => !fs.existsSync(path.resolve(process.cwd(), 'public/art', r)));
+    expect(missing).toEqual([]);
   });
 
   it('contains zero OS Unicode pictographic emojis across all src UI files', () => {

@@ -87,7 +87,7 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
     <div className="woodblock-sheet">
       <div className="scene-diorama-banner">
         <img
-          src="./art/scenes/tang-thu-library.jpg"
+          src="./art/scenes/tang-thu-library.webp"
           alt="Tàng Thư Các — Y thư cổ bản thảo và đồ hình kinh lạc"
           className="scene-diorama-img"
         />
@@ -334,7 +334,7 @@ export const TangThuCac: React.FC<TangThuCacProps> = ({
               }}
             >
               <img
-                src="./art/scenes/ancient-meridian-woodblock.jpg"
+                src="./art/scenes/ancient-meridian-woodblock.webp"
                 alt="Cổ đồ mộc bản Đốc Mạch thế kỷ XVII"
                 style={{
                   width: '84px',

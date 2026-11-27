@@ -56,7 +56,7 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
           <div className="outcome-bowl-box">
             <div className="taste-bowl-stage is-outcome">
               <img
-                src="./art/tools/porcelain-decoction-bowl.jpg"
+                src="./art/tools/porcelain-decoction-bowl.webp"
                 alt="Bát thuốc sứ Bát Tràng dâng người bệnh"
                 className="taste-bowl-thumb"
               />

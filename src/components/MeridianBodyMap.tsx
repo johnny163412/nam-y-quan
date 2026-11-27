@@ -113,7 +113,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
             <>
               {/* Master Vietnamese silk-and-ink front figure blended seamlessly into Dó paper */}
               <image
-                href="./art/meridians/meridian-front.jpg"
+                href="./art/meridians/meridian-front.webp"
                 x="0"
                 y="0"
                 width="250"
@@ -149,7 +149,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
             <>
               {/* Painted silk dorsal scroll aligned 1:1 with front silhouette & dorsal acupoints */}
               <image
-                href="./art/meridians/meridian-back.jpg"
+                href="./art/meridians/meridian-back.webp"
                 x="0"
                 y="0"
                 width="250"
@@ -389,7 +389,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
           {onToggleMoxa && (
             <div className={`moxa-strip ${moxaEnabled ? 'is-burning' : ''}`}>
               <img
-                src="./art/tools/moxa-stick.jpg"
+                src="./art/tools/moxa-stick.webp"
                 alt="Điếu ngải cứu đang cháy âm ỉ tỏa khói thơm"
                 className="moxa-thumb"
               />
@@ -415,7 +415,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
           {onToggleCupping && (
             <div className={`moxa-strip ${cuppingEnabled ? 'is-cupping' : ''}`}>
               <img
-                src="./art/tools/bamboo-cupping.jpg"
+                src="./art/tools/bamboo-cupping.webp"
                 alt="Ống giác hơi tre cổ truyền"
                 className="moxa-thumb"
               />

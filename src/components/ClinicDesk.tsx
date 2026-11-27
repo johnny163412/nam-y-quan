@@ -878,8 +878,9 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className={`spatial-room-bg-layer ${curtainParting ? 'curtain-parting' : ''}`} aria-hidden="true">
                 <img
-                  src="./art/scenes/room-tien-duong.jpg"
+                  src="./art/scenes/room-tien-duong.webp"
                   alt=""
+                  fetchPriority="high"
                   className="room-bg-img spatial-full-bg health-tinted"
                 />
                 <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
@@ -1202,7 +1203,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className="spatial-room-bg-layer" aria-hidden="true">
                 <img
-                  src="./art/scenes/room-duoc-cac.jpg"
+                  src="./art/scenes/room-duoc-cac.webp"
                   alt=""
                   className="room-bg-img spatial-full-bg"
                 />
@@ -1514,7 +1515,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className="spatial-room-bg-layer" aria-hidden="true">
                 <img
-                  src="./art/scenes/room-noi-cac.jpg"
+                  src="./art/scenes/room-noi-cac.webp"
                   alt=""
                   className="room-bg-img spatial-full-bg"
                 />
@@ -1629,7 +1630,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className="spatial-room-bg-layer" aria-hidden="true">
                 <img
-                  src="./art/scenes/room-hau-vien.jpg"
+                  src="./art/scenes/room-hau-vien.webp"
                   alt=""
                   className="room-bg-img spatial-full-bg"
                 />
@@ -1674,7 +1675,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           >
             <span className="desk-relic-art-wrap">
               <img
-                src="./art/tools/bronze-incense-burner.jpg"
+                src="./art/tools/bronze-incense-burner.webp"
                 alt="Đỉnh Trầm Hương đặt trên bàn khám"
                 className="desk-relic-img"
               />

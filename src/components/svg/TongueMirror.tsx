@@ -207,7 +207,7 @@ export const TongueMirror: React.FC<TongueMirrorProps> = ({
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
       <div className="tongue-mirror-stage watercolor-bronze-mirror" style={{ width, height }}>
         <img
-          src="./art/tools/bronze-mirror.jpg"
+          src="./art/tools/bronze-mirror.webp"
           alt=""
           aria-hidden="true"
           className="bronze-mirror-art-frame"

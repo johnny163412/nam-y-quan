@@ -187,7 +187,7 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
     <div className="woodblock-sheet" style={{ maxWidth: '920px', margin: '0 auto' }}>
       <div className="scene-diorama-banner">
         <img
-          src="./art/scenes/y-mieu-temple.jpg"
+          src="./art/scenes/y-mieu-temple.webp"
           alt="Khuê Văn Các Văn Miếu — Khoa trường Khảo Thí Y Miếu"
           className="scene-diorama-img"
         />

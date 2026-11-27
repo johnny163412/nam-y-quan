@@ -10,7 +10,7 @@ interface PulseCanvasProps {
   hideName?: boolean;
 }
 
-/** Coordinates calibrated directly onto the three healer fingertips resting on the wrist in `./art/tools/pulse-pillow.jpg` */
+/** Coordinates calibrated directly onto the three healer fingertips resting on the wrist in `./art/tools/pulse-pillow.webp` */
 const FINGER_ZONES: {
   id: PulseFingerZone;
   title: string;
@@ -187,7 +187,7 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
         <div className="pulse-wrist-stage">
           <div className="pulse-wrist-backdrop">
             <img
-              src="./art/tools/pulse-pillow.jpg"
+              src="./art/tools/pulse-pillow.webp"
               alt="Thầy thuốc đặt ba ngón Thốn Quan Xích bắt mạch trên gối gấm bên ngọn đèn dầu"
               className="pulse-pillow-art-pure"
             />
