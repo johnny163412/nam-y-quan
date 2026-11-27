@@ -7,6 +7,7 @@ import { evaluateConstitution } from '../../data/constitutions';
 import { detectActiveFormulas } from '../../data/formulas';
 import { GLOSSARY_TERMS, segmentTextWithGlossary } from '../../data/glossary';
 import { HERBS } from '../../data/herbs';
+import { GARDEN_PLOTS } from '../../components/HerbGardenRoom';
 import { apothecaryAudio } from '../audio';
 import { selectExamSession } from '../examEngine';
 import { createDefaultProgress, exportSaveJson, importSaveJson, loadProgress } from '../storage';
@@ -24,8 +25,13 @@ import {
 import { PrescriptionSlots } from '../../types/tcm';
 
 describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
-  it('contains 20 herbs and 24 acupoints (12 front, 12 back) across 3 chapters', () => {
+  it('contains 20 herbs, 20 garden plots, and 24 acupoints (12 front, 12 back) across 3 chapters', () => {
     expect(HERBS).toHaveLength(20);
+    expect(GARDEN_PLOTS).toHaveLength(20);
+    expect(new Set(GARDEN_PLOTS.map((p) => p.herbId)).size).toBe(20);
+    HERBS.forEach((h) => {
+      expect(GARDEN_PLOTS.some((p) => p.herbId === h.id), `Missing garden plot for ${h.id}`).toBe(true);
+    });
     expect(ACUPOINTS).toHaveLength(24);
     expect(ACUPOINTS.filter((a) => a.bodySide === 'front')).toHaveLength(12);
     expect(ACUPOINTS.filter((a) => a.bodySide === 'back')).toHaveLength(12);

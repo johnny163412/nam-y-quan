@@ -20,11 +20,11 @@ import {
 import { BotanicalSvg } from './svg/BotanicalSvg';
 import { AntiqueIcon } from './svg/AntiqueIcons';
 
-const ROLE_META: { role: RoleSlot; short: string; weight: string }[] = [
-  { role: 'quan', short: 'Quân', weight: 'Chủ lực' },
-  { role: 'than', short: 'Thần', weight: 'Trợ Quân' },
-  { role: 'ta', short: 'Tá', weight: 'Hỗ trợ' },
-  { role: 'su', short: 'Sứ', weight: 'Điều hòa' }
+const ROLE_META: { role: RoleSlot; short: string; weight: string; ratioHint: string }[] = [
+  { role: 'quan', short: 'Quân', weight: 'Chủ lực', ratioHint: 'Trọng tâm ×1.25' },
+  { role: 'than', short: 'Thần', weight: 'Trợ Quân', ratioHint: 'Hiệp trợ ×0.95' },
+  { role: 'ta', short: 'Tá', weight: 'Hỗ trợ', ratioHint: 'Kiềm chế ×0.75' },
+  { role: 'su', short: 'Sứ', weight: 'Điều hòa', ratioHint: 'Dẫn kinh ×0.55' }
 ];
 
 interface BrassScaleRigProps {
@@ -335,166 +335,180 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
         </div>
       </div>
 
-      {/* Dragon Engraved Antique Bronze Balance Beam with Real Spring Physics */}
-      <div className="balance-beam-bar" aria-hidden="true">
-        <svg width="100%" height="56" viewBox="0 0 460 56" fill="none">
-          <defs>
-            <linearGradient id="bronzeBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#85581E" />
-              <stop offset="25%" stopColor="#E6BC66" />
-              <stop offset="50%" stopColor="#9E6D28" />
-              <stop offset="75%" stopColor="#F0CA7A" />
-              <stop offset="100%" stopColor="#7C5018" />
-            </linearGradient>
-            <radialGradient id="fulcrumJewelGrad" cx="42%" cy="38%" r="60%">
-              <stop offset="0%" stopColor="#FFE9A8" />
-              <stop offset="65%" stopColor="#C8933C" />
-              <stop offset="100%" stopColor="#4A2E0D" />
-            </radialGradient>
-          </defs>
-
-          {/* Suspended upper cord & dragon crest finial */}
-          <path d="M230 2 V18" stroke={hasDragonScale ? '#FFE08E' : '#C99848'} strokeWidth="3.2" strokeLinecap="round" />
-          <path d="M214 14 Q230 5 246 14" stroke="#B68335" strokeWidth="1.6" fill="none" />
-
-          <g
-            style={{
-              transformOrigin: '230px 19px',
-              transform: `rotate(${springAngle}deg)`
-            }}
+      {/* Coherent Full-Width Dragon Scale Stand + Aligned Chains + 4 Hanging Pans */}
+      <div className="coherent-scale-assembly">
+        <div className="balance-beam-bar fullwidth-beam" aria-hidden="true">
+          <svg
+            width="100%"
+            height="94"
+            viewBox="0 0 1000 94"
+            preserveAspectRatio="none"
+            className="coherent-scale-svg"
           >
-            {/* Sculpted engraved bronze balance beam with tapered dragon finials */}
-            <path
-              d="M36 22 Q132 10 230 18 Q328 10 424 22 Q434 22 438 16 Q426 27 416 25 Q326 16 230 23 Q134 16 44 25 Q34 27 22 16 Q26 22 36 22 Z"
-              fill="url(#bronzeBeamGrad)"
-              stroke="#3A220B"
-              strokeWidth="1.2"
-            />
-            <circle cx="48" cy="23" r="3.6" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.3" />
-            <circle cx="168" cy="19" r="3.2" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.2" />
-            <circle cx="292" cy="19" r="3.2" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.2" />
-            <circle cx="412" cy="23" r="3.6" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.3" />
+            <defs>
+              <linearGradient id="bronzeBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#7A4F1A" />
+                <stop offset="22%" stopColor="#E6BC66" />
+                <stop offset="50%" stopColor="#A6742B" />
+                <stop offset="78%" stopColor="#F0CA7A" />
+                <stop offset="100%" stopColor="#724815" />
+              </linearGradient>
+              <linearGradient id="standPillarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#3E2311" />
+                <stop offset="50%" stopColor="#754925" />
+                <stop offset="100%" stopColor="#2F190B" />
+              </linearGradient>
+              <radialGradient id="fulcrumJewelGrad" cx="42%" cy="38%" r="60%">
+                <stop offset="0%" stopColor="#FFE9A8" />
+                <stop offset="65%" stopColor="#C8933C" />
+                <stop offset="100%" stopColor="#4A2E0D" />
+              </radialGradient>
+            </defs>
 
-            {/* Suspended chain strands with vertical gravity compensation */}
-            {[
-              { x: 48, y: 26 },
-              { x: 168, y: 22 },
-              { x: 292, y: 22 },
-              { x: 412, y: 26 }
-            ].map((hook, idx) => (
-              <g
-                key={idx}
-                style={{
-                  transformOrigin: `${hook.x}px ${hook.y}px`,
-                  transform: `rotate(${-springAngle * 0.72}deg)`
-                }}
-              >
-                <path
-                  d={`M${hook.x} ${hook.y} L${hook.x - 13} 54 M${hook.x} ${hook.y} L${hook.x + 13} 54`}
-                  stroke="#C99848"
-                  strokeWidth="1.35"
-                  strokeDasharray="2.5 1.5"
-                  opacity="0.88"
-                />
-              </g>
-            ))}
-          </g>
+            {/* Central Hardwood Pillar & Yin-Yang Calibration Arc */}
+            <rect x="492" y="16" width="16" height="76" rx="3" fill="url(#standPillarGrad)" stroke="#2A1609" strokeWidth="1.5" />
+            <ellipse cx="500" cy="91" rx="68" ry="5" fill="#3A2110" stroke="#A6742B" strokeWidth="1.4" />
+            <path d="M446 32 A56 56 0 0 1 554 32" stroke="rgba(122,84,42,0.52)" strokeWidth="1.8" fill="none" strokeDasharray="3 4" />
+            <text x="436" y="34" fontSize="11" fontWeight="700" fill="#2A4D6E" textAnchor="end">Hàn</text>
+            <text x="500" y="11" fontSize="10.5" fontWeight="700" fill="#5A3918" textAnchor="middle">Quân Bình</text>
+            <text x="564" y="34" fontSize="11" fontWeight="700" fill="#9E2A20" textAnchor="start">Nhiệt</text>
 
-          {/* Central Brass Pivot Medallion */}
-          <circle cx="230" cy="19" r="6.5" fill="url(#fulcrumJewelGrad)" stroke="#2F1B0A" strokeWidth="1.4" />
-          <circle cx="230" cy="19" r="2.2" fill="#6F1B14" />
-        </svg>
-      </div>
-
-      {/* 4 Round Hanging Brass Dish Pans */}
-      <div className="brass-dishes-row">
-        {ROLE_META.map((meta) => {
-          const herbId = slots[meta.role];
-          const herb: Herb | null = herbId ? HERB_MAP[herbId] : null;
-          const isSelected = selectedSlot === meta.role;
-          const method = slotPaoZhi[meta.role] ?? 'sinh-dung';
-          const isFresh = Boolean(herb && freshHerbIds.includes(herb.id));
-          const isDropped = justScoopedRole === meta.role;
-          const isCrafting = animatingPanRole === meta.role;
-          const alignClass = herb
-            ? `dish-align-${getHerbDirectionalStatus(herb, initialVector, alerts)}`
-            : '';
-
-          return (
-            <div
-              key={meta.role}
-              ref={(el) => {
-                panRefs.current[meta.role] = el;
-              }}
-              role="button"
-              tabIndex={0}
-              aria-pressed={isSelected}
-              aria-label={`${meta.short} (${meta.weight})${herb ? `: ${herb.name}` : ': Trống'}`}
-              className={`round-scale-dish ${isSelected ? 'is-selected' : ''} ${
-                herb ? 'is-filled' : ''
-              } ${alignClass} ${isDropped ? 'dish-pendulum-drop' : ''} ${
-                isCrafting ? `paozhi-anim-${method}` : ''
-              } dish-tint-${method}`}
+            {/* Tilting Dragon Bronze Crossbar spanning exactly across all 4 column centers (125, 375, 625, 875) */}
+            <g
               style={{
-                transform: `translateY(${((meta.role === 'quan' ? -1.4 : meta.role === 'than' ? -0.6 : meta.role === 'ta' ? 0.6 : 1.4) * springAngle).toFixed(2)}px)`
-              }}
-              onClick={() => onSelectSlot(meta.role)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onSelectSlot(meta.role);
-                }
-              }}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                const droppedId = e.dataTransfer.getData('text/plain');
-                if (droppedId && HERB_MAP[droppedId]) {
-                  onAssignHerb(meta.role, droppedId);
-                }
+                transformOrigin: '500px 38px',
+                transform: `rotate(${springAngle}deg)`
               }}
             >
-              <div className="dish-chains" aria-hidden="true">
-                <span className="chain-strand left" />
-                <span className="chain-strand right" />
+              {/* Main sculpted crossbar */}
+              <path
+                d="M104 39 Q302 27 500 35 Q698 27 896 39 Q914 38 922 30 Q906 46 888 44 Q696 33 500 41 Q304 33 112 44 Q94 46 78 30 Q86 38 104 39 Z"
+                fill="url(#bronzeBeamGrad)"
+                stroke="#3A220B"
+                strokeWidth="1.6"
+              />
+
+              {/* Pointer needle rising from beam center into calibration arc */}
+              <path d="M497 35 L500 13 L503 35 Z" fill="#A62620" stroke="#3A120D" strokeWidth="1" />
+
+              {/* 4 Column-Locked Hanging Hooks & Straight Triangle Chains Dropping Seamlessly into Dishes */}
+              {[125, 375, 625, 875].map((hx, idx) => (
+                <g key={idx}>
+                  <circle cx={hx} cy="42" r="5.5" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.8" />
+                  <g
+                    style={{
+                      transformOrigin: `${hx}px 45px`,
+                      transform: `rotate(${-springAngle * 0.82}deg)`
+                    }}
+                  >
+                    <path
+                      d={`M${hx} 45 L${hx - 34} 94 M${hx} 45 L${hx + 34} 94`}
+                      stroke="#9F702E"
+                      strokeWidth="2.1"
+                      strokeDasharray="4 2"
+                    />
+                    <circle cx={hx} cy="47" r="2.6" fill="#F2C873" />
+                  </g>
+                </g>
+              ))}
+            </g>
+
+            {/* Central Brass Fulcrum Medallion */}
+            <circle cx="500" cy="38" r="9" fill="url(#fulcrumJewelGrad)" stroke="#2F1B0A" strokeWidth="1.8" />
+            <circle cx="500" cy="38" r="3" fill="#7C1E16" />
+          </svg>
+        </div>
+
+        {/* 4 Round Hanging Brass Dish Pans Directly Underneath Hooks */}
+        <div className="brass-dishes-row coherent-row">
+          {ROLE_META.map((meta) => {
+            const herbId = slots[meta.role];
+            const herb: Herb | null = herbId ? HERB_MAP[herbId] : null;
+            const isSelected = selectedSlot === meta.role;
+            const method = slotPaoZhi[meta.role] ?? 'sinh-dung';
+            const isFresh = Boolean(herb && freshHerbIds.includes(herb.id));
+            const isDropped = justScoopedRole === meta.role;
+            const isCrafting = animatingPanRole === meta.role;
+            const alignClass = herb
+              ? `dish-align-${getHerbDirectionalStatus(herb, initialVector, alerts)}`
+              : '';
+
+            return (
+              <div
+                key={meta.role}
+                ref={(el) => {
+                  panRefs.current[meta.role] = el;
+                }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                aria-label={`${meta.short} (${meta.weight})${herb ? `: ${herb.name}` : ': Trống'}`}
+                className={`round-scale-dish ${isSelected ? 'is-selected' : ''} ${
+                  herb ? 'is-filled' : ''
+                } ${alignClass} ${isDropped ? 'dish-pendulum-drop' : ''} ${
+                  isCrafting ? `paozhi-anim-${method}` : ''
+                } dish-tint-${method}`}
+                style={{
+                  transform: `translateY(${((meta.role === 'quan' ? -1.4 : meta.role === 'than' ? -0.6 : meta.role === 'ta' ? 0.6 : 1.4) * springAngle).toFixed(2)}px)`
+                }}
+                onClick={() => onSelectSlot(meta.role)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectSlot(meta.role);
+                  }
+                }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const droppedId = e.dataTransfer.getData('text/plain');
+                  if (droppedId && HERB_MAP[droppedId]) {
+                    onAssignHerb(meta.role, droppedId);
+                  }
+                }}
+              >
+                <div className="dish-role-badge">
+                  {meta.short} · {meta.weight}
+                </div>
+
+                {herb ? (() => {
+                  const craftTf = getPaoZhiTransformation(herb, method);
+                  return (
+                    <>
+                      <div className={`dish-herb-art art-craft-${method}`}>
+                        <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} bare />
+                      </div>
+                      <div className="dish-herb-label">{herb.name}</div>
+                      {isFresh && <span className="dish-mini-pill fresh">Tươi</span>}
+                      {craftTf.badgeLabel && (
+                        <span className={`dish-mini-pill paozhi tone-${craftTf.statusTone}`}>
+                          {craftTf.badgeLabel}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        className="dish-clear-dot"
+                        title={`Trả ${herb.name} về hộc`}
+                        aria-label={`Bỏ ${herb.name} khỏi đĩa ${meta.short}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onAssignHerb(meta.role, null);
+                        }}
+                      >
+                        ×
+                      </button>
+                    </>
+                  );
+                })() : (
+                  <div className="dish-empty-hint">
+                    <div>{meta.ratioHint}</div>
+                    <div style={{ fontSize: '0.67rem', opacity: 0.78, marginTop: '2px' }}>Chạm chọn vị</div>
+                  </div>
+                )}
               </div>
-
-              <div className="dish-role-badge">{meta.short}</div>
-
-              {herb ? (() => {
-                const craftTf = getPaoZhiTransformation(herb, method);
-                return (
-                  <>
-                    <div className={`dish-herb-art art-craft-${method}`}>
-                      <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} bare />
-                    </div>
-                    <div className="dish-herb-label">{herb.name}</div>
-                    {isFresh && <span className="dish-mini-pill fresh">Tươi</span>}
-                    {craftTf.badgeLabel && (
-                      <span className={`dish-mini-pill paozhi tone-${craftTf.statusTone}`}>
-                        {craftTf.badgeLabel}
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      className="dish-clear-dot"
-                      title={`Trả ${herb.name} về hộc`}
-                      aria-label={`Bỏ ${herb.name} khỏi đĩa ${meta.short}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAssignHerb(meta.role, null);
-                      }}
-                    >
-                      ×
-                    </button>
-                  </>
-                );
-              })() : (
-                <div className="dish-empty-hint">{meta.weight}</div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

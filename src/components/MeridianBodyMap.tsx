@@ -53,8 +53,8 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
   };
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'flex-start' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+    <div className="meridian-map-layout">
+      <div className="meridian-canvas-col">
         {!forcedSide && (
           <div className="toggle-pair" style={{ width: '100%' }}>
             <button
@@ -81,10 +81,12 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
           role="img"
           aria-label="Đồ hình Kinh Lạc và Huyệt Đạo cổ họa"
           style={{
-            background: 'radial-gradient(circle at 50% 42%, #E5D4B3 0%, #D4BE96 100%)',
+            maxWidth: '100%',
+            height: 'auto',
+            background: 'radial-gradient(circle at 50% 42%, #EFE2C6 0%, #DFCCA6 100%)',
             border: '2px solid #5A3E28',
             borderRadius: '4px',
-            boxShadow: 'inset 0 0 18px rgba(70, 44, 18, 0.18)'
+            boxShadow: 'inset 0 0 18px rgba(70, 44, 18, 0.14)'
           }}
         >
           {/* Antique Rosewood & Brass Scroll Rollers top & bottom */}
@@ -147,11 +149,11 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
               />
               {/* Back meridian pathways: Đốc Mạch, Bàng Quang (Back-Shu + Ủy Trung), Đởm & Tam Tiêu */}
               <g stroke="#274B6D" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.72">
-                <path d="M125 42 C125 76 125 148 125 236" />
-                <path d="M111 84 L109 124 L109 144 L109 164 L109 180 L108 196 C106 254 104 300 101 352" />
-                <path d="M139 84 C142 130 143 185 145 232 C148 272 150 296 151 316 L151 362" />
-                <path d="M125 98 Q140 101 154 105" />
-                <path d="M82 118 C69 154 61 186 56 214" />
+                <path d="M126 36 C126 76 126 148 126 236" />
+                <path d="M112 83 L110 124 L110 144 L110 164 L110 180 L110 196 C108 254 106 300 103 354" />
+                <path d="M140 83 C142 130 144 185 146 232 C148 272 149 296 149 318 L149 364" />
+                <path d="M126 98 Q140 101 154 105" />
+                <path d="M84 118 C71 154 61 188 53 222" />
               </g>
               {selectedIds.length > 0 && !hideDetails && (
                 <g
@@ -161,11 +163,11 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                   fill="none"
                   opacity="0.88"
                 >
-                  <path d="M125 42 C125 76 125 148 125 236" />
-                  <path d="M111 84 L109 124 L109 144 L109 164 L109 180 L108 196 C106 254 104 300 101 352" />
-                  <path d="M139 84 C142 130 143 185 145 232 C148 272 150 296 151 316 L151 362" />
-                  <path d="M125 98 Q140 101 154 105" />
-                  <path d="M82 118 C69 154 61 186 56 214" />
+                  <path d="M126 36 C126 76 126 148 126 236" />
+                  <path d="M112 83 L110 124 L110 144 L110 164 L110 180 L110 196 C108 254 106 300 103 354" />
+                  <path d="M140 83 C142 130 144 185 146 232 C148 272 149 296 149 318 L149 364" />
+                  <path d="M126 98 Q140 101 154 105" />
+                  <path d="M84 118 C71 154 61 188 53 222" />
                 </g>
               )}
             </>
@@ -344,7 +346,7 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
       </div>
 
       {!hideDetails && (
-        <div style={{ flex: 1, minWidth: 210 }}>
+        <div className="meridian-details-col">
           {onToggleMoxa && (
             <div className={`moxa-strip ${moxaEnabled ? 'is-burning' : ''}`}>
               <img
@@ -352,18 +354,17 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 alt="Điếu ngải cứu đang cháy âm ỉ tỏa khói thơm"
                 className="moxa-thumb"
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="moxa-strip-copy">
                 <div style={{ fontWeight: 700, fontSize: '0.84rem', color: moxaEnabled ? '#FFF3D6' : 'var(--ink-primary)' }}>
                   Hơ Điếu Ngải Cứu (Cứu ấm huyệt)
                 </div>
                 <div style={{ fontSize: '0.75rem', color: moxaEnabled ? '#E5C693' : 'var(--ink-muted)' }}>
-                  Bật khi chứng thiên Hàn / đau buốt lưng gối để dẫn dương khí thấm sâu (+2đ thưởng).
+                  Dẫn dương khí thấm sâu khi chứng thiên Hàn (+2đ).
                 </div>
               </div>
               <button
                 type="button"
-                className={`toggle-pill ${moxaEnabled ? 'active' : ''}`}
-                style={{ flex: 'none', padding: '5px 10px' }}
+                className={`toggle-pill moxa-action-btn ${moxaEnabled ? 'active' : ''}`}
                 onClick={onToggleMoxa}
                 aria-pressed={moxaEnabled}
               >
@@ -379,18 +380,17 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 alt="Ống giác hơi tre cổ truyền"
                 className="moxa-thumb"
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="moxa-strip-copy">
                 <div style={{ fontWeight: 700, fontSize: '0.84rem', color: cuppingEnabled ? '#FFF3D6' : 'var(--ink-primary)' }}>
                   Úp Ống Giác Tre (Trục Phong Hàn lưng vai)
                 </div>
                 <div style={{ fontSize: '0.75rem', color: cuppingEnabled ? '#E5C693' : 'var(--ink-muted)' }}>
-                  Hút phong hàn thấp trên các huyệt Mặt Sau lưng vai (+1đ thưởng khi hợp chứng).
+                  Hút phong hàn thấp trên các huyệt Mặt Sau (+1đ).
                 </div>
               </div>
               <button
                 type="button"
-                className={`toggle-pill ${cuppingEnabled ? 'active' : ''}`}
-                style={{ flex: 'none', padding: '5px 10px' }}
+                className={`toggle-pill moxa-action-btn ${cuppingEnabled ? 'active' : ''}`}
                 onClick={onToggleCupping}
                 aria-pressed={cuppingEnabled}
               >

@@ -1,11 +1,10 @@
 import AppKit
-import CoreImage
+import CoreGraphics
 import Foundation
 
-let brain = "/Users/thiagop/.gemini/antigravity/brain/90213e4b-c384-4bc9-b2b5-4be77a632f54"
-let root = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan/public/art"
-let frontPath = "\(brain)/meridian_front_1795696951049.jpg"
-let outPath = "\(root)/meridians/meridian-back.jpg"
+let root = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan/public/art/meridians"
+let frontPath = "\(root)/meridian-front.jpg"
+let outPath = "\(root)/meridian-back.jpg"
 
 func loadCG(_ path: String) -> CGImage {
   let img = NSImage(contentsOfFile: path)!
@@ -28,7 +27,7 @@ func makeCtx(_ w: Int, _ h: Int) -> CGContext {
   return ctx
 }
 
-func saveJPEG(_ img: CGImage, to path: String, quality: CGFloat = 0.92) {
+func saveJPEG(_ img: CGImage, to path: String, quality: CGFloat = 0.93) {
   let rep = NSBitmapImageRep(cgImage: img)
   let data = rep.representation(using: .jpeg, properties: [.compressionFactor: quality])!
   try! data.write(to: URL(fileURLWithPath: path))
@@ -36,87 +35,69 @@ func saveJPEG(_ img: CGImage, to path: String, quality: CGFloat = 0.92) {
 }
 
 let src = loadCG(frontPath)
-let W = src.width   // 768
-let H = src.height  // 1376
+let W = src.width   // 500
+let H = src.height  // 888
 
-// Mirror front reference horizontally so body geometry, paper texture & limb spacing match 1:1
+// Flip horizontally around symmetry axis centerX = 252 so 1:1 head/limb/trunk scale matches meridian-front.jpg pixel-for-pixel
+let centerX: CGFloat = 252.0
 let refCtx = makeCtx(W, H)
+refCtx.setFillColor(CGColor(red: 246.0/255.0, green: 234.0/255.0, blue: 208.0/255.0, alpha: 1.0))
+refCtx.fill(CGRect(x: 0, y: 0, width: W, height: H))
 refCtx.saveGState()
-refCtx.translateBy(x: CGFloat(W), y: 0)
-refCtx.scaleBy(x: -1, y: 1)
+refCtx.translateBy(x: centerX * 2.0, y: 0)
+refCtx.scaleBy(x: -1.0, y: 1.0)
 refCtx.draw(src, in: CGRect(x: 0, y: 0, width: W, height: H))
 refCtx.restoreGState()
-let refBuf = refCtx.data!.assumingMemoryBound(to: UInt8.self)
 
-// Flood-fill surrounding paper outside figure
+let refBuf = refCtx.data!.assumingMemoryBound(to: UInt8.self)
 let total = W * H
-var isPaper = [Bool](repeating: false, count: total)
-var visited = [Bool](repeating: false, count: total)
-var queue = [Int]()
-queue.reserveCapacity(total / 2)
+
+// Sample true Dó parchment background color from top-left corner of meridian-front.jpg
+let paperR = Int(refBuf[0])
+let paperG = Int(refBuf[1])
+let paperB = Int(refBuf[2])
 
 @inline(__always)
 func isPaperPixel(_ idx: Int) -> Bool {
   let o = idx * 4
-  let r = Int(refBuf[o])
-  let g = Int(refBuf[o + 1])
-  let b = Int(refBuf[o + 2])
-  return (r + g + b) >= 654 && r >= 220 && g >= 210
+  let r = Int(refBuf[o]), g = Int(refBuf[o + 1]), b = Int(refBuf[o + 2])
+  let diff = abs(r - paperR) + abs(g - paperG) + abs(b - paperB)
+  return diff <= 34
 }
 
-for x in 46..<(W - 46) {
-  for y in [40, H - 40] {
-    let idx = y * W + x
-    if !visited[idx] && isPaperPixel(idx) {
-      visited[idx] = true
-      queue.append(idx)
-    }
-  }
-}
-for y in 40..<(H - 40) {
-  for x in [48, W - 48] {
-    let idx = y * W + x
-    if !visited[idx] && isPaperPixel(idx) {
-      visited[idx] = true
-      queue.append(idx)
-    }
-  }
-}
+// Flood-fill connected exterior paper region cleanly
+var isPaper = [Bool](repeating: false, count: total)
+var visited = [Bool](repeating: false, count: total)
+var queue = [Int]()
+queue.reserveCapacity(120_000)
 
-var head = 0
-while head < queue.count {
-  let idx = queue[head]
-  head += 1
-  isPaper[idx] = true
-  let x = idx % W
-  let y = idx / W
-  if x > 44 && !visited[idx - 1] {
-    visited[idx - 1] = true
-    if isPaperPixel(idx - 1) { queue.append(idx - 1) }
-  }
-  if x < W - 45 && !visited[idx + 1] {
-    visited[idx + 1] = true
-    if isPaperPixel(idx + 1) { queue.append(idx + 1) }
-  }
-  if y > 35 && !visited[idx - W] {
-    visited[idx - W] = true
-    if isPaperPixel(idx - W) { queue.append(idx - W) }
-  }
-  if y < H - 36 && !visited[idx + W] {
-    visited[idx + W] = true
-    if isPaperPixel(idx + W) { queue.append(idx + W) }
+for x in 0..<W {
+  for y in [0, H - 1] {
+    let i = y * W + x
+    if isPaperPixel(i) && !visited[i] { visited[i] = true; queue.append(i) }
   }
 }
 for y in 0..<H {
-  for x in 0..<W {
-    if y < 40 || y >= H - 40 || x < 48 || x >= W - 48 {
-      isPaper[y * W + x] = true
-    }
+  for x in [0, W - 1] {
+    let i = y * W + x
+    if isPaperPixel(i) && !visited[i] { visited[i] = true; queue.append(i) }
   }
 }
 
-// Ankle cut line at yAnkleCut = 1166 (norm 0.847) above foot flare so ankles & heels taper continuously!
-let yAnkleCut = Int(Double(H) * 0.847)
+var qHead = 0
+while qHead < queue.count {
+  let idx = queue[qHead]; qHead += 1
+  isPaper[idx] = true
+  let x = idx % W
+  let y = idx / W
+  if x > 0 && !visited[idx - 1] { visited[idx - 1] = true; if isPaperPixel(idx - 1) { queue.append(idx - 1) } }
+  if x < W - 1 && !visited[idx + 1] { visited[idx + 1] = true; if isPaperPixel(idx + 1) { queue.append(idx + 1) } }
+  if y > 0 && !visited[idx - W] { visited[idx - W] = true; if isPaperPixel(idx - W) { queue.append(idx - W) } }
+  if y < H - 1 && !visited[idx + W] { visited[idx + W] = true; if isPaperPixel(idx + W) { queue.append(idx + W) } }
+}
+
+// Ankle cut line above flared anterior toes (svgY = 408 -> py = 816, norm 0.919)
+let yAnkleCut = 804
 
 var bodyMask = makeCtx(W, H)
 let maskPtr = bodyMask.data!.assumingMemoryBound(to: UInt8.self)
@@ -130,40 +111,33 @@ for i in 0..<total {
   }
 }
 
-// Distance from exterior paper contour (preserving crisp outer 3px ink outline + preserving finger outlines on hands!)
+// Keep crisp outer 3px sepia silhouette & preserve crisp hand/finger outlines
 var nearEdge = [Bool](repeating: true, count: total)
-for y in 6..<(yAnkleCut - 4) {
-  for x in 6..<(W - 6) {
+for y in 4..<(yAnkleCut) {
+  for x in 4..<(W - 4) {
     let idx = y * W + x
     if isPaper[idx] { continue }
     var hitPaper = false
     for dy in -3...3 where !hitPaper {
       for dx in -3...3 {
-        let ny = y + dy
-        let nx = x + dx
-        if isPaper[ny * W + nx] {
-          hitPaper = true
-          break
-        }
+        if isPaper[(y + dy) * W + (x + dx)] { hitPaper = true; break }
       }
     }
     nearEdge[idx] = hitPaper
   }
 }
 
-// Working canvas initialized from mirrored reference (preserves genuine paper texture + crisp outer silhouette & hand lines)
 let canvas = makeCtx(W, H)
 canvas.draw(refCtx.makeImage()!, in: CGRect(x: 0, y: 0, width: W, height: H))
 let buf = canvas.data!.assumingMemoryBound(to: UInt8.self)
 
-// 1) Erase anterior splayed feet & toes below yAnkleCut smoothly to inner parchment tone
-for y in yAnkleCut..<(H - 44) {
-  for x in 48..<(W - 48) {
+// 1) Erase anterior flared toes below yAnkleCut seamlessly to local paper tone (zero border box!)
+for y in yAnkleCut..<H {
+  for x in 0..<W {
     let idx = y * W + x
     if !isPaper[idx] {
       let o = idx * 4
-      // Sample nearby horizontal background tone so parchment texture stays unified
-      let sampleO = (y * W + 64) * 4
+      let sampleO = (y * W + 12) * 4
       buf[o] = refBuf[sampleO]
       buf[o + 1] = refBuf[sampleO + 1]
       buf[o + 2] = refBuf[sampleO + 2]
@@ -172,39 +146,29 @@ for y in yAnkleCut..<(H - 44) {
   }
 }
 
-// 2) Repaint interior pixels cleanly while keeping fine finger separations & outer sepia contour ink!
-for y in 42..<yAnkleCut {
-  for x in 48..<(W - 48) {
+// 2) Repaint interior body base to warm harmonious skin watercolor, keeping palm/finger ink lines & outer ink silhouette
+for y in 4..<yAnkleCut {
+  for x in 4..<(W - 4) {
     let idx = y * W + x
     if isPaper[idx] || nearEdge[idx] { continue }
     let o = idx * 4
-    let fy = CGFloat(y) / CGFloat(H)
-    let fx = CGFloat(x) / CGFloat(W)
-
-    // Preserve ONLY individual inter-finger separation ink lines (fy >= 0.525, distal fingers) while painting smooth dorsal palm/wrist skin
-    let inFingersZone = fy >= 0.528 && fy <= 0.585 && (fx < 0.25 || fx > 0.75)
-    if inFingersZone {
-      let lum = (Int(buf[o]) + Int(buf[o + 1]) + Int(buf[o + 2])) / 3
-      if lum < 115 { continue }
+    let r = CGFloat(buf[o]), g = CGFloat(buf[o + 1]), b = CGFloat(buf[o + 2])
+    let ny = CGFloat(y) / CGFloat(H)
+    let nx = CGFloat(x) / CGFloat(W)
+    // Preserve crisp outer finger separations cleanly without dark palm creases
+    if ny >= 0.515 && ny <= 0.610 && (nx < 0.25 || nx > 0.76) {
+      let lum = (r + g + b) / 3.0
+      if lum < 118 {
+        let keep = max(0.0, min(1.0, (118.0 - lum) / 55.0))
+        buf[o] = UInt8(min(255, 224.0 * (1.0 - keep) + r * keep))
+        buf[o + 1] = UInt8(min(255, 190.0 * (1.0 - keep) + g * keep))
+        buf[o + 2] = UInt8(min(255, 150.0 * (1.0 - keep) + b * keep))
+        continue
+      }
     }
-
-    // Posterior Skull Hair Dome: covers 100% behind temple/cranial edge right down to ear helices & M-shaped nape hairline
-    let isOuterEar = (fx < 0.424 || fx > 0.576) && fy >= 0.142 && fy <= 0.194
-    let hairlineLimit = 0.195 - pow(abs(fx - 0.50) / 0.085, 2.0) * 0.018
-    if fy < hairlineLimit && !isOuterEar {
-      buf[o] = 50; buf[o + 1] = 42; buf[o + 2] = 36; buf[o + 3] = 255
-      continue
-    }
-
-    // Posterior Loincloth Wrap Shape (curved organic gluteal lower hem higher at midline fold & thighs)
-    let hipCurveBottom: CGFloat = 0.538 + (1.0 - abs(fx - 0.50) / 0.16) * 0.032
-    let inLoincloth = fy >= 0.456 && fy <= min(0.570, hipCurveBottom) && fx >= 0.345 && fx <= 0.655
-    if inLoincloth {
-      buf[o] = 166; buf[o + 1] = 152; buf[o + 2] = 110; buf[o + 3] = 255
-    } else {
-      // Base warm watercolor skin matching meridian-front lighting
-      buf[o] = 224; buf[o + 1] = 191; buf[o + 2] = 149; buf[o + 3] = 255
-    }
+    buf[o] = 224
+    buf[o + 1] = 191
+    buf[o + 2] = 152
   }
 }
 
@@ -218,7 +182,7 @@ func wash(_ cx: CGFloat, _ cy: CGFloat, _ rx: CGFloat, _ ry: CGFloat, _ r: CGFlo
     colors: [
       CGColor(red: r, green: g, blue: b, alpha: alpha),
       CGColor(red: r, green: g, blue: b, alpha: alpha * 0.52),
-      CGColor(red: r, green: g, blue: b, alpha: 0.0),
+      CGColor(red: r, green: g, blue: b, alpha: 0.0)
     ] as CFArray,
     locations: [0.0, 0.55, 1.0]
   )!
@@ -230,221 +194,209 @@ func wash(_ cx: CGFloat, _ cy: CGFloat, _ rx: CGFloat, _ ry: CGFloat, _ r: CGFlo
   canvas.restoreGState()
 }
 
+let cxNorm: CGFloat = centerX / CGFloat(W) // 0.504 exact match with meridian-front.jpg!
 let silhouetteCG = bodyMask.makeImage()!
 canvas.saveGState()
 canvas.clip(to: CGRect(x: 0, y: 0, width: W, height: H), mask: silhouetteCG)
 
-// --- A. HEAD HAIR CROWN, NAPE HAIRLINE & POSTERIOR EARS ---
-wash(0.500, 0.132, 0.068, 0.056, 0.17, 0.14, 0.12, 0.85)
-wash(0.500, 0.072, 0.032, 0.020, 0.15, 0.13, 0.11, 0.92)
-// Subtle highlight sheen across occipital hair
-wash(0.492, 0.122, 0.045, 0.016, 0.38, 0.33, 0.29, 0.32)
+// --- A. HEAD POSTERIOR HAIR CROWN, NAPE HAIRLINE & EARS ---
+// Cover entire posterior skull width from left temple to right temple seamlessly
+let hairCap = CGMutablePath()
+hairCap.move(to: pt(cxNorm - 0.11, 0.048))
+hairCap.addLine(to: pt(cxNorm + 0.11, 0.048))
+hairCap.addLine(to: pt(cxNorm + 0.095, 0.166))
+hairCap.addCurve(to: pt(cxNorm, 0.184), control1: pt(cxNorm + 0.055, 0.182), control2: pt(cxNorm + 0.022, 0.178))
+hairCap.addCurve(to: pt(cxNorm - 0.095, 0.166), control1: pt(cxNorm - 0.022, 0.178), control2: pt(cxNorm - 0.055, 0.182))
+hairCap.closeSubpath()
 
-// Organic hair brush strands converging softly toward nape (within hair zone only!)
+canvas.saveGState()
+canvas.addPath(hairCap)
+canvas.clip()
+canvas.setFillColor(CGColor(red: 0.16, green: 0.13, blue: 0.11, alpha: 0.96))
+canvas.fill(CGRect(x: 0, y: 0, width: W, height: H))
+wash(cxNorm - 0.008, 0.112, 0.056, 0.020, 0.36, 0.31, 0.27, 0.42)
+
 canvas.setLineCap(.round)
-for i in -9...9 {
+for i in -14...14 {
   let fi = CGFloat(i)
-  let xTop = 0.50 + fi * 0.0040
-  let xBot = 0.50 + fi * 0.0056
-  let yEnd = 0.186 - abs(fi) * 0.0012
+  let xTop = cxNorm + fi * 0.0046
+  let xBot = cxNorm + fi * 0.0056
+  let yEnd = 0.180 - abs(fi) * 0.0010
   canvas.beginPath()
-  canvas.move(to: pt(xTop, 0.088))
-  canvas.addCurve(to: pt(xBot, yEnd), control1: pt(0.50 + fi * 0.0072, 0.126), control2: pt(0.50 + fi * 0.0064, 0.160))
-  canvas.setStrokeColor(i % 2 == 0 ? CGColor(red: 0.09, green: 0.07, blue: 0.06, alpha: 0.65) : CGColor(red: 0.36, green: 0.31, blue: 0.26, alpha: 0.42))
-  canvas.setLineWidth(1.4)
+  canvas.move(to: pt(xTop, 0.080))
+  canvas.addCurve(to: pt(xBot, yEnd), control1: pt(cxNorm + fi * 0.0068, 0.118), control2: pt(cxNorm + fi * 0.0062, 0.152))
+  canvas.setStrokeColor(i % 2 == 0 ? CGColor(red: 0.08, green: 0.06, blue: 0.05, alpha: 0.72) : CGColor(red: 0.36, green: 0.31, blue: 0.26, alpha: 0.44))
+  canvas.setLineWidth(1.3)
   canvas.strokePath()
 }
+canvas.restoreGState()
 
-// Nape hairline ink edge & Phong Tri suboccipital hollows below skull base
+// M-shaped nape hairline & hair tie cord below bun
 canvas.beginPath()
-canvas.move(to: pt(0.440, 0.178))
-canvas.addCurve(to: pt(0.500, 0.193), control1: pt(0.456, 0.190), control2: pt(0.482, 0.188))
-canvas.addCurve(to: pt(0.560, 0.178), control1: pt(0.518, 0.188), control2: pt(0.544, 0.190))
-canvas.setStrokeColor(CGColor(red: 0.16, green: 0.12, blue: 0.09, alpha: 0.85))
-canvas.setLineWidth(2.0)
+canvas.move(to: pt(cxNorm - 0.078, 0.165))
+canvas.addCurve(to: pt(cxNorm, 0.184), control1: pt(cxNorm - 0.052, 0.182), control2: pt(cxNorm - 0.022, 0.178))
+canvas.addCurve(to: pt(cxNorm + 0.078, 0.165), control1: pt(cxNorm + 0.022, 0.178), control2: pt(cxNorm + 0.052, 0.182))
+canvas.setStrokeColor(CGColor(red: 0.14, green: 0.10, blue: 0.07, alpha: 0.90))
+canvas.setLineWidth(1.8)
 canvas.strokePath()
 
-// Hair bun band
 canvas.beginPath()
-canvas.move(to: pt(0.474, 0.086))
-canvas.addCurve(to: pt(0.526, 0.086), control1: pt(0.490, 0.091), control2: pt(0.510, 0.091))
-canvas.setStrokeColor(CGColor(red: 0.11, green: 0.08, blue: 0.06, alpha: 0.9))
-canvas.setLineWidth(2.4)
-canvas.strokePath()
-
-// Posterior ear shading (simple helix fold from behind, zero ear canal)
-for (ex, dir) in [(0.425, -1.0), (0.575, 1.0)] as [(CGFloat, CGFloat)] {
-  wash(ex, 0.164, 0.012, 0.018, 0.72, 0.56, 0.40, 0.45)
-  canvas.beginPath()
-  canvas.move(to: pt(ex - dir * 0.003, 0.150))
-  canvas.addCurve(to: pt(ex - dir * 0.002, 0.178), control1: pt(ex + dir * 0.007, 0.158), control2: pt(ex + dir * 0.006, 0.172))
-  canvas.setStrokeColor(CGColor(red: 0.38, green: 0.25, blue: 0.16, alpha: 0.68))
-  canvas.setLineWidth(1.4)
-  canvas.strokePath()
-}
-
-// --- B. NAPE, TRAPEZIUS, SCAPULAE & RICH DORSAL WATERCOLOR ANATOMY ---
-// Two vertical nuchal muscles & Phong Tri hollows (only neck, NOT touching skull!)
-wash(0.476, 0.200, 0.016, 0.014, 0.72, 0.55, 0.39, 0.48)
-wash(0.524, 0.200, 0.016, 0.014, 0.72, 0.55, 0.39, 0.48)
-wash(0.500, 0.222, 0.022, 0.014, 0.94, 0.84, 0.69, 0.68) // C7 Dai Chuy prominence
-
-// Trapezius & posterior deltoid depth
-wash(0.415, 0.242, 0.042, 0.026, 0.92, 0.81, 0.64, 0.44)
-wash(0.585, 0.242, 0.042, 0.026, 0.92, 0.81, 0.64, 0.44)
-wash(0.360, 0.262, 0.032, 0.036, 0.70, 0.53, 0.37, 0.42)
-wash(0.640, 0.262, 0.032, 0.036, 0.70, 0.53, 0.37, 0.42)
-
-// Scapular muscle shadows & infraspinatus highlights + latissimus dorsi waist taper
-wash(0.448, 0.280, 0.038, 0.042, 0.70, 0.53, 0.37, 0.44)
-wash(0.552, 0.280, 0.038, 0.042, 0.70, 0.53, 0.37, 0.44)
-wash(0.456, 0.268, 0.024, 0.028, 0.92, 0.82, 0.66, 0.50)
-wash(0.544, 0.268, 0.024, 0.028, 0.92, 0.82, 0.66, 0.50)
-
-wash(0.396, 0.345, 0.028, 0.095, 0.66, 0.49, 0.33, 0.46) // Left lat & flank shadow
-wash(0.604, 0.345, 0.028, 0.095, 0.66, 0.49, 0.33, 0.46) // Right lat & flank shadow
-wash(0.474, 0.355, 0.020, 0.095, 0.92, 0.81, 0.64, 0.44) // Erector spinae highlight L
-wash(0.526, 0.355, 0.020, 0.095, 0.92, 0.81, 0.64, 0.44) // Erector spinae highlight R
-wash(0.500, 0.345, 0.011, 0.110, 0.62, 0.46, 0.31, 0.42) // Central vertebral groove
-
-// Subtle C7–L5 anatomical ink linework starting BELOW nape at shoulder base (y = 0.236)
-canvas.beginPath()
-canvas.move(to: pt(0.500, 0.236))
-canvas.addCurve(to: pt(0.500, 0.452), control1: pt(0.498, 0.308), control2: pt(0.502, 0.382))
-canvas.setStrokeColor(CGColor(red: 0.38, green: 0.25, blue: 0.15, alpha: 0.58))
-canvas.setLineWidth(1.7)
-canvas.strokePath()
-
-for dir in [-1.0, 1.0] as [CGFloat] {
-  // Scapular spine & inner scapula angle
-  canvas.beginPath()
-  canvas.move(to: pt(0.50 + dir * 0.125, 0.238))
-  canvas.addCurve(to: pt(0.50 + dir * 0.044, 0.280), control1: pt(0.50 + dir * 0.086, 0.244), control2: pt(0.50 + dir * 0.056, 0.258))
-  canvas.addCurve(to: pt(0.50 + dir * 0.068, 0.318), control1: pt(0.50 + dir * 0.042, 0.300), control2: pt(0.50 + dir * 0.056, 0.314))
-  canvas.setStrokeColor(CGColor(red: 0.38, green: 0.25, blue: 0.15, alpha: 0.54))
-  canvas.setLineWidth(1.6)
-  canvas.strokePath()
-}
-
-// Sacral lumbar dimples
-wash(0.468, 0.442, 0.009, 0.007, 0.62, 0.46, 0.31, 0.48)
-wash(0.532, 0.442, 0.009, 0.007, 0.62, 0.46, 0.31, 0.48)
-
-// --- C. POSTERIOR LOINCLOTH WITH CURVED GLUTEAL HEM ---
-wash(0.500, 0.525, 0.120, 0.058, 0.50, 0.45, 0.30, 0.42)
-wash(0.442, 0.506, 0.048, 0.032, 0.72, 0.66, 0.48, 0.48)
-wash(0.558, 0.506, 0.048, 0.032, 0.72, 0.66, 0.48, 0.48)
-
-// Waistband belt
-canvas.beginPath()
-canvas.move(to: pt(0.365, 0.462))
-canvas.addCurve(to: pt(0.635, 0.462), control1: pt(0.445, 0.475), control2: pt(0.555, 0.475))
-canvas.setStrokeColor(CGColor(red: 0.23, green: 0.18, blue: 0.11, alpha: 0.85))
+canvas.move(to: pt(cxNorm - 0.036, 0.085))
+canvas.addCurve(to: pt(cxNorm + 0.036, 0.085), control1: pt(cxNorm - 0.015, 0.091), control2: pt(cxNorm + 0.015, 0.091))
+canvas.setStrokeColor(CGColor(red: 0.10, green: 0.08, blue: 0.06, alpha: 0.92))
 canvas.setLineWidth(2.2)
 canvas.strokePath()
 
-canvas.beginPath()
-canvas.move(to: pt(0.360, 0.486))
-canvas.addCurve(to: pt(0.640, 0.486), control1: pt(0.445, 0.499), control2: pt(0.555, 0.499))
-canvas.setStrokeColor(CGColor(red: 0.26, green: 0.21, blue: 0.14, alpha: 0.68))
-canvas.setLineWidth(1.6)
-canvas.strokePath()
-
-// Curved bottom edge of rear loincloth matching natural gluteal silhouette
-canvas.beginPath()
-canvas.move(to: pt(0.348, 0.538))
-canvas.addCurve(to: pt(0.500, 0.570), control1: pt(0.390, 0.548), control2: pt(0.465, 0.568))
-canvas.addCurve(to: pt(0.652, 0.538), control1: pt(0.535, 0.568), control2: pt(0.610, 0.548))
-canvas.setStrokeColor(CGColor(red: 0.23, green: 0.18, blue: 0.11, alpha: 0.85))
-canvas.setLineWidth(2.1)
-canvas.strokePath()
-
-for foldY in [0.512, 0.536] as [CGFloat] {
-  for dir in [-1.0, 1.0] as [CGFloat] {
-    canvas.beginPath()
-    canvas.move(to: pt(0.50 + dir * 0.138, foldY - 0.010))
-    canvas.addCurve(to: pt(0.50, foldY + 0.014), control1: pt(0.50 + dir * 0.082, foldY + 0.002), control2: pt(0.50 + dir * 0.032, foldY + 0.012))
-    canvas.setStrokeColor(CGColor(red: 0.28, green: 0.23, blue: 0.16, alpha: 0.55))
-    canvas.setLineWidth(1.4)
-    canvas.strokePath()
-  }
-}
-
-// --- D. POSTERIOR ARMS, ELBOWS & BACKS OF HANDS ---
-for (dir, armTopX, elbowX, handX) in [(-1.0, 0.325, 0.274, 0.185), (1.0, 0.675, 0.726, 0.815)] as [(CGFloat, CGFloat, CGFloat, CGFloat)] {
-  wash(armTopX + dir * 0.010, 0.335, 0.022, 0.055, 0.68, 0.52, 0.36, 0.38)
-  wash(elbowX, 0.386, 0.015, 0.015, 0.92, 0.82, 0.66, 0.52)
-  // Olecranon U-crease at elbow back
+// Simple posterior ear rim shading (left/right edges of head at ny=0.145)
+for dir in [-1.0, 1.0] as [CGFloat] {
+  let ex = cxNorm + dir * 0.084
+  wash(ex, 0.150, 0.014, 0.020, 0.72, 0.56, 0.40, 0.44)
   canvas.beginPath()
-  canvas.move(to: pt(elbowX - 0.012, 0.384))
-  canvas.addCurve(to: pt(elbowX + 0.012, 0.384), control1: pt(elbowX - 0.004, 0.391), control2: pt(elbowX + 0.004, 0.391))
-  canvas.setStrokeColor(CGColor(red: 0.36, green: 0.24, blue: 0.15, alpha: 0.62))
-  canvas.setLineWidth(1.5)
-  canvas.strokePath()
-
-  // Forearm taper & dorsal metacarpal shading
-  wash(elbowX + dir * 0.038, 0.440, 0.018, 0.045, 0.69, 0.53, 0.37, 0.32)
-  wash(handX, 0.525, 0.028, 0.030, 0.78, 0.62, 0.46, 0.24)
-  for k in -1...1 {
-    let off = CGFloat(k) * 0.008
-    canvas.beginPath()
-    canvas.move(to: pt(handX - dir * 0.008 + off, 0.506))
-    canvas.addLine(to: pt(handX + dir * 0.012 + off, 0.534))
-    canvas.setStrokeColor(CGColor(red: 0.42, green: 0.29, blue: 0.18, alpha: 0.45))
-    canvas.setLineWidth(1.2)
-    canvas.strokePath()
-  }
-}
-
-// --- E. HAMSTRINGS, POPLITEAL KNEE FOSSA (Hõm Khoeo) & CALVES ---
-for side in [-1.0, 1.0] as [CGFloat] {
-  let legX = 0.50 + side * 0.095
-  wash(legX + side * 0.018, 0.630, 0.024, 0.068, 0.68, 0.52, 0.36, 0.42)
-  wash(legX - side * 0.016, 0.630, 0.022, 0.064, 0.68, 0.52, 0.36, 0.36)
-  wash(legX, 0.622, 0.022, 0.056, 0.91, 0.80, 0.64, 0.48)
-
-  // Popliteal crease behind knees
-  wash(legX, 0.712, 0.026, 0.016, 0.72, 0.56, 0.40, 0.40)
-  canvas.beginPath()
-  canvas.move(to: pt(legX - 0.026, 0.710))
-  canvas.addCurve(to: pt(legX + 0.026, 0.710), control1: pt(legX - 0.009, 0.715), control2: pt(legX + 0.009, 0.715))
-  canvas.setStrokeColor(CGColor(red: 0.36, green: 0.24, blue: 0.15, alpha: 0.68))
-  canvas.setLineWidth(1.7)
-  canvas.strokePath()
-
-  // Distinct twin gastrocnemius calf bellies + Achilles furrow
-  wash(legX - 0.015, 0.764, 0.017, 0.032, 0.92, 0.82, 0.66, 0.52)
-  wash(legX + 0.015, 0.764, 0.017, 0.032, 0.92, 0.82, 0.66, 0.52)
-  wash(legX - side * 0.026, 0.775, 0.012, 0.044, 0.67, 0.50, 0.34, 0.38)
-  wash(legX + side * 0.026, 0.775, 0.012, 0.044, 0.67, 0.50, 0.34, 0.42)
-  wash(legX, 0.818, 0.010, 0.044, 0.69, 0.53, 0.37, 0.38)
-
-  canvas.beginPath()
-  canvas.move(to: pt(legX - 0.025, 0.772))
-  canvas.addCurve(to: pt(legX, 0.786), control1: pt(legX - 0.014, 0.784), control2: pt(legX - 0.004, 0.786))
-  canvas.addCurve(to: pt(legX + 0.025, 0.772), control1: pt(legX + 0.004, 0.786), control2: pt(legX + 0.014, 0.784))
-  canvas.setStrokeColor(CGColor(red: 0.36, green: 0.24, blue: 0.15, alpha: 0.65))
-  canvas.setLineWidth(1.7)
-  canvas.strokePath()
-
-  canvas.beginPath()
-  canvas.move(to: pt(legX - 0.005, 0.794))
-  canvas.addLine(to: pt(legX - 0.005, 0.847))
-  canvas.move(to: pt(legX + 0.005, 0.794))
-  canvas.addLine(to: pt(legX + 0.005, 0.847))
-  canvas.setStrokeColor(CGColor(red: 0.44, green: 0.30, blue: 0.19, alpha: 0.44))
+  canvas.move(to: pt(ex - dir * 0.004, 0.136))
+  canvas.addCurve(to: pt(ex - dir * 0.003, 0.164), control1: pt(ex + dir * 0.008, 0.144), control2: pt(ex + dir * 0.007, 0.158))
+  canvas.setStrokeColor(CGColor(red: 0.36, green: 0.24, blue: 0.15, alpha: 0.72))
   canvas.setLineWidth(1.3)
+  canvas.strokePath()
+}
+
+// --- B. NAPE, TRAPEZIUS, SCAPULAE & DORSAL WATERCOLOR SHADING ---
+wash(cxNorm - 0.026, 0.194, 0.018, 0.016, 0.72, 0.55, 0.39, 0.48)
+wash(cxNorm + 0.026, 0.194, 0.018, 0.016, 0.72, 0.55, 0.39, 0.48)
+wash(cxNorm, 0.219, 0.026, 0.015, 0.94, 0.84, 0.69, 0.68) // C7 prominence
+
+// Shoulder traps + deltoids
+wash(cxNorm - 0.095, 0.238, 0.048, 0.028, 0.92, 0.81, 0.64, 0.42)
+wash(cxNorm + 0.095, 0.238, 0.048, 0.028, 0.92, 0.81, 0.64, 0.42)
+wash(cxNorm - 0.165, 0.262, 0.036, 0.040, 0.70, 0.53, 0.37, 0.42)
+wash(cxNorm + 0.165, 0.262, 0.036, 0.040, 0.70, 0.53, 0.37, 0.42)
+
+// Scapulae & erector spinae + latissimus flank shadows
+wash(cxNorm - 0.062, 0.285, 0.044, 0.046, 0.70, 0.53, 0.37, 0.42)
+wash(cxNorm + 0.062, 0.285, 0.044, 0.046, 0.70, 0.53, 0.37, 0.42)
+wash(cxNorm - 0.052, 0.272, 0.028, 0.030, 0.92, 0.82, 0.66, 0.50)
+wash(cxNorm + 0.052, 0.272, 0.028, 0.030, 0.92, 0.82, 0.66, 0.50)
+
+wash(cxNorm - 0.122, 0.358, 0.032, 0.096, 0.66, 0.49, 0.33, 0.44)
+wash(cxNorm + 0.122, 0.358, 0.032, 0.096, 0.66, 0.49, 0.33, 0.44)
+wash(cxNorm - 0.030, 0.365, 0.024, 0.100, 0.92, 0.81, 0.64, 0.42)
+wash(cxNorm + 0.030, 0.365, 0.024, 0.100, 0.92, 0.81, 0.64, 0.42)
+wash(cxNorm, 0.352, 0.012, 0.118, 0.62, 0.46, 0.31, 0.40) // Spinal furrow
+
+// Spine line C7 -> L5 & scapula curves
+canvas.beginPath()
+canvas.move(to: pt(cxNorm, 0.218))
+canvas.addCurve(to: pt(cxNorm, 0.456), control1: pt(cxNorm - 0.002, 0.31), control2: pt(cxNorm + 0.002, 0.39))
+canvas.setStrokeColor(CGColor(red: 0.46, green: 0.31, blue: 0.19, alpha: 0.52))
+canvas.setLineWidth(1.3)
+canvas.strokePath()
+
+for dir in [-1.0, 1.0] as [CGFloat] {
+  canvas.beginPath()
+  canvas.move(to: pt(cxNorm + dir * 0.084, 0.238))
+  canvas.addCurve(to: pt(cxNorm + dir * 0.044, 0.322), control1: pt(cxNorm + dir * 0.050, 0.262), control2: pt(cxNorm + dir * 0.038, 0.296))
+  canvas.setStrokeColor(CGColor(red: 0.40, green: 0.26, blue: 0.16, alpha: 0.55))
+  canvas.setLineWidth(1.2)
+  canvas.strokePath()
+}
+
+wash(cxNorm - 0.032, 0.450, 0.011, 0.011, 0.64, 0.48, 0.33, 0.34)
+wash(cxNorm + 0.032, 0.450, 0.011, 0.011, 0.64, 0.48, 0.33, 0.34)
+
+// --- C. POSTERIOR LOINCLOTH (Seamless olive cloth covering buttocks at ny=0.458..0.606) ---
+let clothPath = CGMutablePath()
+clothPath.move(to: pt(cxNorm - 0.18, 0.460))
+clothPath.addCurve(to: pt(cxNorm + 0.18, 0.460), control1: pt(cxNorm - 0.06, 0.468), control2: pt(cxNorm + 0.06, 0.468))
+clothPath.addLine(to: pt(cxNorm + 0.20, 0.585))
+clothPath.addCurve(to: pt(cxNorm, 0.606), control1: pt(cxNorm + 0.12, 0.592), control2: pt(cxNorm + 0.04, 0.606))
+clothPath.addCurve(to: pt(cxNorm - 0.20, 0.585), control1: pt(cxNorm - 0.04, 0.606), control2: pt(cxNorm - 0.12, 0.592))
+clothPath.closeSubpath()
+
+canvas.saveGState()
+canvas.addPath(clothPath)
+canvas.clip()
+canvas.setFillColor(CGColor(red: 147.0 / 255.0, green: 138.0 / 255.0, blue: 100.0 / 255.0, alpha: 1.0))
+canvas.fill(CGRect(x: 0, y: 0, width: W, height: H))
+wash(cxNorm - 0.06, 0.534, 0.08, 0.046, 0.69, 0.64, 0.45, 0.55)
+wash(cxNorm + 0.06, 0.534, 0.08, 0.046, 0.69, 0.64, 0.45, 0.55)
+wash(cxNorm, 0.562, 0.024, 0.044, 0.34, 0.30, 0.21, 0.40)
+
+for (yL, dip) in [(0.488, 0.008), (0.514, 0.011), (0.542, 0.015), (0.572, 0.018)] {
+  canvas.beginPath()
+  canvas.move(to: pt(cxNorm - 0.18, yL))
+  canvas.addCurve(to: pt(cxNorm, yL + dip), control1: pt(cxNorm - 0.08, yL + dip * 0.4), control2: pt(cxNorm - 0.02, yL + dip * 0.9))
+  canvas.addCurve(to: pt(cxNorm + 0.18, yL), control1: pt(cxNorm + 0.02, yL + dip * 0.9), control2: pt(cxNorm + 0.08, yL + dip * 0.4))
+  canvas.setStrokeColor(CGColor(red: 0.25, green: 0.21, blue: 0.14, alpha: 0.46))
+  canvas.setLineWidth(1.2)
+  canvas.strokePath()
+}
+canvas.restoreGState()
+
+canvas.beginPath()
+canvas.move(to: pt(cxNorm - 0.18, 0.460))
+canvas.addCurve(to: pt(cxNorm + 0.18, 0.460), control1: pt(cxNorm - 0.06, 0.468), control2: pt(cxNorm + 0.06, 0.468))
+canvas.move(to: pt(cxNorm - 0.18, 0.575))
+canvas.addCurve(to: pt(cxNorm, 0.606), control1: pt(cxNorm - 0.09, 0.594), control2: pt(cxNorm - 0.03, 0.606))
+canvas.addCurve(to: pt(cxNorm + 0.18, 0.575), control1: pt(cxNorm + 0.03, 0.606), control2: pt(cxNorm + 0.09, 0.594))
+canvas.setStrokeColor(CGColor(red: 0.16, green: 0.13, blue: 0.09, alpha: 0.85))
+canvas.setLineWidth(1.7)
+canvas.strokePath()
+
+// --- D. POSTERIOR ARMS, ELBOWS & DORSAL HANDS ---
+for (dir, elbowX) in [(-1.0, cxNorm - 0.242), (1.0, cxNorm + 0.242)] as [(CGFloat, CGFloat)] {
+  wash(cxNorm + dir * 0.190, 0.335, 0.024, 0.065, 0.91, 0.80, 0.64, 0.45)
+  wash(elbowX, 0.398, 0.015, 0.018, 0.72, 0.55, 0.38, 0.40)
+  canvas.beginPath()
+  canvas.move(to: pt(elbowX - 0.012, 0.402))
+  canvas.addCurve(to: pt(elbowX + 0.012, 0.402), control1: pt(elbowX - 0.004, 0.406), control2: pt(elbowX + 0.004, 0.406))
+  canvas.setStrokeColor(CGColor(red: 0.38, green: 0.25, blue: 0.16, alpha: 0.54))
+  canvas.setLineWidth(1.2)
+  canvas.strokePath()
+}
+
+// --- E. POSTERIOR THIGHS, POPLITEAL FOSSA (nv=0.716), CALVES & ACHILLES ---
+for (side, legX) in [(-1.0, cxNorm - 0.094), (1.0, cxNorm + 0.094)] as [(CGFloat, CGFloat)] {
+  wash(legX, 0.640, 0.032, 0.056, 0.92, 0.82, 0.66, 0.52)
+  wash(legX + side * 0.016, 0.642, 0.020, 0.064, 0.69, 0.53, 0.37, 0.40)
+
+  // Popliteal fossa back knee crease (exactly at ny = 0.716 -> svgY = 318 where Ủy Trung sits!)
+  wash(legX, 0.716, 0.026, 0.016, 0.66, 0.49, 0.34, 0.52)
+  canvas.beginPath()
+  canvas.move(to: pt(legX - 0.032, 0.715))
+  canvas.addCurve(to: pt(legX + 0.032, 0.715), control1: pt(legX - 0.012, 0.719), control2: pt(legX + 0.012, 0.719))
+  canvas.setStrokeColor(CGColor(red: 0.32, green: 0.21, blue: 0.13, alpha: 0.75))
+  canvas.setLineWidth(1.4)
+  canvas.strokePath()
+
+  // Twin gastrocnemius calf bellies + Achilles tendon groove
+  wash(legX - 0.016, 0.790, 0.020, 0.036, 0.92, 0.82, 0.66, 0.52)
+  wash(legX + 0.016, 0.790, 0.020, 0.036, 0.92, 0.82, 0.66, 0.52)
+  wash(legX, 0.862, 0.012, 0.044, 0.69, 0.53, 0.37, 0.38)
+
+  canvas.beginPath()
+  canvas.move(to: pt(legX - 0.028, 0.800))
+  canvas.addCurve(to: pt(legX, 0.816), control1: pt(legX - 0.015, 0.814), control2: pt(legX - 0.005, 0.816))
+  canvas.addCurve(to: pt(legX + 0.028, 0.800), control1: pt(legX + 0.005, 0.816), control2: pt(legX + 0.015, 0.814))
+  canvas.setStrokeColor(CGColor(red: 0.36, green: 0.24, blue: 0.15, alpha: 0.65))
+  canvas.setLineWidth(1.4)
+  canvas.strokePath()
+
+  canvas.beginPath()
+  canvas.move(to: pt(legX - 0.006, 0.824))
+  canvas.addLine(to: pt(legX - 0.006, 0.905))
+  canvas.move(to: pt(legX + 0.006, 0.824))
+  canvas.addLine(to: pt(legX + 0.006, 0.905))
+  canvas.setStrokeColor(CGColor(red: 0.44, green: 0.30, blue: 0.19, alpha: 0.44))
+  canvas.setLineWidth(1.1)
   canvas.strokePath()
 }
 
 canvas.restoreGState()
 
-// --- F. SEAMLESSLY CONNECTED TAPERED ANKLES -> ROUNDED POSTERIOR HEELS (Measured exact calf cut width!) ---
+// --- F. SEAMLESSLY CONNECTED ANKLES -> ROUNDED POSTERIOR HEELS MATCHING FRONT GROUND HEIGHT (botY = 0.978 -> svgY = 434) ---
 for side in [-1.0, 1.0] as [CGFloat] {
-  // Dynamically measure exact left/right boundary of the leg at row (yAnkleCut - 2) for zero-step connection
   let scanY = yAnkleCut - 2
-  let xStart = side < 0 ? W / 4 : W / 2
-  let xEnd = side < 0 ? W / 2 : (W * 3) / 4
+  let xStart = side < 0 ? 120 : 252
+  let xEnd = side < 0 ? 252 : 390
   var minLegPx = xEnd
   var maxLegPx = xStart
   for x in xStart..<xEnd {
@@ -453,51 +405,46 @@ for side in [-1.0, 1.0] as [CGFloat] {
       if x > maxLegPx { maxLegPx = x }
     }
   }
-  let nLeft = CGFloat(minLegPx) / CGFloat(W)
-  let nRight = CGFloat(maxLegPx) / CGFloat(W)
+  let nLeft = CGFloat(minLegPx + 2) / CGFloat(W)
+  let nRight = CGFloat(maxLegPx - 2) / CGFloat(W)
   let legX = (nLeft + nRight) * 0.5
-  let topY: CGFloat = 0.844
-  let heelW: CGFloat = 0.031
-  let botY: CGFloat = 0.922
+  let topY: CGFloat = CGFloat(yAnkleCut - 14) / CGFloat(H) // Blend softly higher up the Achilles taper!
+  let halfAnkle = (nRight - nLeft) * 0.5
+  let heelW: CGFloat = max(halfAnkle * 1.05, 0.026)
+  let botY: CGFloat = 0.978 // Matches front feet at py ~ 868 (svgY = 434)!
 
-  // Cast soft ground contact shadow
-  wash(legX, botY + 0.003, heelW * 1.15, 0.008, 0.42, 0.34, 0.24, 0.26)
+  wash(legX, botY + 0.004, heelW * 1.2, 0.008, 0.42, 0.34, 0.24, 0.25)
 
   let foot = CGMutablePath()
-  foot.move(to: pt(nLeft, topY - 0.004))
-  foot.addCurve(to: pt(legX - heelW, botY - 0.012), control1: pt(nLeft + 0.002, topY + 0.028), control2: pt(legX - heelW * 1.02, botY - 0.026))
-  foot.addCurve(to: pt(legX, botY), control1: pt(legX - heelW * 0.82, botY), control2: pt(legX - heelW * 0.38, botY))
-  foot.addCurve(to: pt(legX + heelW, botY - 0.012), control1: pt(legX + heelW * 0.38, botY), control2: pt(legX + heelW * 0.82, botY))
-  foot.addCurve(to: pt(nRight, topY - 0.004), control1: pt(legX + heelW * 1.02, botY - 0.026), control2: pt(nRight - 0.002, topY + 0.028))
+  foot.move(to: pt(nLeft, topY))
+  foot.addCurve(to: pt(legX - heelW, botY - 0.012), control1: pt(nLeft - 0.002, topY + 0.036), control2: pt(legX - heelW * 1.02, botY - 0.028))
+  foot.addCurve(to: pt(legX, botY), control1: pt(legX - heelW * 0.80, botY), control2: pt(legX - heelW * 0.35, botY))
+  foot.addCurve(to: pt(legX + heelW, botY - 0.012), control1: pt(legX + heelW * 0.35, botY), control2: pt(legX + heelW * 0.80, botY))
+  foot.addCurve(to: pt(nRight, topY), control1: pt(legX + heelW * 1.02, botY - 0.028), control2: pt(nRight + 0.002, topY + 0.036))
   foot.closeSubpath()
 
   canvas.saveGState()
   canvas.addPath(foot)
   canvas.clip()
-  canvas.setFillColor(CGColor(red: 224.0 / 255.0, green: 191.0 / 255.0, blue: 149.0 / 255.0, alpha: 1.0))
+  canvas.setFillColor(CGColor(red: 224.0 / 255.0, green: 191.0 / 255.0, blue: 152.0 / 255.0, alpha: 1.0))
   canvas.fill(CGRect(x: 0, y: 0, width: W, height: H))
-  // Match Achilles groove shading at topY smoothly so no horizontal break line exists
-  wash(legX - side * 0.016, topY + 0.010, 0.012, 0.025, 0.68, 0.52, 0.36, 0.34)
-  wash(legX + side * 0.016, topY + 0.010, 0.012, 0.025, 0.68, 0.52, 0.36, 0.34)
-  wash(legX, botY - 0.004, heelW * 0.85, 0.010, 0.66, 0.49, 0.34, 0.48)
-  wash(legX, topY + 0.026, 0.010, 0.028, 0.92, 0.82, 0.66, 0.52)
-  wash(legX - side * 0.018, topY + 0.042, 0.007, 0.007, 0.92, 0.81, 0.64, 0.55)
-  wash(legX + side * 0.018, topY + 0.044, 0.007, 0.007, 0.92, 0.81, 0.64, 0.55)
+  // Erase flat interior horizontal edge by painting full vertical Achilles contour highlights & side shadows
+  wash(legX, topY + 0.026, 0.012, 0.038, 0.92, 0.82, 0.66, 0.56)
+  wash(legX - 0.018, topY + 0.020, 0.014, 0.035, 0.68, 0.52, 0.36, 0.34)
+  wash(legX + 0.018, topY + 0.020, 0.014, 0.035, 0.68, 0.52, 0.36, 0.34)
+  wash(legX, botY - 0.005, heelW * 0.88, 0.012, 0.66, 0.49, 0.34, 0.48)
   canvas.restoreGState()
 
+  // Stroke outer silhouette down to rounded heel without stroking across topY!
   canvas.beginPath()
-  canvas.move(to: pt(nLeft, topY - 0.004))
-  canvas.addCurve(to: pt(legX - heelW, botY - 0.012), control1: pt(nLeft + 0.002, topY + 0.028), control2: pt(legX - heelW * 1.02, botY - 0.026))
-  canvas.addCurve(to: pt(legX, botY), control1: pt(legX - heelW * 0.82, botY), control2: pt(legX - heelW * 0.38, botY))
-  canvas.addCurve(to: pt(legX + heelW, botY - 0.012), control1: pt(legX + heelW * 0.38, botY), control2: pt(legX + heelW * 0.82, botY))
-  canvas.addCurve(to: pt(nRight, topY - 0.004), control1: pt(legX + heelW * 1.02, botY - 0.026), control2: pt(nRight - 0.002, topY + 0.028))
-  canvas.setStrokeColor(CGColor(red: 0.22, green: 0.14, blue: 0.09, alpha: 0.90))
-  canvas.setLineWidth(2.4)
-  canvas.setLineCap(.round)
+  canvas.move(to: pt(nLeft, topY + 0.012))
+  canvas.addCurve(to: pt(legX - heelW, botY - 0.012), control1: pt(nLeft - 0.002, topY + 0.038), control2: pt(legX - heelW * 1.02, botY - 0.028))
+  canvas.addCurve(to: pt(legX, botY), control1: pt(legX - heelW * 0.80, botY), control2: pt(legX - heelW * 0.35, botY))
+  canvas.addCurve(to: pt(legX + heelW, botY - 0.012), control1: pt(legX + heelW * 0.35, botY), control2: pt(legX + heelW * 0.80, botY))
+  canvas.addCurve(to: pt(nRight, topY + 0.012), control1: pt(legX + heelW * 1.02, botY - 0.028), control2: pt(nRight + 0.002, topY + 0.038))
+  canvas.setStrokeColor(CGColor(red: 0.19, green: 0.13, blue: 0.09, alpha: 0.88))
+  canvas.setLineWidth(1.6)
   canvas.strokePath()
 }
 
-let hiResImg = canvas.makeImage()!
-let outCtx = makeCtx(480, 852)
-outCtx.draw(hiResImg, in: CGRect(x: 0, y: 0, width: 480, height: 852))
-saveJPEG(outCtx.makeImage()!, to: outPath, quality: 0.93)
+saveJPEG(canvas.makeImage()!, to: outPath)

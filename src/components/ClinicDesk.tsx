@@ -97,7 +97,7 @@ const FIRE_TARGET_RANGES: Record<FireType, [number, number]> = {
 type ExamTab = 'vong' | 'van' | 'van-hoi' | 'thiet';
 
 export const ClinicDesk: React.FC<ClinicDeskProps> = ({
-  unlockedChapter,
+  unlockedChapter: _unlockedChapter,
   completedCases,
   caseLedger,
   yDucPoints,
@@ -138,6 +138,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [slotPaoZhi, setSlotPaoZhi] = useState<SlotPaoZhi>({});
   const [animatingPanRole, setAnimatingPanRole] = useState<RoleSlot | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<RoleSlot>('quan');
+  const [chestFilter, setChestFilter] = useState<'all' | 'warm' | 'cool' | 'neutral'>('all');
   const [openDrawerId, setOpenDrawerId] = useState<string | null>(null);
   const [hoveredHerb, setHoveredHerb] = useState<{ herb: Herb; left: number; top: number } | null>(null);
   const [showFoldOverlay, setShowFoldOverlay] = useState(false);
@@ -242,10 +243,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     [activeChapter]
   );
 
-  const availableHerbs = useMemo(
-    () => HERBS.filter((h) => h.chapter <= Math.max(unlockedChapter, selectedCase.chapter)),
-    [unlockedChapter, selectedCase.chapter]
-  );
+  const availableHerbs = useMemo(() => {
+    if (chestFilter === 'warm') return HERBS.filter((h) => h.nature === 'Ôn' || h.nature === 'Nhiệt');
+    if (chestFilter === 'cool') return HERBS.filter((h) => h.nature === 'Hàn' || h.nature === 'Lương' || h.nature === 'Đại hàn');
+    if (chestFilter === 'neutral') return HERBS.filter((h) => h.nature === 'Bình');
+    return HERBS;
+  }, [chestFilter]);
 
   const preview = useMemo(
     () => computeTreatmentPreview(selectedCase, slots, selectedAcupoints, slotPaoZhi),
@@ -1046,16 +1049,33 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', fontSize: '0.82rem', color: 'var(--ink-muted)', margin: '6px 0' }}>
                   <span>
-                    Tủ Thuốc Bách Tử (Bốc vào <strong>{ROLE_TITLES[selectedSlot]}</strong>)
+                    Tủ Thuốc Bách Tử ({HERBS.length} vị · Bốc vào <strong>{ROLE_TITLES[selectedSlot]}</strong>)
                   </span>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    style={{ padding: '2px 8px', fontSize: '0.74rem' }}
-                    onClick={() => switchRoom(3)}
-                  >
-                    Giỏ lá tươi ({freshHerbIds.length}) · Ra Hậu Viên →
-                  </button>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', alignItems: 'center' }}>
+                    {([
+                      { id: 'all', label: `Tất cả (${HERBS.length})` },
+                      { id: 'warm', label: 'Ôn Ấm' },
+                      { id: 'cool', label: 'Hàn Lương' },
+                      { id: 'neutral', label: 'Bình Hòa' }
+                    ] as const).map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        className={`acupoint-chip ${chestFilter === tab.id ? 'active' : ''}`}
+                        onClick={() => setChestFilter(tab.id)}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      style={{ padding: '2px 8px', fontSize: '0.74rem' }}
+                      onClick={() => switchRoom(3)}
+                    >
+                      Giỏ lá tươi ({freshHerbIds.length}) · Ra Hậu Viên →
+                    </button>
+                  </div>
                 </div>
 
                 <div
@@ -1407,7 +1427,6 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   key={ch}
                   type="button"
                   className={`chapter-btn ${activeChapter === ch ? 'active' : ''}`}
-                  disabled={ch > unlockedChapter}
                   onClick={() => handleSelectChapter(ch)}
                 >
                   Chương {ch}: {ch === 1 ? 'Biểu Lý Hàn Nhiệt' : ch === 2 ? 'Tạng Phủ Ngũ Hành' : 'Kinh Lạc'}
