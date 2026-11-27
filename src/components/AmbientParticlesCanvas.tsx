@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useOnScreen } from './useOnScreen';
 
 interface AmbientParticlesCanvasProps {
   mode: 'rain' | 'sunbeams' | 'embers' | 'garden';
@@ -16,8 +17,10 @@ interface Particle {
 
 export const AmbientParticlesCanvas: React.FC<AmbientParticlesCanvasProps> = ({ mode }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const onScreen = useOnScreen(canvasRef);
 
   useEffect(() => {
+    if (!onScreen) return; // room is off the track's visible window
     const canvas = canvasRef.current;
     if (!canvas || typeof window === 'undefined') return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
@@ -88,7 +91,7 @@ export const AmbientParticlesCanvas: React.FC<AmbientParticlesCanvasProps> = ({ 
 
     rafId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafId);
-  }, [mode]);
+  }, [mode, onScreen]);
 
   return (
     <canvas

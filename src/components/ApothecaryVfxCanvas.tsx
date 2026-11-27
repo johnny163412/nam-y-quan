@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useOnScreen } from './useOnScreen';
 
 export type ApothecaryVfxMode = 'hearth' | 'mortar' | 'wok-gold' | 'wok-honey';
 
@@ -36,12 +37,14 @@ export const ApothecaryVfxCanvas: React.FC<ApothecaryVfxCanvasProps> = ({
   className = 'apothecary-vfx-canvas'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const onScreen = useOnScreen(canvasRef);
   const intensityRef = useRef(intensity);
   const burstRef = useRef(burstActive);
   intensityRef.current = intensity;
   burstRef.current = burstActive;
 
   useEffect(() => {
+    if (!onScreen) return; // room is off the track's visible window
     const canvas = canvasRef.current;
     if (!canvas || typeof window === 'undefined') return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
@@ -234,7 +237,7 @@ export const ApothecaryVfxCanvas: React.FC<ApothecaryVfxCanvasProps> = ({
 
     rafId = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(rafId);
-  }, [mode]);
+  }, [mode, onScreen]);
 
   return (
     <canvas

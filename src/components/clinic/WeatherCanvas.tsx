@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useOnScreen } from '../useOnScreen';
 
 export type WeatherKind = 'drizzle' | 'cold-rain' | 'haze' | 'leaves';
 
@@ -28,8 +29,10 @@ const COUNTS: Record<WeatherKind, number> = { drizzle: 90, 'cold-rain': 150, haz
 
 export const WeatherCanvas: React.FC<{ kind: WeatherKind }> = ({ kind }) => {
   const ref = useRef<HTMLCanvasElement | null>(null);
+  const onScreen = useOnScreen(ref);
 
   useEffect(() => {
+    if (!onScreen) return; // room is off the track's visible window
     const canvas = ref.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
@@ -115,7 +118,7 @@ export const WeatherCanvas: React.FC<{ kind: WeatherKind }> = ({ kind }) => {
     };
     draw();
     return () => cancelAnimationFrame(raf);
-  }, [kind]);
+  }, [kind, onScreen]);
 
   return <canvas ref={ref} width={W} height={H} className={`room-weather is-${kind}`} aria-hidden="true" />;
 };

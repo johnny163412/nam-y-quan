@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useOnScreen } from '../useOnScreen';
 import { PatientCase } from '../../types/tcm';
 import { AntiqueIcon, AntiqueIconName } from './AntiqueIcons';
 
@@ -65,8 +66,10 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
       : 'aura-calm';
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const onScreen = useOnScreen(canvasRef);
 
   useEffect(() => {
+    if (!onScreen) return; // room is off the track's visible window
     const canvas = canvasRef.current;
     if (!canvas || typeof window === 'undefined') return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
@@ -190,7 +193,7 @@ export const VillagerPortrait: React.FC<VillagerPortraitProps> = ({
 
     rafId = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(rafId);
-  }, [coldHeat, mood, patientCase.id]);
+  }, [coldHeat, mood, patientCase.id, onScreen]);
 
   const toolBadge = activeExamTool ? EXAM_TOOL_META[activeExamTool] : null;
 
