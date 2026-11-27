@@ -1,12 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { AchievementCabinetModal } from './components/AchievementCabinetModal';
 import { AchievementToast } from './components/AchievementToast';
 import { ClinicDesk } from './components/ClinicDesk';
 import { HeaderPlaque, MainTab } from './components/HeaderPlaque';
-import { KhaoThiYMieu } from './components/KhaoThiYMieu';
-import { TangThuCac } from './components/TangThuCac';
 import { TitleGateScreen } from './components/TitleGateScreen';
-import { TuDoanTheChat } from './components/TuDoanTheChat';
 import { InkBrushDefs } from './components/svg/InkBrushDefs';
 import {
   ACHIEVEMENTS,
@@ -19,6 +16,11 @@ import { computeRank } from './engine/examEngine';
 import { planFollowUp } from './engine/followUp';
 import { createDefaultProgress, loadProgress, saveProgress } from './engine/storage';
 import { CaseLedgerEntry, DecoctionChoice, EvaluationResult, PatientCase, PrescriptionSlots, UserProgress } from './types/tcm';
+
+// overlay modes load on first open to keep the first paint light
+const TangThuCac = lazy(() => import('./components/TangThuCac').then((m) => ({ default: m.TangThuCac })));
+const KhaoThiYMieu = lazy(() => import('./components/KhaoThiYMieu').then((m) => ({ default: m.KhaoThiYMieu })));
+const TuDoanTheChat = lazy(() => import('./components/TuDoanTheChat').then((m) => ({ default: m.TuDoanTheChat })));
 
 export const App: React.FC = () => {
   const [progress, setProgress] = useState<UserProgress>(() => loadProgress());
@@ -347,6 +349,7 @@ export const App: React.FC = () => {
               </div>
 
               <div className="spatial-overlay-body">
+                <Suspense fallback={<p className="spatial-overlay-loading">Đang mở quyển…</p>}>
                 {activeTab === 'codex' && (
                   <TangThuCac
                     herbNotes={progress.herbNotes}
@@ -381,6 +384,7 @@ export const App: React.FC = () => {
                     }}
                   />
                 )}
+                </Suspense>
               </div>
             </div>
           </div>

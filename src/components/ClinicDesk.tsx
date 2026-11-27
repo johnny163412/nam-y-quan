@@ -43,7 +43,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
     openLetter,
     setOpenLetter,
     slotPaoZhi,
-    roomTransitioning,
+    roomPan,
     callouts,
     showFoldOverlay,
     selectedAcupoints,
@@ -79,28 +79,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = (props) => {
   } = ctx;
   return (
     <div
-      className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive || deskShake ? 'stamp-shake' : ''}`}
-      style={healthColorVars}
+      className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive || deskShake ? 'stamp-shake' : ''} ${roomPan ? 'room-panning' : ''}`}
+      style={{ ...healthColorVars, '--pan': roomPan } as React.CSSProperties}
     >
       <div className="ambient-lantern-aura" aria-hidden="true" />
       <FloatingAtmosphereCanvas activeRoom={activeRoom} hasIncenseBurner={yDucPoints >= 20} />
       <FloatingJuiceLayer callouts={callouts} />
-      {roomTransitioning && (
-        <div className="room-transition-veil brush-sweep" aria-hidden="true">
-          <svg viewBox="0 0 400 100" preserveAspectRatio="none">
-            <defs>
-              <filter id="brushSweepEdge">
-                <feTurbulence type="fractalNoise" baseFrequency="0.035 0.6" numOctaves="2" seed="7" />
-                <feDisplacementMap in="SourceGraphic" scale="16" />
-              </filter>
-            </defs>
-            <path
-              d="M0,28 C70,16 150,40 230,24 S350,18 400,30 L400,74 C330,86 250,62 170,78 S60,88 0,72 Z"
-              filter="url(#brushSweepEdge)"
-            />
-          </svg>
-        </div>
-      )}
 
       {/* Floating Case Action Strip + Compact Onboarding (Overlays top-left cleanly without pushing layout) */}
       <div className={`spatial-floating-subbar ${mentorDismissed ? '' : 'has-guide'}`}>

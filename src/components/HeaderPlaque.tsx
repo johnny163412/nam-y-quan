@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getSeasonalSolarTerm } from '../data/cases';
 import { getTyNgoWatch } from '../engine/tcmEngine';
 import { exportSaveJson, importSaveJson } from '../engine/storage';
@@ -141,8 +142,9 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
         </div>
       </div>
 
-      {showSettingsModal && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Cài đặt âm thanh và hồ sơ hành y">
+      {/* portalled: the HUD's backdrop-filter would otherwise clip this fixed modal to the 48px bar */}
+      {showSettingsModal && createPortal(
+        <div className="modal-backdrop settings-modal-backdrop" role="dialog" aria-modal="true" aria-label="Cài đặt âm thanh và hồ sơ hành y">
           <div className="woodblock-sheet modal-scroll" style={{ color: 'var(--ink-primary)' }}>
             <div className="section-heading">
               <span>Cài đặt Âm thanh &amp; Hồ sơ Hành y</span>
@@ -266,7 +268,8 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
               Nhạc nền: “Ripples” &amp; “Eastern Thought” — Kevin MacLeod (incompetech.com), CC BY 4.0.
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

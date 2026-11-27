@@ -82,3 +82,17 @@ test('clinic dialogs sit above the fixed guide bar, tray and dock', async ({ pag
   await page.getByRole('button', { name: 'Đóng lại' }).click({ timeout: 3000 });
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
+
+test('settings opens fully on screen and its volume sliders work', async ({ page }) => {
+  await enterClinic(page);
+  await page.getByRole('button', { name: 'Cài đặt âm thanh và hồ sơ hành y' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Cài đặt âm thanh và hồ sơ hành y' });
+  const box = await dialog.locator('.woodblock-sheet').boundingBox();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  const slider = dialog.locator('input[type="range"]').first();
+  await slider.click(); // a real click: fails if the slider sits off screen or under the HUD
+  await slider.fill('20');
+  await expect(dialog.getByText('Âm lượng Nhạc & Âm cảnh (20%)')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Đóng lại' }).click();
+  await expect(dialog).toHaveCount(0);
+});

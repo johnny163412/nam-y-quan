@@ -4441,22 +4441,6 @@ button {
   50% { opacity: 1; }
 }
 
-/* 4. Room Transition Ink-Wash Veil */
-.room-transition-veil {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 65;
-  background: radial-gradient(circle at 50% 50%, rgba(36, 23, 14, 0.16), rgba(18, 10, 6, 0.42));
-  animation: room-ink-veil 0.38s ease-out forwards;
-}
-
-@keyframes room-ink-veil {
-  0% { opacity: 0; }
-  35% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
 /* 5. Typewriter Dialogue & Floating Calligraphy Juice */
 .typewriter-span.is-typing {
   cursor: pointer;
@@ -6203,27 +6187,6 @@ button {
   padding-right: 54px;
 }
 
-/* Room change: a single ink brush stroke sweeps across instead of a flat fade */
-.room-transition-veil.brush-sweep {
-  background: none;
-  animation: none;
-  overflow: hidden;
-}
-.room-transition-veil.brush-sweep svg {
-  position: absolute;
-  top: 10%;
-  left: -20%;
-  width: 140%;
-  height: 80%;
-  fill: rgba(18, 10, 6, 0.9);
-  animation: brushSweepAcross 520ms cubic-bezier(0.55, 0.05, 0.35, 1) forwards;
-}
-@keyframes brushSweepAcross {
-  0% { transform: translateX(-110%) skewX(-8deg); }
-  45%, 55% { transform: translateX(0) skewX(0); }
-  100% { transform: translateX(110%) skewX(8deg); }
-}
-
 /* 12-watch Tý Ngọ lighting laid over every room backdrop (vars set on .clinic-stage) */
 .watch-light {
   position: absolute;
@@ -6336,14 +6299,28 @@ button {
   transition: transform 0.22s ease-out;
   will-change: transform;
 }
-.room-depth-layer > img,
-img.room-depth-layer {
+.room-depth-layer > img {
   display: block;
   width: 100%;
   height: 100%;
 }
 .room-depth-layer.is-deep { --dx: 4; --dy: 3; }
 .room-depth-layer.is-base { --dx: 10; --dy: 8; }
+/* weather over a windowless scene sits just behind the near props */
+.room-depth-layer.is-weather { --dx: 14; --dy: 9; pointer-events: none; }
+/* Hậu Viên: keep the rain off the covered porch on the left */
+.room-depth-layer.is-weather.room-hau-vien {
+  -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 44%);
+  mask-image: linear-gradient(90deg, transparent 30%, #000 44%);
+}
+.room-weather {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.room-weather.is-haze { mix-blend-mode: screen; }
 /* near drifts much more sideways but only a little vertically, so the desk edge never shows a double line */
 .room-depth-layer.is-near { --dx: 24; --dy: 10; }
 
@@ -6582,4 +6559,145 @@ img.room-depth-layer {
     opacity: 1;
   }
   .sac-phong-frame.is-sealed .seal-stamp-badge::after { display: none; }
+}
+
+.spatial-overlay-loading {
+  margin: 48px auto;
+  text-align: center;
+  font-family: var(--font-serif);
+  color: var(--ink-soft, #6b5440);
+}
+
+/* Room change: the camera pans along the track. The incoming room's layers arrive at their own speeds
+   (near fastest, deep slowest) and the view eases back a touch mid-move, like a dolly between rooms. */
+.room-panning .apothecary-room-viewport {
+  animation: roomDolly 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room-panning .is-active-room .room-depth-layer.is-near {
+  animation: roomPanNear 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.room-panning .is-active-room .room-depth-layer.is-deep {
+  animation: roomPanDeep 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes roomDolly {
+  45% { scale: 0.975; }
+}
+@keyframes roomPanNear {
+  from { translate: calc(var(--pan, 0) * 7%) 0; }
+}
+@keyframes roomPanDeep {
+  from { translate: calc(var(--pan, 0) * -4%) 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-panning .apothecary-room-viewport,
+  .room-panning .room-depth-layer {
+    animation: none;
+  }
+}
+
+/* Steam curling up off the tea and the decoction kettle: soft puffs that rise, widen, sway and fade */
+.room-smoke {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 3cqw;
+  height: 14cqw;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+.room-smoke.is-l { width: 6cqw; height: 22cqw; }
+.room-smoke i {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 238, 226, 0.8), rgba(246, 238, 226, 0) 70%);
+  filter: blur(0.2cqw);
+  opacity: 0;
+  animation: roomSmokeRise 5.2s linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+.room-smoke i:nth-child(2) { animation-delay: calc(var(--delay, 0s) - 1.3s); }
+.room-smoke i:nth-child(3) { animation-delay: calc(var(--delay, 0s) - 2.6s); }
+.room-smoke i:nth-child(4) { animation-delay: calc(var(--delay, 0s) - 3.9s); }
+@keyframes roomSmokeRise {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.4); }
+  15% { opacity: 0.95; }
+  50% { transform: translate(calc(-50% + 0.6cqw), -280%) scale(1.3); }
+  100% { opacity: 0; transform: translate(calc(-50% - 0.8cqw), -560%) scale(2.2); }
+}
+/* the lamp light catches the steam at night */
+.is-night .room-smoke i { background: radial-gradient(circle, rgba(255, 214, 160, 0.45), rgba(255, 214, 160, 0) 70%); }
+@media (prefers-reduced-motion: reduce) {
+  .room-smoke { display: none; }
+}
+
+/* Settings opens over the HUD bar it was launched from */
+.modal-backdrop.settings-modal-backdrop {
+  z-index: 160;
+}
+
+/* Living patient on the Tiền Đường scroll: breath lifts the shoulders from the waist, weight shifts slowly,
+   and the sickly complexion (pale-blue chill, red fever flush) fades as the prescription rebalances them (--health). */
+.is-stage-portrait .portrait-breathe {
+  transform-origin: 50% 100%;
+  animation: livingBreath 4.6s ease-in-out infinite, livingSway 11s ease-in-out infinite;
+}
+.is-stage-portrait.aura-chilled .portrait-breathe {
+  animation: livingBreath 3.2s ease-in-out infinite, livingShiverBurst 2.6s linear infinite;
+}
+.is-stage-portrait.aura-fever .portrait-breathe {
+  animation: livingBreath 2.9s ease-in-out infinite, livingSway 9s ease-in-out infinite;
+}
+.is-stage-portrait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc((1 - var(--health, 1)) * 0.55);
+  transition: opacity 1.6s ease, background 1.6s ease;
+}
+.is-stage-portrait.aura-chilled::after {
+  background: radial-gradient(ellipse at 50% 32%, rgba(150, 186, 214, 0.55), rgba(120, 150, 180, 0.25) 70%);
+  mix-blend-mode: color;
+}
+.is-stage-portrait.aura-fever::after {
+  background: radial-gradient(ellipse at 50% 30%, rgba(214, 70, 44, 0.6), transparent 62%);
+  mix-blend-mode: soft-light;
+  animation: feverFlush 3s ease-in-out infinite;
+}
+.is-stage-portrait.aura-recovered::after {
+  opacity: 0.5;
+  background: radial-gradient(ellipse at 50% 35%, rgba(255, 222, 160, 0.5), transparent 70%);
+  mix-blend-mode: soft-light;
+}
+@keyframes livingBreath {
+  0%, 100% { scale: 1 1; }
+  45% { scale: 1.006 1.018; }
+}
+@keyframes livingSway {
+  0%, 100% { rotate: 0deg; translate: 0 0; }
+  30% { rotate: -0.5deg; translate: -1px 0; }
+  70% { rotate: 0.45deg; translate: 1px 0; }
+}
+@keyframes livingShiverBurst {
+  0%, 62%, 100% { translate: 0 0; }
+  64% { translate: -1.4px 0; }
+  66% { translate: 1.4px 0.3px; }
+  68% { translate: -1.2px 0; }
+  70% { translate: 1px 0.2px; }
+  72% { translate: -0.6px 0; }
+  74% { translate: 0 0; }
+}
+@keyframes feverFlush {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-stage-portrait .portrait-breathe,
+  .is-stage-portrait::after {
+    animation: none;
+  }
 }

@@ -93,7 +93,8 @@ export function useClinicDesk(props: ClinicDeskProps) {
   const [animatingPanRole, setAnimatingPanRole] = useState<RoleSlot | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<RoleSlot>('quan');
   const [chestFilter, setChestFilter] = useState<'all' | 'warm' | 'cool' | 'neutral' | 'fresh'>('all');
-  const [roomTransitioning, setRoomTransitioning] = useState(false);
+  // camera pan direction while the room track slides: 1 = towards the next room, -1 = back
+  const [roomPan, setRoomPan] = useState<0 | 1 | -1>(0);
   const [callouts, setCallouts] = useState<FloatingCallout[]>([]);
   const calloutIdRef = useRef(0);
 
@@ -181,8 +182,8 @@ export function useClinicDesk(props: ClinicDeskProps) {
         if (cur !== nextRoom) {
           apothecaryAudio.playRoomSlide();
           apothecaryAudio.setActiveRoom(nextRoom);
-          setRoomTransitioning(true);
-          window.setTimeout(() => setRoomTransitioning(false), 540);
+          setRoomPan(nextRoom > cur ? 1 : -1);
+          window.setTimeout(() => setRoomPan(0), 560);
         }
         return nextRoom;
       });
@@ -258,6 +259,7 @@ export function useClinicDesk(props: ClinicDeskProps) {
   const healthColorVars = {
     '--health-sat': (outcome?.passed ? 1.15 : 0.3 + 0.75 * health).toFixed(2),
     '--room-sat': (0.7 + 0.3 * health).toFixed(2),
+    '--health': health.toFixed(2),
     '--watch-tint': watchLight.tint,
     '--watch-strength': watchLight.strength,
     '--sun-angle': watchLight.angle,
@@ -701,8 +703,7 @@ export function useClinicDesk(props: ClinicDeskProps) {
     setSelectedSlot,
     chestFilter,
     setChestFilter,
-    roomTransitioning,
-    setRoomTransitioning,
+    roomPan,
     callouts,
     setCallouts,
     openDrawerId,

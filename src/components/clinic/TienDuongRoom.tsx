@@ -12,6 +12,7 @@ import { VillagerPortrait } from '../svg/VillagerPortrait';
 import { BienChungLedger } from '../clinic/BienChungLedger';
 import type { ClinicCtx } from './useClinicDesk';
 import { RoomBackdrop } from './RoomBackdrop';
+import { SOLAR_TERM_WEATHER } from './WeatherCanvas';
 
 export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -54,10 +55,10 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 1: Tiền Đường Tiếp Bệnh"
     >
       <div className={`spatial-room-bg-layer ${curtainParting ? 'curtain-parting' : ''}`} aria-hidden="true">
-        <RoomBackdrop room="tien-duong" night={watchLight.lamp} healthTinted />
+        <RoomBackdrop room="tien-duong" night={watchLight.lamp} healthTinted weather={SOLAR_TERM_WEATHER[solarTerm.name]} />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
-        <AmbientParticlesCanvas key={solarWeather} mode={solarWeather} />
+        {solarWeather !== 'rain' && <AmbientParticlesCanvas key={solarWeather} mode={solarWeather} />}
         <div className="curtain-veil left" />
         <div className="curtain-veil right" />
       </div>

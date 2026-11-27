@@ -4,6 +4,7 @@ import { AmbientParticlesCanvas } from '../AmbientParticlesCanvas';
 import { HerbGardenRoom } from '../HerbGardenRoom';
 import type { ClinicCtx } from './useClinicDesk';
 import { RoomBackdrop } from './RoomBackdrop';
+import { SOLAR_TERM_WEATHER } from './WeatherCanvas';
 
 export const HauVienRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
@@ -14,6 +15,7 @@ export const HauVienRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
     activeRoom,
     pushCallout,
     watchLight,
+    solarTerm,
     switchRoom
   } = ctx;
   return (
@@ -24,7 +26,7 @@ export const HauVienRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
       aria-label="Buồng 4: Hậu Viên Vườn Thuốc Nam"
     >
       <div className="spatial-room-bg-layer" aria-hidden="true">
-        <RoomBackdrop room="hau-vien" night={watchLight.lamp} />
+        <RoomBackdrop room="hau-vien" night={watchLight.lamp} weather={SOLAR_TERM_WEATHER[solarTerm.name]} />
         <div className={`watch-light ${watchLight.lamp ? "is-lamplit" : ""}`} aria-hidden="true" />
         <div className="spatial-bg-vignette" />
         <AmbientParticlesCanvas mode="garden" />

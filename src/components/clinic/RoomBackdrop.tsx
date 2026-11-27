@@ -1,4 +1,5 @@
 import React from 'react';
+import { WeatherCanvas, WeatherKind } from './WeatherCanvas';
 
 type RoomKey = 'tien-duong' | 'duoc-cac' | 'noi-cac' | 'hau-vien';
 type LightKind = 'lamp' | 'lantern' | 'ember' | 'sun';
@@ -12,10 +13,21 @@ interface SceneLight {
   layer: 'base' | 'near';
 }
 
-const ROOMS: Record<RoomKey, { deep?: boolean; lights: SceneLight[] }> = {
+/** Steam rising off something painted on the near layer (tea, the decoction kettle). x/y in % of the painting. */
+interface SmokeSource {
+  x: number;
+  y: number;
+  size: 's' | 'l';
+}
+
+const ROOMS: Record<RoomKey, { deep?: boolean; lights: SceneLight[]; smoke?: SmokeSource[] }> = {
   'tien-duong': {
     deep: true,
-    lights: [{ kind: 'lamp', x: 17.8, y: 53.5, r: 30, layer: 'near' }]
+    lights: [{ kind: 'lamp', x: 17.8, y: 53.5, r: 30, layer: 'near' }],
+    smoke: [
+      { x: 84.8, y: 70, size: 's' }, // tea cup
+      { x: 96.4, y: 70.5, size: 's' } // teapot spout
+    ]
   },
   'duoc-cac': {
     lights: [
@@ -33,7 +45,8 @@ const ROOMS: Record<RoomKey, { deep?: boolean; lights: SceneLight[] }> = {
       { kind: 'lantern', x: 97.9, y: 14.6, r: 16, layer: 'base' },
       { kind: 'ember', x: 84.8, y: 70.8, r: 34, layer: 'near' },
       { kind: 'ember', x: 84.8, y: 86.4, r: 12, layer: 'near' }
-    ]
+    ],
+    smoke: [{ x: 82, y: 52, size: 'l' }] // decoction kettle lid
   },
   'hau-vien': {
     lights: [
@@ -58,6 +71,8 @@ interface RoomBackdropProps {
   night: boolean;
   /** Tiền Đường only: patient health tints the scene and an open drawer blurs it. */
   healthTinted?: boolean;
+  /** Solar-term weather: behind the windows when the room has a deep layer, else over the scene behind the near props. */
+  weather?: WeatherKind;
 }
 
 /**
@@ -65,7 +80,7 @@ interface RoomBackdropProps {
  * plus the lamps and embers in the painting glowing for real. Everything sits in one 16:9 stage so the
  * lights stay on top of the lamps they belong to at any viewport size.
  */
-export const RoomBackdrop: React.FC<RoomBackdropProps> = ({ room, night, healthTinted }) => {
+export const RoomBackdrop: React.FC<RoomBackdropProps> = ({ room, night, healthTinted, weather }) => {
   const cfg = ROOMS[room];
   const src = (layer: string) => `./art/scenes/depth/room-${room}-${layer}.webp`;
   const lights = (layer: SceneLight['layer']) =>
@@ -73,19 +88,38 @@ export const RoomBackdrop: React.FC<RoomBackdropProps> = ({ room, night, healthT
       l.layer === layer ? <span key={i} className={`room-light is-${l.kind}`} style={lightStyle(l, i)} /> : null
     );
   const mask = nightMask(cfg.lights);
+  const weatherLayer = weather && <WeatherCanvas key={weather} kind={weather} />;
 
   return (
     <div
       className={`room-depth-stage ${healthTinted ? 'health-tinted' : ''} ${night ? 'is-night' : ''}`}
       aria-hidden="true"
     >
-      {cfg.deep && <img src={src('deep')} alt="" className="room-depth-layer is-deep" decoding="async" />}
+      {cfg.deep && (
+        <div className="room-depth-layer is-deep">
+          <img src={src('deep')} alt="" decoding="async" />
+          {weatherLayer}
+        </div>
+      )}
       <div className="room-depth-layer is-base">
         <img src={src('base')} alt="" fetchPriority={room === 'tien-duong' ? 'high' : undefined} decoding="async" />
         {lights('base')}
       </div>
+      {!cfg.deep && weatherLayer && <div className={`room-depth-layer is-weather room-${room}`}>{weatherLayer}</div>}
       <div className="room-depth-layer is-near">
         <img src={src('near')} alt="" decoding="async" />
+        {cfg.smoke?.map((sm, i) => (
+          <span
+            key={i}
+            className={`room-smoke is-${sm.size}`}
+            style={{ '--x': `${sm.x}%`, '--y': `${sm.y}%`, '--delay': `${-i * 1.3}s` } as React.CSSProperties}
+          >
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+        ))}
         {lights('near')}
       </div>
       <div className="room-night-veil" style={{ maskImage: mask, WebkitMaskImage: mask }} />
