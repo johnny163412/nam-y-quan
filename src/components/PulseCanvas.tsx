@@ -10,10 +10,17 @@ interface PulseCanvasProps {
   hideName?: boolean;
 }
 
-const FINGER_ZONES: { id: PulseFingerZone; title: string; organ: string; x: number }[] = [
-  { id: 'thon', title: 'Thốn', organ: 'Tâm/Phế', x: 112 },
-  { id: 'quan', title: 'Quan', organ: 'Can/Tỳ', x: 162 },
-  { id: 'xich', title: 'Xích', organ: 'Thận', x: 212 }
+/** Coordinates calibrated directly onto the three healer fingertips resting on the wrist in `/art/tools/pulse-pillow.jpg` */
+const FINGER_ZONES: {
+  id: PulseFingerZone;
+  title: string;
+  organ: string;
+  leftPct: number;
+  topPct: number;
+}[] = [
+  { id: 'thon', title: 'Thốn', organ: 'Tâm/Phế', leftPct: 48.5, topPct: 58.0 },
+  { id: 'quan', title: 'Quan', organ: 'Can/Tỳ', leftPct: 44.2, topPct: 60.5 },
+  { id: 'xich', title: 'Xích', organ: 'Thận', leftPct: 39.8, topPct: 62.0 }
 ];
 
 export const PulseCanvas: React.FC<PulseCanvasProps> = ({
@@ -55,20 +62,42 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
     const start = performance.now();
     let lastBeatIdx = -1;
 
+    const sampleWave = (phase: number, strength: number, h: number) => {
+      let wave = 0;
+      if (phase < 0.18) {
+        const p = phase / 0.18;
+        wave = Math.sin(p * Math.PI);
+        if (pulse.waveStyle === 'tight' || pulse.waveStyle === 'wiry') {
+          wave = Math.pow(wave, 0.55);
+        } else if (pulse.waveStyle === 'slippery') {
+          wave = Math.sin(p * Math.PI) * 1.06;
+        }
+      } else if (phase < 0.34) {
+        const d = (phase - 0.18) / 0.16;
+        wave = Math.sin(d * Math.PI) * (pulse.waveStyle === 'thready' ? 0.18 : 0.34);
+      }
+      return h * 0.58 - wave * (h * 0.36 * strength);
+    };
+
     const render = (now: number) => {
       const elapsed = (now - start) / 1000;
       const w = canvas.width;
       const h = canvas.height;
-      const midY = h * 0.56;
+      const midY = h * 0.58;
 
       ctx.clearRect(0, 0, w, h);
 
-      ctx.fillStyle = '#DCC7A0';
+      // Aged Dó parchment gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+      bgGrad.addColorStop(0, '#E8D9B8');
+      bgGrad.addColorStop(1, '#D7C197');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
 
-      ctx.strokeStyle = 'rgba(56, 36, 23, 0.16)';
+      // Delicate sepia vertical ink guide lines & horizon line
+      ctx.strokeStyle = 'rgba(68, 42, 22, 0.16)';
       ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 28) {
+      for (let x = 0; x < w; x += 32) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, h);
@@ -81,7 +110,7 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
 
       const activeIdx = activeFinger === 'thon' ? 0 : activeFinger === 'quan' ? 1 : 2;
       if (!hideName) {
-        ctx.fillStyle = 'rgba(166, 38, 32, 0.09)';
+        ctx.fillStyle = 'rgba(166, 38, 32, 0.08)';
         ctx.fillRect((w / 3) * activeIdx, 0, w / 3, h);
       }
 
@@ -92,7 +121,7 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
         ctx.fillStyle = !hideName && idx === activeIdx ? '#8E231D' : '#5A4B3C';
         ctx.fillText(label, zx, 16);
         if (idx > 0) {
-          ctx.strokeStyle = 'rgba(156, 107, 36, 0.35)';
+          ctx.strokeStyle = 'rgba(140, 92, 32, 0.34)';
           ctx.setLineDash([4, 3]);
           ctx.beginPath();
           ctx.moveTo((w / 3) * idx, 6);
@@ -109,32 +138,39 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
         apothecaryAudio.playPulseBeat(activeStrength);
       }
 
-      ctx.strokeStyle = depth === 'phu' ? '#A62620' : '#23574C';
-      ctx.lineWidth = 1.4 + activeStrength * 1.8;
+      // Soft calligraphy ink echo shadow stroke
+      ctx.strokeStyle = depth === 'phu' ? 'rgba(166, 38, 32, 0.22)' : 'rgba(35, 87, 76, 0.22)';
+      ctx.lineWidth = 4.2 + activeStrength * 2;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-
-      for (let x = 0; x < w; x++) {
+      for (let x = 0; x < w; x += 2) {
         const phase = ((elapsed * freq - x / 135) % 1 + 1) % 1;
-        let wave = 0;
-        if (phase < 0.18) {
-          const p = phase / 0.18;
-          wave = Math.sin(p * Math.PI);
-          if (pulse.waveStyle === 'tight' || pulse.waveStyle === 'wiry') {
-            wave = Math.pow(wave, 0.55);
-          } else if (pulse.waveStyle === 'slippery') {
-            wave = Math.sin(p * Math.PI) * 1.05;
-          }
-        } else if (phase < 0.34) {
-          const d = (phase - 0.18) / 0.16;
-          wave = Math.sin(d * Math.PI) * (pulse.waveStyle === 'thready' ? 0.18 : 0.34);
-        }
-
-        const amp = h * 0.35 * activeStrength;
-        const y = midY - wave * amp;
+        const y = sampleWave(phase, activeStrength, h);
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
+
+      // Primary crisp tapered brush-ink stroke
+      ctx.strokeStyle = depth === 'phu' ? '#9E221B' : '#1E5247';
+      ctx.lineWidth = 1.6 + activeStrength * 1.4;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const phase = ((elapsed * freq - x / 135) % 1 + 1) % 1;
+        const y = sampleWave(phase, activeStrength, h);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Active pulse cinnabar bead surfing along the active zone
+      const beadX = !hideName ? w * ((activeIdx + 0.5) / 3) : w * 0.5;
+      const beadPhase = ((elapsed * freq - beadX / 135) % 1 + 1) % 1;
+      const beadY = sampleWave(beadPhase, activeStrength, h);
+      ctx.fillStyle = depth === 'phu' ? '#C73228' : '#266E5E';
+      ctx.beginPath();
+      ctx.arc(beadX, beadY, 3.8, 0, Math.PI * 2);
+      ctx.fill();
 
       rafId = requestAnimationFrame(render);
     };
@@ -144,7 +180,6 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
   }, [pulse, depth, activeFinger, activeStrength, audioPulseOn, hideName]);
 
   const activeZoneNote = pulse.zoneNotes?.[activeFinger];
-  const pressOffset = depth === 'tram' ? 8 : 2;
 
   return (
     <div>
@@ -153,65 +188,37 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
           <div className="pulse-wrist-backdrop">
             <img
               src="/art/tools/pulse-pillow.jpg"
-              alt=""
-              className="pulse-pillow-art"
-              aria-hidden="true"
+              alt="Thầy thuốc đặt ba ngón Thốn Quan Xích bắt mạch trên gối gấm bên ngọn đèn dầu"
+              className="pulse-pillow-art-pure"
             />
-            <div className="pulse-pillow-scrim" aria-hidden="true" />
-            <svg
-              viewBox="0 0 340 122"
-              className="pulse-wrist-svg"
-              role="group"
-              aria-label="Cổ tay trên gối gấm và ba ngón Thốn Quan Xích"
-            >
-              {/* Soft translucent wrist silhouette & Radial Artery Glow aligned over the painted silk cushion */}
-              <path d="M18 55 Q140 50 264 56 L288 77 Q140 85 18 82 Z" fill="rgba(232, 198, 164, 0.86)" stroke="#5A3E28" strokeWidth="1.6" />
-              <line x1="78" y1="64" x2="236" y2="65" stroke="#B63C34" strokeWidth="2.4" strokeDasharray="5 3" opacity="0.78" />
+            <div className="pulse-hotspots-layer" role="group" aria-label="Ba bộ Thốn Quan Xích trên cổ tay">
               {FINGER_ZONES.map((fz) => {
-              const isAct = activeFinger === fz.id;
-              return (
-                <g
-                  key={fz.id}
-                  onClick={() => switchFinger(fz.id)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {isAct && (
-                    <circle
-                      cx={fz.x}
-                      cy="64"
-                      r="12"
-                      className="wrist-pulse-ripple"
-                      style={{ animationDuration: `${Math.max(0.45, 60 / pulse.bpm)}s` }}
-                      fill="none"
-                      stroke="#A62620"
-                      strokeWidth="2"
-                    />
-                  )}
-                  {/* Healer's 3 fingers pressing down */}
-                  <g
-                    style={{
-                      transform: `translateY(${pressOffset + (isAct ? 4 : 0)}px)`,
-                      transition: 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)'
-                    }}
+                const isAct = activeFinger === fz.id;
+                return (
+                  <button
+                    key={fz.id}
+                    type="button"
+                    className={`pulse-finger-hotspot ${isAct ? 'is-active' : ''} depth-${depth} zone-${fz.id}`}
+                    style={{ left: `${fz.leftPct}%`, top: `${fz.topPct}%` }}
+                    onClick={() => switchFinger(fz.id)}
+                    aria-pressed={isAct}
+                    title={`Bộ ${fz.title} (${fz.organ})`}
                   >
-                    <path
-                      d={`M ${fz.x - 11} 4 L ${fz.x + 11} 4 L ${fz.x + 9} 48 Q ${fz.x} 58 ${fz.x - 9} 48 Z`}
-                      fill={isAct ? '#ECCBA8' : '#D9B694'}
-                      stroke={isAct ? '#8E231D' : '#5A3E28'}
-                      strokeWidth={isAct ? '2' : '1.4'}
-                    />
-                    <text x={fz.x} y="24" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#2A1B10">
-                      {fz.title}
-                    </text>
-                    <text x={fz.x} y="37" textAnchor="middle" fontSize="7.4" fill="#6E4725">
-                      {fz.organ}
-                    </text>
-                  </g>
-                </g>
-              );
-            })}
-          </svg>
+                    {isAct && (
+                      <span
+                        className="hotspot-ripple-ring"
+                        style={{ animationDuration: `${Math.max(0.45, 60 / pulse.bpm)}s` }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="hotspot-dot" />
+                    <span className="hotspot-pill">{fz.title}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
           <div className="wrist-controls-strip">
             <div className="brass-pair-toggle">
               <button

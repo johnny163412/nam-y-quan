@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HERB_MAP } from '../data/herbs';
 import { PaoZhiMethod, PrescriptionSlots, RoleSlot, SlotPaoZhi } from '../types/tcm';
+import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
 
 interface PaoZhiRigProps {
   selectedSlot: RoleSlot;
@@ -37,7 +38,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
 
   useEffect(() => {
     if (!cutscene) return;
-    const t = window.setTimeout(() => setCutscene(null), 1350);
+    const t = window.setTimeout(() => setCutscene(null), 1500);
     return () => window.clearTimeout(t);
   }, [cutscene]);
 
@@ -134,7 +135,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
         </button>
       </div>
 
-      {/* Close-up Live Animated Painterly PaoZhi Cutscene Stage rendered in Portal */}
+      {/* Close-up Live Painterly PaoZhi Cutscene Stage powered by 60fps Volumetric VFX Canvas */}
       {cutscene &&
         typeof document !== 'undefined' &&
         createPortal(
@@ -155,43 +156,22 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
                   alt=""
                   className="closeup-art-img"
                 />
-                <div className="closeup-art-vignette" aria-hidden="true" />
-
-                {cutscene.method === 'gia-dap' ? (
-                  <svg viewBox="0 0 320 210" className="closeup-fx-svg" aria-hidden="true">
-                    <g className="closeup-burst">
-                      <circle cx="132" cy="96" r="4" fill="#9ED69E" />
-                      <circle cx="188" cy="88" r="4.5" fill="#EAC16C" />
-                      <circle cx="154" cy="72" r="3.4" fill="#C2E6B8" />
-                      <circle cx="176" cy="76" r="3.8" fill="#F2CB78" />
-                    </g>
-                    <g className="closeup-pestle">
-                      <rect x="150" y="16" width="20" height="86" rx="9" fill="#CFA052" stroke="#2D190A" strokeWidth="2.2" />
-                      <ellipse cx="160" cy="96" rx="15" ry="9" fill="#B5822E" stroke="#2D190A" strokeWidth="1.8" />
-                    </g>
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 320 210" className="closeup-fx-svg" aria-hidden="true">
-                    {cutscene.method === 'chich-mat' && (
-                      <g className="honey-pour-group">
-                        <path d="M214 22 Q196 58 176 118" stroke="#F0A52B" strokeWidth="8" strokeLinecap="round" fill="none" />
-                        <path d="M214 22 Q196 58 176 118" stroke="#FFE599" strokeWidth="3" strokeLinecap="round" fill="none" />
-                      </g>
-                    )}
-                    <g className={`closeup-toss-herbs ${cutscene.method === 'chich-mat' ? 'to-honey' : 'to-gold'}`}>
-                      <ellipse cx="122" cy="118" rx="14" ry="6" transform="rotate(-14 122 118)" />
-                      <ellipse cx="160" cy="110" rx="16" ry="6.5" transform="rotate(10 160 110)" />
-                      <ellipse cx="196" cy="120" rx="13" ry="5.5" transform="rotate(-8 196 120)" />
-                    </g>
-                    <g className="closeup-spatula">
-                      <path d="M88 30 L146 112 L160 104 L100 22 Z" fill="#B57D42" stroke="#2D190A" strokeWidth="2" />
-                    </g>
-                    <g className="closeup-smoke" stroke="rgba(255,244,224,0.82)" strokeWidth="2.8" fill="none" strokeLinecap="round">
-                      <path d="M126 84 Q112 58 128 36" />
-                      <path d="M168 78 Q184 52 164 28" />
-                    </g>
-                  </svg>
+                {cutscene.method === 'chich-mat' && (
+                  <div className="honey-amber-glaze-wash" aria-hidden="true" />
                 )}
+                <div className="closeup-art-vignette" aria-hidden="true" />
+                <ApothecaryVfxCanvas
+                  mode={
+                    cutscene.method === 'gia-dap'
+                      ? 'mortar'
+                      : cutscene.method === 'chich-mat'
+                      ? 'wok-honey'
+                      : 'wok-gold'
+                  }
+                  intensity={0.95}
+                  burstActive
+                  className="closeup-vfx-canvas"
+                />
               </div>
 
               <div className="closeup-caption">

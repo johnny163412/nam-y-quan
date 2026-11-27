@@ -4593,3 +4593,295 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==================== ZERO-VECTOR MASTERPIECE & 60FPS PHYSICS VFX ==================== */
+
+.apothecary-room-viewport {
+  --px: 0;
+  --py: 0;
+}
+
+.room-bg-img {
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate3d(calc(var(--px, 0) * -9px), calc(var(--py, 0) * -5px), 0) scale(1.04);
+  will-change: transform;
+}
+
+.ambient-particles-canvas {
+  transition: transform 320ms ease-out;
+  transform: translate3d(calc(var(--px, 0) * 6px), calc(var(--py, 0) * 4px), 0);
+}
+
+.stage-patient-centerpiece {
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate3d(calc(var(--px, 0) * 10px), calc(var(--py, 0) * 5px), 0);
+}
+
+/* Transparent Hand-Painted Healer Hand + Cascading Botanical Petals */
+.healer-hand-painted-img {
+  width: 168px;
+  height: 168px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 14px rgba(24, 14, 6, 0.42));
+}
+
+.falling-botanical-fleck {
+  position: absolute;
+  border-radius: 50% 25%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Unobstructed Painted Pulse Pillow & Subtle Luminous Fingertip Hotspots */
+.pulse-wrist-backdrop {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #5e3d21;
+  margin-bottom: 8px;
+  aspect-ratio: 16 / 9;
+  background: #24160d;
+}
+
+.pulse-pillow-art-pure {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pulse-hotspots-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.pulse-finger-hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.hotspot-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe7a3 0%, #c83e2f 75%);
+  border: 1.5px solid #fff4dc;
+  box-shadow: 0 0 8px rgba(255, 194, 96, 0.65);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.pulse-finger-hotspot.is-active .hotspot-dot {
+  transform: scale(1.24);
+  background: radial-gradient(circle, #fff2be 0%, #e04432 72%);
+  box-shadow: 0 0 14px rgba(255, 206, 98, 0.95);
+}
+
+.pulse-finger-hotspot.depth-tram .hotspot-dot {
+  background: radial-gradient(circle, #d6fff2 0%, #1c6b5a 78%);
+}
+
+.hotspot-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: var(--font-serif);
+  color: #fff6e0;
+  background: rgba(24, 14, 8, 0.84);
+  border: 1px solid rgba(231, 185, 106, 0.65);
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pulse-finger-hotspot.is-active .hotspot-pill {
+  background: #8e231d;
+  border-color: #ffd37d;
+}
+
+.hotspot-ripple-ring {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  margin-left: -15px;
+  margin-top: -15px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 212, 114, 0.9);
+  pointer-events: none;
+  animation: wristBeat 0.85s ease-out infinite;
+}
+
+/* 60fps Volumetric VFX Canvases & Honey/Mortar Dynamics */
+.closeup-vfx-canvas,
+.hearth-vfx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.closeup-art-stage.is-sao-vang .closeup-art-img,
+.closeup-art-stage.is-chich-mat .closeup-art-img {
+  animation: subtlePanZoom 1.5s ease-in-out forwards;
+}
+
+@keyframes subtlePanZoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06) translateY(-3px);
+  }
+  100% {
+    transform: scale(1.03);
+  }
+}
+
+.honey-amber-glaze-wash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 52% 58%, rgba(255, 184, 52, 0.34), rgba(196, 102, 16, 0.08) 65%, transparent);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: honeyBloom 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes honeyBloom {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+
+.hearth-breathe {
+  animation: hearthWarmPulse 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes hearthWarmPulse {
+  from {
+    filter: brightness(0.96) contrast(1.02);
+  }
+  to {
+    filter: brightness(1.06) contrast(1.05);
+  }
+}
+
+.fan-gust-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 20%, rgba(255, 224, 152, 0.24) 50%, transparent 78%);
+  pointer-events: none;
+  animation: fanGustFly 360ms ease-out forwards;
+}
+
+@keyframes fanGustFly {
+  from {
+    transform: translateX(35%);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateX(-35%);
+    opacity: 0;
+  }
+}
+
+/* Layered Bronze Tongue Mirror + Watercolor Tongue Canvas */
+.tongue-mirror-stage {
+  position: relative;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 12px rgba(28, 16, 8, 0.34));
+}
+
+.tongue-watercolor-canvas {
+  position: absolute;
+  left: 7.1%;
+  top: 5.2%;
+  width: 85.7%;
+  height: 87.1%;
+  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.tongue-mirror-overlay-svg {
+  position: relative;
+  z-index: 2;
+  display: block;
+}
+
+/* Paper Fold Reveal transition into authentic painted Red Herb Packet */
+.fold-painted-reveal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  z-index: 4;
+  opacity: 0;
+  transform: scale(0.86);
+  animation: revealPaintedPacket 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.48s forwards;
+}
+
+@keyframes revealPaintedPacket {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Bouncy spring opening on pulled 3D cedar herb drawers */
+.drawer-3d-open-box {
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 260ms ease;
+}
+
+.pulse-finger-hotspot.zone-xich .hotspot-pill {
+  transform: translate(-10px, 2px);
+}
+
+.pulse-finger-hotspot.zone-quan .hotspot-pill {
+  transform: translateY(-34px);
+}
+
+.pulse-finger-hotspot.zone-thon .hotspot-pill {
+  transform: translate(10px, 2px);
+}
+
+@media (min-width: 1040px) {
+  .slim-header-inner {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .slim-header-inner .brand-group {
+    min-width: 0;
+  }
+  .slim-header-inner .brand-subtitle {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px;
+  }
+  .calligraphy-tabs {
+    flex-shrink: 0;
+    gap: 10px;
+  }
+}

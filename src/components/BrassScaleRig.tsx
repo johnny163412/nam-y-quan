@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CLASSICAL_FORMULAS } from '../data/formulas';
 import { HERB_MAP } from '../data/herbs';
 import { ELEMENT_CYCLE_ORDER, ELEMENT_SHORT } from '../engine/tcmEngine';
@@ -98,7 +98,48 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
   onApplyFormula
 }) => {
   const [showFormulaScroll, setShowFormulaScroll] = useState(false);
-  const beamTilt = hasTreatment ? Math.max(-7, Math.min(7, previewVector.coldHeat / 13)) : 0;
+  const targetBeamTilt = hasTreatment ? Math.max(-8.5, Math.min(8.5, previewVector.coldHeat / 12)) : 0;
+
+  // Real damped spring physics for the antique bronze dragon balance beam (60fps RAF)
+  const [springAngle, setSpringAngle] = useState(0);
+  const angleRef = useRef(0);
+  const velRef = useRef(0);
+  const targetRef = useRef(targetBeamTilt);
+  targetRef.current = targetBeamTilt;
+
+  const slotTorqueKick =
+    (slots.quan ? -2.2 : 0) +
+    (slots.than ? -1.0 : 0) +
+    (slots.ta ? 1.0 : 0) +
+    (slots.su ? 2.2 : 0);
+
+  useEffect(() => {
+    velRef.current += slotTorqueKick * 0.65;
+  }, [slots.quan, slots.than, slots.ta, slots.su, justScoopedRole, slotTorqueKick]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setSpringAngle(targetRef.current);
+      return;
+    }
+    let rafId = 0;
+    const step = () => {
+      const disp = targetRef.current - angleRef.current;
+      velRef.current = velRef.current * 0.86 + disp * 0.088;
+      angleRef.current += velRef.current;
+      if (Math.abs(disp) > 0.015 || Math.abs(velRef.current) > 0.015) {
+        setSpringAngle(angleRef.current);
+        rafId = requestAnimationFrame(step);
+      } else {
+        angleRef.current = targetRef.current;
+        velRef.current = 0;
+        setSpringAngle(targetRef.current);
+      }
+    };
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
+  }, [targetBeamTilt, slots.quan, slots.than, slots.ta, slots.su, justScoopedRole]);
 
   const initDist =
     Math.abs(initialVector.exteriorInterior) +
@@ -291,28 +332,74 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
         </div>
       </div>
 
-      {/* Dragon Engraved Balance Beam */}
+      {/* Dragon Engraved Antique Bronze Balance Beam with Real Spring Physics */}
       <div className="balance-beam-bar" aria-hidden="true">
-        <svg width="100%" height="44" viewBox="0 0 440 44" fill="none">
-          <path d="M220 2 V16" stroke={hasDragonScale ? '#F5CE72' : '#CFA052'} strokeWidth="2.8" />
-          <circle cx="220" cy="16" r="5.5" fill="#D59E49" stroke="#2F231A" strokeWidth="1.4" />
+        <svg width="100%" height="56" viewBox="0 0 460 56" fill="none">
+          <defs>
+            <linearGradient id="bronzeBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#85581E" />
+              <stop offset="25%" stopColor="#E6BC66" />
+              <stop offset="50%" stopColor="#9E6D28" />
+              <stop offset="75%" stopColor="#F0CA7A" />
+              <stop offset="100%" stopColor="#7C5018" />
+            </linearGradient>
+            <radialGradient id="fulcrumJewelGrad" cx="42%" cy="38%" r="60%">
+              <stop offset="0%" stopColor="#FFE9A8" />
+              <stop offset="65%" stopColor="#C8933C" />
+              <stop offset="100%" stopColor="#4A2E0D" />
+            </radialGradient>
+          </defs>
+
+          {/* Suspended upper cord & dragon crest finial */}
+          <path d="M230 2 V18" stroke={hasDragonScale ? '#FFE08E' : '#C99848'} strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M214 14 Q230 5 246 14" stroke="#B68335" strokeWidth="1.6" fill="none" />
+
           <g
             style={{
-              transformOrigin: '220px 16px',
-              transform: `rotate(${beamTilt}deg)`,
-              transition: 'transform 360ms cubic-bezier(0.22, 1, 0.36, 1)'
+              transformOrigin: '230px 19px',
+              transform: `rotate(${springAngle}deg)`
             }}
           >
-            <path d="M46 16 Q133 8 220 15 Q307 8 394 16" stroke={hasDragonScale ? '#E7B96A' : '#9C6B24'} strokeWidth="3.8" strokeLinecap="round" />
-            <circle cx="46" cy="16" r="3.4" fill="#2F231A" stroke="#D59E49" strokeWidth="1.1" />
-            <circle cx="162" cy="14" r="3" fill="#2F231A" stroke="#D59E49" strokeWidth="1" />
-            <circle cx="278" cy="14" r="3" fill="#2F231A" stroke="#D59E49" strokeWidth="1" />
-            <circle cx="394" cy="16" r="3.4" fill="#2F231A" stroke="#D59E49" strokeWidth="1.1" />
-            <path d="M46 18 L34 42 M46 18 L58 42" stroke="#C59344" strokeWidth="1.2" opacity="0.82" />
-            <path d="M162 16 L150 42 M162 16 L174 42" stroke="#C59344" strokeWidth="1.2" opacity="0.82" />
-            <path d="M278 16 L266 42 M278 16 L290 42" stroke="#C59344" strokeWidth="1.2" opacity="0.82" />
-            <path d="M394 18 L382 42 M394 18 L406 42" stroke="#C59344" strokeWidth="1.2" opacity="0.82" />
+            {/* Sculpted engraved bronze balance beam with tapered dragon finials */}
+            <path
+              d="M36 22 Q132 10 230 18 Q328 10 424 22 Q434 22 438 16 Q426 27 416 25 Q326 16 230 23 Q134 16 44 25 Q34 27 22 16 Q26 22 36 22 Z"
+              fill="url(#bronzeBeamGrad)"
+              stroke="#3A220B"
+              strokeWidth="1.2"
+            />
+            <circle cx="48" cy="23" r="3.6" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.3" />
+            <circle cx="168" cy="19" r="3.2" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.2" />
+            <circle cx="292" cy="19" r="3.2" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.2" />
+            <circle cx="412" cy="23" r="3.6" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.3" />
+
+            {/* Suspended chain strands with vertical gravity compensation */}
+            {[
+              { x: 48, y: 26 },
+              { x: 168, y: 22 },
+              { x: 292, y: 22 },
+              { x: 412, y: 26 }
+            ].map((hook, idx) => (
+              <g
+                key={idx}
+                style={{
+                  transformOrigin: `${hook.x}px ${hook.y}px`,
+                  transform: `rotate(${-springAngle * 0.72}deg)`
+                }}
+              >
+                <path
+                  d={`M${hook.x} ${hook.y} L${hook.x - 13} 54 M${hook.x} ${hook.y} L${hook.x + 13} 54`}
+                  stroke="#C99848"
+                  strokeWidth="1.35"
+                  strokeDasharray="2.5 1.5"
+                  opacity="0.88"
+                />
+              </g>
+            ))}
           </g>
+
+          {/* Central Brass Pivot Medallion */}
+          <circle cx="230" cy="19" r="6.5" fill="url(#fulcrumJewelGrad)" stroke="#2F1B0A" strokeWidth="1.4" />
+          <circle cx="230" cy="19" r="2.2" fill="#6F1B14" />
         </svg>
       </div>
 
@@ -345,6 +432,9 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
               } ${alignClass} ${isDropped ? 'dish-pendulum-drop' : ''} ${
                 isCrafting ? `paozhi-anim-${method}` : ''
               } dish-tint-${method}`}
+              style={{
+                transform: `translateY(${((meta.role === 'quan' ? -1.4 : meta.role === 'than' ? -0.6 : meta.role === 'ta' ? 0.6 : 1.4) * springAngle).toFixed(2)}px)`
+              }}
               onClick={() => onSelectSlot(meta.role)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {

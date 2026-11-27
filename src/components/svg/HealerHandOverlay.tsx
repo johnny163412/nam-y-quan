@@ -16,10 +16,19 @@ interface HealerHandOverlayProps {
   onComplete: (id: number) => void;
 }
 
+const PETAL_OFFSETS = [
+  { dx: -12, dy: 0, rot: -26, color: '#46744C', size: 6 },
+  { dx: 4, dy: 6, rot: 22, color: '#B87B32', size: 5.5 },
+  { dx: -4, dy: 12, rot: 40, color: '#5A8759', size: 6.5 },
+  { dx: 11, dy: 16, rot: -18, color: '#9E3A26', size: 5 },
+  { dx: -9, dy: 22, rot: 14, color: '#D49E48', size: 5.5 },
+  { dx: 6, dy: 28, rot: -35, color: '#4E7C52', size: 6 }
+];
+
 /**
- * Multi-joint articulated indigo-sleeved healer hand that reaches into an open wood drawer,
- * pinches a bundle of dried herbs, arcs in a 3D parabolic lift with desk shadow,
- * and releases falling botanical flakes onto the hanging brass scale dish.
+ * Hand-painted transparent ink-and-watercolor healer hand (`/art/tools/healer-hand.png`)
+ * arcing along a smooth 3D parabolic lift from open cedar drawer to suspended brass scale dish,
+ * shedding fine golden pollen dust and tumbling herb petals on release.
  */
 export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onComplete }) => {
   const [progress, setProgress] = useState(0);
@@ -33,7 +42,7 @@ export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onC
     const prefersReduced =
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const totalMs = prefersReduced ? 120 : 940;
+    const totalMs = prefersReduced ? 120 : 980;
     const start = performance.now();
     let rafId = 0;
 
@@ -53,129 +62,98 @@ export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onC
 
   if (!scoop) return null;
 
-  // Phases:
-  // 0.00 - 0.24: Reach into drawer & pinch shut
-  // 0.24 - 0.72: Parabolic 3D lift & carry across desk
-  // 0.72 - 1.00: Spread thumb/index fingers & scatter falling herbs into dish
-  const moveT = progress <= 0.22 ? 0 : progress >= 0.74 ? 1 : (progress - 0.22) / 0.52;
-  const easedMove = 1 - Math.pow(1 - moveT, 3);
+  const moveT = progress <= 0.18 ? 0 : progress >= 0.76 ? 1 : (progress - 0.18) / 0.58;
+  // Smooth ease-in-out quintic for graceful human wrist deceleration
+  const easedMove =
+    moveT < 0.5
+      ? 4 * moveT * moveT * moveT
+      : 1 - Math.pow(-2 * moveT + 2, 3) / 2;
 
   const curX = scoop.fromX + (scoop.toX - scoop.fromX) * easedMove;
   const baseLineY = scoop.fromY + (scoop.toY - scoop.fromY) * easedMove;
-  const arcLift = Math.sin(Math.PI * easedMove) * 64;
+  const arcLift = Math.sin(Math.PI * easedMove) * 74;
   const curY = baseLineY - arcLift;
 
-  const isGrabbing = progress < 0.24;
-  const isReleasing = progress >= 0.72;
-  const pinchCloseFactor = isGrabbing ? progress / 0.24 : isReleasing ? 1 - (progress - 0.72) / 0.28 : 1;
-  const wristTilt = -12 + easedMove * 18 - (isReleasing ? 10 : 0);
-  const releaseFall = isReleasing ? (progress - 0.72) / 0.28 : 0;
+  const isGrabbing = progress < 0.22;
+  const isReleasing = progress >= 0.74;
+  const releaseFall = isReleasing ? (progress - 0.74) / 0.26 : 0;
+  const wristTilt = -10 + easedMove * 15 - (isReleasing ? 12 : 0) + (isGrabbing ? -5 * (1 - progress / 0.22) : 0);
+  const fadeOutOpacity = progress > 0.86 ? Math.max(0, 1 - (progress - 0.86) / 0.14) : 1;
 
   return (
     <div
       className="healer-hand-layer"
       aria-hidden="true"
       style={{
-        transform: `translate3d(${curX}px, ${curY}px, 0)`
+        transform: `translate3d(${curX}px, ${curY}px, 0)`,
+        opacity: fadeOutOpacity
       }}
     >
-      {/* Dynamic desk shadow separating downward proportional to parabolic arc height */}
+      {/* Dynamic soft desk shadow separating downward proportional to parabolic arc height */}
       <div
         className="healer-hand-shadow"
         style={{
-          transform: `translate(-28px, ${18 + arcLift * 0.85}px) scale(${1 - arcLift * 0.0045})`,
-          opacity: Math.max(0.18, 0.48 - arcLift * 0.004)
+          transform: `translate(-24px, ${22 + arcLift * 0.88}px) scale(${1.05 - arcLift * 0.004})`,
+          opacity: Math.max(0.14, 0.46 - arcLift * 0.0038)
         }}
       />
 
       <div
         className="healer-hand-rig"
         style={{
-          transform: `translate(-46px, -74px) rotate(${wristTilt}deg)`
+          transform: `translate(-42px, -48px) rotate(${wristTilt}deg)`
         }}
       >
-        {/* Falling separated herb leaves during release */}
+        {/* Falling herb petals & flecks separated under gravity */}
         {isReleasing && (
-          <svg
-            className="herb-drop-stream"
-            width="64"
-            height="68"
-            viewBox="0 0 64 68"
-            fill="none"
+          <div
+            className="herb-petal-cascade"
             style={{
               position: 'absolute',
-              left: '14px',
-              top: `${32 + releaseFall * 28}px`,
-              opacity: Math.max(0, 1 - releaseFall * 0.75)
+              left: '36px',
+              top: `${38 + releaseFall * 34}px`,
+              opacity: Math.max(0, 1 - releaseFall * 0.8)
             }}
           >
-            <ellipse cx="22" cy="10" rx="5" ry="2.6" transform="rotate(-24 22 10)" fill="#3F704D" />
-            <ellipse cx="36" cy="18" rx="4.5" ry="2.3" transform="rotate(18 36 18)" fill="#B57B32" />
-            <ellipse cx="27" cy="28" rx="5.2" ry="2.5" transform="rotate(34 27 28)" fill="#528258" />
-            <circle cx="33" cy="36" r="2.4" fill="#9E3A26" />
-          </svg>
+            {PETAL_OFFSETS.map((pt, idx) => (
+              <span
+                key={idx}
+                className="falling-botanical-fleck"
+                style={{
+                  left: `${pt.dx * (1 + releaseFall * 0.6)}px`,
+                  top: `${pt.dy + releaseFall * (idx * 5)}px`,
+                  width: `${pt.size}px`,
+                  height: `${Math.round(pt.size * 0.55)}px`,
+                  background: pt.color,
+                  transform: `rotate(${pt.rot + releaseFall * 85}deg)`
+                }}
+              />
+            ))}
+          </div>
         )}
 
-        {/* Held Herb Bundle between thumb and index fingertip */}
+        {/* Pinched botanical specimen held cleanly at thumb & index fingertip (~30px, 34px) */}
         <div
           className="pinched-herb-bundle"
           style={{
             position: 'absolute',
-            left: '20px',
-            top: '28px',
+            left: '16px',
+            top: '20px',
             transform: isReleasing
-              ? `translateY(${releaseFall * 24}px) scale(${1 - releaseFall * 0.35})`
-              : `scale(${0.86 + pinchCloseFactor * 0.14})`,
-            opacity: isReleasing ? Math.max(0, 1 - releaseFall * 1.1) : 1
+              ? `translateY(${releaseFall * 28}px) scale(${1 - releaseFall * 0.4})`
+              : `scale(${isGrabbing ? 0.72 + (progress / 0.22) * 0.28 : 1})`,
+            opacity: isReleasing ? Math.max(0, 1 - releaseFall * 1.15) : 1
           }}
         >
-          <BotanicalSvg herbId={scoop.herb.id} motif={scoop.herb.motif} size={40} bare />
+          <BotanicalSvg herbId={scoop.herb.id} motif={scoop.herb.motif} size={42} bare />
         </div>
 
-        {/* Articulated East Asian Healer Sleeve, Wrist, Palm & Pinching Fingers */}
-        <svg width="176" height="164" viewBox="0 0 176 164" fill="none">
-          <defs>
-            <linearGradient id="sleeveIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#2E4A5E" />
-              <stop offset="65%" stopColor="#1E3140" />
-              <stop offset="100%" stopColor="#121F2A" />
-            </linearGradient>
-            <linearGradient id="skinWarm" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#E9C7A3" />
-              <stop offset="100%" stopColor="#CFA177" />
-            </linearGradient>
-          </defs>
-
-          {/* Back curled fingers (ring & pinky) */}
-          <path d="M58 58 Q46 72 52 84 Q58 88 64 78" fill="#C9996F" stroke="#5A3921" strokeWidth="1.5" />
-
-          {/* Forearm Sleeve (Áo vải chàm + viền lụa trắng ngà) */}
-          <path d="M174 128 L108 66 L78 96 L142 162 Z" fill="url(#sleeveIndigo)" stroke="#15232E" strokeWidth="2" />
-          <path d="M111 69 L81 99 L88 106 L118 76 Z" fill="#EFE4CE" stroke="#7E6444" strokeWidth="1.2" />
-
-          {/* Wrist & Palm */}
-          <path d="M98 76 Q82 54 62 46 Q46 42 40 54 Q46 72 68 88 L88 94 Z" fill="url(#skinWarm)" stroke="#5A3921" strokeWidth="1.6" />
-
-          {/* Articulated Index Finger closing down to pinch */}
-          <g
-            style={{
-              transformOrigin: '52px 48px',
-              transform: `rotate(${-14 + pinchCloseFactor * 18}deg)`
-            }}
-          >
-            <path d="M54 45 Q34 32 22 40 Q18 47 28 52 Q40 53 50 53" fill="url(#skinWarm)" stroke="#5A3921" strokeWidth="1.5" strokeLinecap="round" />
-          </g>
-
-          {/* Articulated Thumb rising up to meet Index Finger */}
-          <g
-            style={{
-              transformOrigin: '56px 74px',
-              transform: `rotate(${16 - pinchCloseFactor * 20}deg)`
-            }}
-          >
-            <path d="M58 74 Q42 74 30 62 Q26 54 34 51 Q44 52 54 62" fill="url(#skinWarm)" stroke="#5A3921" strokeWidth="1.5" strokeLinecap="round" />
-          </g>
-        </svg>
+        {/* Genuine Hand-Painted Watercolor Healer Hand (Transparent PNG) */}
+        <img
+          src="/art/tools/healer-hand.png"
+          alt=""
+          className="healer-hand-painted-img"
+        />
       </div>
     </div>
   );

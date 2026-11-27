@@ -664,6 +664,18 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           ref={viewportRef}
           className="apothecary-room-viewport"
           onScroll={lockViewportScrollZero}
+          onMouseMove={(e) => {
+            const el = e.currentTarget;
+            const r = el.getBoundingClientRect();
+            const px = ((e.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2;
+            const py = ((e.clientY - r.top) / Math.max(1, r.height) - 0.5) * 2;
+            el.style.setProperty('--px', px.toFixed(3));
+            el.style.setProperty('--py', py.toFixed(3));
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.setProperty('--px', '0');
+            e.currentTarget.style.setProperty('--py', '0');
+          }}
         >
           <div
             className="apothecary-room-track four-rooms-track"
