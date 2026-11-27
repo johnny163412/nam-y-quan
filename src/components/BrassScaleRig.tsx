@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { CLASSICAL_FORMULAS } from '../data/formulas';
 import { HERB_MAP } from '../data/herbs';
 import { ELEMENT_CYCLE_ORDER, ELEMENT_SHORT } from '../engine/tcmEngine';
 import {
+  ClassicalFormula,
   ContraindicationAlert,
   DiagnosisChoice,
   EightPrinciplesVector,
@@ -42,10 +44,12 @@ interface BrassScaleRigProps {
   alerts: ContraindicationAlert[];
   hasTreatment: boolean;
   hasDragonScale: boolean;
+  discoveredFormulas: string[];
   panRefs: React.MutableRefObject<Record<RoleSlot, HTMLDivElement | null>>;
   onChangeDiagnosis: (next: DiagnosisChoice) => void;
   onSelectSlot: (role: RoleSlot) => void;
   onAssignHerb: (role: RoleSlot, herbId: string | null) => void;
+  onApplyFormula?: (formula: ClassicalFormula) => void;
 }
 
 function toPct(v: number): number {
@@ -86,11 +90,14 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
   alerts,
   hasTreatment,
   hasDragonScale,
+  discoveredFormulas,
   panRefs,
   onChangeDiagnosis,
   onSelectSlot,
-  onAssignHerb
+  onAssignHerb,
+  onApplyFormula
 }) => {
+  const [showFormulaScroll, setShowFormulaScroll] = useState(false);
   const beamTilt = hasTreatment ? Math.max(-7, Math.min(7, previewVector.coldHeat / 13)) : 0;
 
   const initDist =
@@ -186,19 +193,76 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
             </button>
           </div>
 
-          <span
-            className="tag-badge"
-            style={{
-              background:
-                verdictTone === 'balanced'
-                  ? '#23574C'
-                  : verdictTone === 'critical' || verdictTone === 'warn'
-                  ? '#8E231D'
-                  : '#5A3E28'
-            }}
-          >
-            Quân bình: {hasTreatment ? `${balanceScore}%` : 'Chờ bốc'}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            {onApplyFormula && (
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className={`mini-toggle-chip ${showFormulaScroll ? 'is-open' : ''}`}
+                  onClick={() => setShowFormulaScroll((v) => !v)}
+                  title="Áp nhanh bài cổ phương đã lĩnh ngộ lên 4 đĩa cân"
+                >
+                  📜 Bốc Cổ Phương
+                </button>
+                {showFormulaScroll && (
+                  <div className="formula-quick-popover" role="dialog" aria-label="Sổ tay Bốc Cổ Phương 1 chạm">
+                    <div className="formula-popover-head">
+                      <strong>Chọn Cổ Phương Bốc Nhanh</strong>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ padding: '1px 6px', fontSize: '0.72rem' }}
+                        onClick={() => setShowFormulaScroll(false)}
+                      >
+                        Đóng
+                      </button>
+                    </div>
+                    <div className="formula-popover-list">
+                      {CLASSICAL_FORMULAS.map((f) => {
+                        const isKnown = discoveredFormulas.includes(f.id);
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            className={`formula-quick-item ${isKnown ? 'is-known' : ''}`}
+                            onClick={() => {
+                              onApplyFormula(f);
+                              setShowFormulaScroll(false);
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '6px', alignItems: 'center' }}>
+                              <strong>{f.name}</strong>
+                              <span style={{ fontSize: '0.68rem', color: isKnown ? '#E7B96A' : '#BFA882' }}>
+                                {isKnown ? '★ Đã lĩnh ngộ' : f.category}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: '0.72rem', color: '#E8D6B4' }}>
+                              {[...f.requiredHerbs, ...(f.optionalAnyHerbs?.slice(0, 1) ?? [])]
+                                .map((id) => HERB_MAP[id]?.name ?? id)
+                                .join(' + ')}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <span
+              className="tag-badge"
+              style={{
+                background:
+                  verdictTone === 'balanced'
+                    ? '#23574C'
+                    : verdictTone === 'critical' || verdictTone === 'warn'
+                    ? '#8E231D'
+                    : '#5A3E28'
+              }}
+            >
+              Quân bình: {hasTreatment ? `${balanceScore}%` : 'Chờ bốc'}
+            </span>
+          </div>
         </div>
 
         {/* 3 Real-Time Micro Axis Needles */}

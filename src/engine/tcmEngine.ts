@@ -4,6 +4,7 @@ import { HERB_MAP } from '../data/herbs';
 import {
   ContraindicationAlert,
   DecoctionChoice,
+  DecoctionTasteReading,
   DiagnosisChoice,
   DosingAdvice,
   EightPrinciplesVector,
@@ -611,4 +612,85 @@ export function getTyNgoWatch(hour: number): TyNgoWatch {
   if (h >= 23 || h < 1) return TY_NGO_WATCHES[0];
   const found = TY_NGO_WATCHES.find((w) => w.startHour !== 23 && h >= w.startHour && h < w.endHour);
   return found ?? TY_NGO_WATCHES[0];
+}
+
+export function describeDecoctionTaste(
+  patientCase: PatientCase,
+  slots: PrescriptionSlots,
+  fire: FireType,
+  selectedAcupoints: string[] = []
+): DecoctionTasteReading {
+  const herbs = (Object.values(slots).filter(Boolean) as string[])
+    .map((id) => HERB_MAP[id])
+    .filter(Boolean);
+
+  if (herbs.length === 0) {
+    return {
+      aroma: 'Siêu đang trống',
+      flavorNote: 'Chưa có dược liệu nào trong siêu sắc.',
+      thermalBalance: 'Chỉ có nước giếng trong.',
+      matchTone: 'empty',
+      recommendation: 'Hãy quay lại Dược Các (buồng II) bốc vị thuốc vào cân rồi mới sắc.'
+    };
+  }
+
+  const flavorSet = Array.from(new Set(herbs.flatMap((h) => h.flavors)));
+  const preview = computeTreatmentPreview(patientCase, slots, selectedAcupoints);
+  const netThermal = herbs.reduce((acc, h) => acc + h.vectorEffect.coldHeat, 0);
+  const hasCritical = preview.alerts.some((a) => a.severity === 'critical');
+
+  const fireAroma =
+    fire === 'vu-hoa'
+      ? 'Hương thơm bốc mạnh theo làn hơi sôi nhanh (Vũ Hỏa)'
+      : fire === 'van-hoa'
+      ? 'Mùi thuốc đậm đặc êm dịu bốc lên chậm (Văn Hỏa)'
+      : 'Hương dược dịu hòa quyện hơi ấm (Văn Vũ Hỏa)';
+
+  const flavorNote = `Nước thuốc có hậu ${flavorSet.slice(0, 3).join(', ')}${
+    herbs.some((h) => h.id === 'sinh-khuong' || h.id === 'que-chi' || h.id === 'bac-ha')
+      ? ', dậy tinh dầu cay thơm nhẹ đầu mũi'
+      : herbs.some((h) => h.id === 'tam-sen' || h.id === 'kim-ngan-hoa')
+      ? ', thanh mát đắng nhẹ đầu lưỡi'
+      : ', vị trầm ấm êm cổ họng'
+  }.`;
+
+  let thermalBalance = 'Tính khí bình hòa, không thiên lệch thái quá.';
+  let matchTone: DecoctionTasteReading['matchTone'] = 'balanced';
+  let recommendation = 'Nước thuốc quân bình, thuận chiều bệnh cơ — sẵn sàng Dập Ấn Chu Sa!';
+
+  if (netThermal >= 22) {
+    thermalBalance = 'Khí thiên Ôn Nhiệt — vào bụng thấy ấm nóng lan tỏa.';
+  } else if (netThermal <= -22) {
+    thermalBalance = 'Khí thiên Hàn Lương — uống vào thấy mát dịu giải nhiệt.';
+  }
+
+  if (hasCritical) {
+    matchTone = netThermal >= 0 ? 'warm' : 'cool';
+    recommendation =
+      'Cẩn trọng khi nếm thử: có vị thuốc phản nghịch với chứng bệnh hoặc thai kỳ! Hãy rà lại bảng Biện Chứng ở Dược Các.';
+  } else {
+    const chInit = patientCase.initialVector.coldHeat;
+    const chAfter = preview.resultingVector.coldHeat;
+    if (Math.abs(chInit) >= 25 && Math.sign(chInit) === Math.sign(netThermal) && netThermal !== 0) {
+      matchTone = netThermal > 0 ? 'warm' : 'cool';
+      recommendation =
+        netThermal > 0
+          ? 'Cảm giác hơi nóng gắt so với chứng Nhiệt của bệnh nhân — cân nhắc bớt vị tính Ôn.'
+          : 'Cảm giác hơi lạnh bụng so với chứng Hàn của bệnh nhân — cân nhắc thêm vị tính Ôn.';
+    } else if (Math.abs(chAfter) <= 35 && preview.balanceScore >= 72) {
+      matchTone = 'balanced';
+      recommendation = `Hài hòa (${preview.balanceScore}% quân bình): khí vị êm thuận với chứng bệnh, có thể giao thuốc ngay.`;
+    } else {
+      matchTone = netThermal >= 0 ? 'warm' : 'cool';
+      recommendation = `Chiều hướng thuận (${preview.balanceScore}%): có thể tinh chỉnh thêm ở Dược Các hoặc chỉnh độ lửa chuẩn để đạt tối đa.`;
+    }
+  }
+
+  return {
+    aroma: fireAroma,
+    flavorNote,
+    thermalBalance,
+    matchTone,
+    recommendation
+  };
 }

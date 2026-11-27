@@ -55,7 +55,18 @@ export const BotanicalSvg: React.FC<BotanicalSvgProps> = ({
     );
     if (bare) {
       return (
-        <span style={{ display: 'inline-block', width: size, height: size, flexShrink: 0 }}>
+        <span
+          style={{
+            display: 'inline-block',
+            width: size,
+            height: size,
+            flexShrink: 0,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            WebkitMaskImage: 'radial-gradient(circle, #000 56%, transparent 94%)',
+            maskImage: 'radial-gradient(circle, #000 56%, transparent 94%)'
+          }}
+        >
           {imgEl}
         </span>
       );

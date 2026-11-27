@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ACUPOINTS } from '../../data/acupoints';
-import { STORY_CASES, generateProceduralCase } from '../../data/cases';
+import { STORY_CASES, SONG_AN_PAIRS, generateProceduralCase, getSeasonalSolarTerm } from '../../data/cases';
 import { evaluateConstitution } from '../../data/constitutions';
 import { detectActiveFormulas } from '../../data/formulas';
 import { GLOSSARY_TERMS, segmentTextWithGlossary } from '../../data/glossary';
@@ -14,6 +14,7 @@ import {
   assignHerbToSlot,
   checkContraindications,
   computeTreatmentPreview,
+  describeDecoctionTaste,
   emptySlots,
   evaluateCaseSubmission,
   getTyNgoWatch,
@@ -229,7 +230,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(session.some((q) => q.targetKey === 'pulse-phu-khan')).toBe(true);
   });
 
-  it('verifies all 48 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
+  it('verifies all 50 silk-and-woodblock visual art assets exist on disk and are non-empty', () => {
     const root = path.resolve(process.cwd(), 'public/art');
     const requiredAssets = [
       'meridians/meridian-front.jpg',
@@ -238,6 +239,8 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'tools/pulse-pillow.jpg',
       'tools/decoction-stove.jpg',
       'tools/paozhi-workbench.jpg',
+      'tools/mortar-closeup.jpg',
+      'tools/wok-closeup.jpg',
       'tools/red-herb-packet.jpg',
       'tools/moxa-stick.jpg',
       'scenes/clinic-hall.jpg',
@@ -254,7 +257,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       'patients/clinic-bg.jpg'
     ];
 
-    expect(requiredAssets).toHaveLength(48);
+    expect(requiredAssets).toHaveLength(50);
 
     requiredAssets.forEach((rel) => {
       const fullPath = path.join(root, rel);
@@ -333,5 +336,29 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     });
     expect(['duong-hu', 'khi-hu']).toContain(coldYangDeficient.primary.id);
     expect(coldYangDeficient.primary.recommendedHerbIds.length).toBeGreaterThan(0);
+  });
+
+  it('evaluates pre-seal tasting notes, Song An challenges, and seasonal solar terms', () => {
+    const emptyTaste = describeDecoctionTaste(STORY_CASES[0], emptySlots(), 'van-vu');
+    expect(emptyTaste.matchTone).toBe('empty');
+
+    const balancedTaste = describeDecoctionTaste(
+      STORY_CASES[0],
+      { quan: 'tia-to', than: 'kinh-gioi', ta: 'sinh-khuong', su: 'cam-thao' },
+      'vu-hoa'
+    );
+    expect(balancedTaste.matchTone).toBe('balanced');
+    expect(balancedTaste.flavorNote.length).toBeGreaterThan(10);
+
+    expect(SONG_AN_PAIRS).toHaveLength(3);
+    SONG_AN_PAIRS.forEach((pair) => {
+      expect(STORY_CASES.some((c) => c.id === pair.caseAId)).toBe(true);
+      expect(STORY_CASES.some((c) => c.id === pair.caseBId)).toBe(true);
+    });
+
+    expect(getSeasonalSolarTerm(1).name).toBe('Xuân Vũ');
+    expect(getSeasonalSolarTerm(4).name).toBe('Hạ Thử');
+    expect(getSeasonalSolarTerm(7).name).toBe('Thu Táo');
+    expect(getSeasonalSolarTerm(10).name).toBe('Đông Hàn');
   });
 });

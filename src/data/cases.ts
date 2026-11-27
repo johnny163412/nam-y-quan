@@ -1,4 +1,4 @@
-import { PatientCase } from '../types/tcm';
+import { PatientCase, SongAnPair } from '../types/tcm';
 
 export const STORY_CASES: PatientCase[] = [
   // ==================== CHƯƠNG 1 ====================
@@ -894,4 +894,52 @@ export function generateProceduralCase(chapter: 1 | 2 | 3, seed: number): Patien
       poor: `${persona.name} nhắn lại: "Uống hết thang thuốc nhưng chứng bệnh chưa thuyên giảm mấy, mong được thầy gia giảm kỹ lại..."`
     }
   };
+}
+
+export const SONG_AN_PAIRS: SongAnPair[] = [
+  {
+    id: 'sa-phat-sot',
+    title: 'Song Án Phát Sốt · Biểu Hàn vs Biểu Nhiệt',
+    subtitle: 'Cùng trúng phong cảm mạo, nhưng một người sợ rét không mồ hôi, người kia sốt rát họng khát mát.',
+    caseAId: 'c1-phong-han',
+    caseBId: 'c1-phong-nhiet',
+    rewardYDuc: 40,
+    clinicalNote: 'Đồng bệnh (cảm mạo phát sốt) dị trị: Tân ôn giải biểu khác hẳn Tân lương giải biểu.'
+  },
+  {
+    id: 'sa-mat-ngu',
+    title: 'Song Án Thất Miên · Hư Nhược vs Tâm Hỏa',
+    subtitle: 'Cùng trằn trọc mất ngủ nhiều đêm, nhưng một người Tỳ Tâm suy yếu, người kia Thực Hỏa bứt rứt.',
+    caseAId: 'c2-tam-ty-luong-hu',
+    caseBId: 'c2-tam-hoa-vuong',
+    rewardYDuc: 40,
+    clinicalNote: 'Hư chứng phải bổ (Đinh lăng, Hoài sơn); Thực hỏa phải thanh (Tâm sen, Kim ngân hoa).'
+  },
+  {
+    id: 'sa-dau-bung',
+    title: 'Song Án Phúc Thống · Thực Trệ Hàn vs Tỳ Hư Hàn',
+    subtitle: 'Cùng đau lạnh bụng và tiêu lỏng, nhưng Thực Trệ thích ấm đột ngột khác Hư Hàn suy kiệt lâu ngày.',
+    caseAId: 'c1-thuong-thuc-han',
+    caseBId: 'c2-ty-vi-hu-han',
+    rewardYDuc: 40,
+    clinicalNote: 'Thực trệ cần ôn trung tán hàn tiêu thực (Sinh khương, Tía tô); Hư hàn cần bổ Tỳ (Hoài sơn, Ngải cứu).'
+  }
+];
+
+export interface SolarTermInfo {
+  name: string;
+  climate: string;
+  hint: string;
+}
+
+const SOLAR_TERMS: SolarTermInfo[] = [
+  { name: 'Xuân Vũ', climate: 'Phong Hàn giao mùa', hint: 'Chú ý chứng Phong Tà xâm biểu' },
+  { name: 'Hạ Thử', climate: 'Nhiệt Thấp bức bách', hint: 'Đề phòng Phong Nhiệt, Tâm Hỏa' },
+  { name: 'Thu Táo', climate: 'Khí hanh hao tân dịch', hint: 'Giữ Phế âm, giảm vị quá táo' },
+  { name: 'Đông Hàn', climate: 'Hàn tà ngưng trệ', hint: 'Ôn Dương khu hàn, giữ ấm kinh lạc' }
+];
+
+export function getSeasonalSolarTerm(dayCount: number): SolarTermInfo {
+  const safeDay = Math.max(1, dayCount);
+  return SOLAR_TERMS[Math.floor((safeDay - 1) / 3) % SOLAR_TERMS.length];
 }

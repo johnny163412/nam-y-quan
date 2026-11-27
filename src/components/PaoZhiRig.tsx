@@ -37,7 +37,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
 
   useEffect(() => {
     if (!cutscene) return;
-    const t = window.setTimeout(() => setCutscene(null), 1300);
+    const t = window.setTimeout(() => setCutscene(null), 1350);
     return () => window.clearTimeout(t);
   }, [cutscene]);
 
@@ -62,7 +62,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
   return (
     <>
       <div className="paozhi-props-stage">
-        {/* Prop 1: Brass Mortar & Pestle */}
+        {/* Prop 1: Thuyền Nghiên Mortar & Pestle */}
         <button
           type="button"
           className={`workbench-prop-btn ${activeMethod === 'gia-dap' ? 'is-active' : ''} ${
@@ -70,22 +70,12 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           }`}
           disabled={!activeHerb}
           onClick={() => triggerPaoZhi(activeMethod === 'gia-dap' ? 'sinh-dung' : 'gia-dap')}
-          title="Nhấp vào Cối Đồng để giã dập vị thuốc đang chọn trên cân"
+          title="Nhấp vào Thuyền Nghiên để giã dập vị thuốc đang chọn trên cân"
         >
-          <svg width="78" height="62" viewBox="0 0 78 62" fill="none" aria-hidden="true">
-            <g className="pestle-arm">
-              <rect x="44" y="4" width="8" height="32" rx="4" transform="rotate(24 48 16)" fill="#CFA052" stroke="#36220D" strokeWidth="1.4" />
-              <circle cx="41" cy="29" r="5" fill="#E6BE70" stroke="#36220D" strokeWidth="1.2" />
-            </g>
-            <g className="mortar-flecks" fill="#6F9A58">
-              <circle cx="32" cy="20" r="2" />
-              <circle cx="44" cy="18" r="1.8" />
-              <circle cx="38" cy="14" r="1.5" />
-            </g>
-            <path d="M18 28 H60 L54 52 Q39 58 24 52 Z" fill="#9E702E" stroke="#2D1B0C" strokeWidth="1.8" />
-            <ellipse cx="39" cy="28" rx="21" ry="5.5" fill="#5D3D19" stroke="#E5BD6C" strokeWidth="1.4" />
-            <rect x="26" y="52" width="26" height="5" rx="2" fill="#704D1C" stroke="#2D1B0C" strokeWidth="1.2" />
-          </svg>
+          <span className="prop-art-frame">
+            <img src="/art/tools/mortar-closeup.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
+            <span className="prop-art-sheen mortar-sheen" aria-hidden="true" />
+          </span>
           <div className="prop-label">
             <strong>Cối Giã Đồng</strong>
             <span>
@@ -104,21 +94,15 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           onClick={cycleWokMethod}
           title="Nhấp vào Chảo Gang để đổi: Sao vàng / Chích mật / Để mộc"
         >
-          <svg width="82" height="62" viewBox="0 0 82 62" fill="none" aria-hidden="true">
-            <g className={`wok-flames ${activeMethod === 'sao-vang' || activeMethod === 'chich-mat' ? 'burning' : ''}`}>
-              <path d="M24 56 Q28 42 33 55 Q39 39 45 55 Q50 43 56 56 Z" fill="#E86524" />
-              <path d="M30 56 Q35 45 40 55 Q45 44 50 56 Z" fill="#FFD166" />
-            </g>
-            <path d="M12 31 Q41 53 70 31 Z" fill="#322B28" stroke="#18120F" strokeWidth="1.8" />
-            <ellipse cx="41" cy="31" rx="29" ry="7" fill="#4B403B" stroke="#857161" strokeWidth="1.3" />
-            <line x1="6" y1="28" x2="14" y2="31" stroke="#6E4624" strokeWidth="4" strokeLinecap="round" />
-            <line x1="68" y1="31" x2="76" y2="28" stroke="#6E4624" strokeWidth="4" strokeLinecap="round" />
-            <g className="wok-herbs-toss">
-              <ellipse cx="33" cy="29" rx="4.5" ry="2.4" fill={activeMethod === 'chich-mat' ? '#E5A135' : '#C9A45A'} />
-              <ellipse cx="44" cy="27" rx="4" ry="2.2" fill="#B68339" />
-              <ellipse cx="51" cy="30" rx="4" ry="2.1" fill={activeMethod === 'chich-mat' ? '#F0B642' : '#C9A45A'} />
-            </g>
-          </svg>
+          <span className="prop-art-frame">
+            <img src="/art/tools/wok-closeup.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
+            {(activeMethod === 'sao-vang' || activeMethod === 'chich-mat') && (
+              <span
+                className={`prop-art-glow ${activeMethod === 'chich-mat' ? 'is-honey' : 'is-gold'}`}
+                aria-hidden="true"
+              />
+            )}
+          </span>
           <div className="prop-label">
             <strong>Chảo Gang Sao Thuốc</strong>
             <span>
@@ -140,12 +124,9 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           onClick={onWrapAndGo}
           title="Gấp 4 góc Giấy Hồng Điều bọc thang thuốc và mang sang Bếp Sắc"
         >
-          <svg width="78" height="62" viewBox="0 0 78 62" fill="none" aria-hidden="true">
-            <polygon points="39,7 69,31 39,55 9,31" fill="#A62620" stroke="#E7B96A" strokeWidth="1.8" />
-            <line x1="24" y1="19" x2="54" y2="43" stroke="#E2C896" strokeWidth="2.4" />
-            <line x1="54" y1="19" x2="24" y2="43" stroke="#E2C896" strokeWidth="2.4" />
-            <rect x="33" y="23" width="12" height="16" rx="1.5" fill="#F7E7C8" stroke="#6E3B16" strokeWidth="1" />
-          </svg>
+          <span className="prop-art-frame">
+            <img src="/art/tools/red-herb-packet.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
+          </span>
           <div className="prop-label">
             <strong>Gói Giấy Hồng Điều →</strong>
             <span>Gấp 4 góc &amp; sang Lò sắc</span>
@@ -153,7 +134,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
         </button>
       </div>
 
-      {/* Close-up Live Animated PaoZhi Cutscene Stage rendered in Portal so transformed carousel never shifts position: fixed */}
+      {/* Close-up Live Animated Painterly PaoZhi Cutscene Stage rendered in Portal */}
       {cutscene &&
         typeof document !== 'undefined' &&
         createPortal(
@@ -164,64 +145,58 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
             onClick={() => setCutscene(null)}
           >
             <div className="paozhi-closeup-card" onClick={(e) => e.stopPropagation()}>
-              {cutscene.method === 'gia-dap' ? (
-                <svg viewBox="0 0 280 200" className="closeup-svg is-mortar" aria-hidden="true">
-                  <rect x="24" y="156" width="232" height="24" rx="4" fill="#3B2314" stroke="#7C562B" strokeWidth="2" />
-                  <g className="closeup-burst">
-                    <circle cx="106" cy="78" r="3" fill="#82D18E" />
-                    <circle cx="174" cy="72" r="3.2" fill="#D5B05A" />
-                    <circle cx="124" cy="60" r="2.4" fill="#A6D9A1" />
-                    <circle cx="158" cy="58" r="2.6" fill="#E8BE65" />
-                  </g>
-                  <g className="closeup-mortar-body">
-                    <ellipse cx="140" cy="96" rx="44" ry="12" fill="#543817" />
-                    <g className="crushed-slices">
-                      <ellipse cx="122" cy="95" rx="12" ry="5" fill="#7D9E5B" />
-                      <ellipse cx="144" cy="93" rx="14" ry="5.5" fill="#B58E49" />
-                      <ellipse cx="158" cy="96" rx="10" ry="4.5" fill="#638748" />
+              <div className={`closeup-art-stage is-${cutscene.method}`}>
+                <img
+                  src={
+                    cutscene.method === 'gia-dap'
+                      ? '/art/tools/mortar-closeup.jpg'
+                      : '/art/tools/wok-closeup.jpg'
+                  }
+                  alt=""
+                  className="closeup-art-img"
+                />
+                <div className="closeup-art-vignette" aria-hidden="true" />
+
+                {cutscene.method === 'gia-dap' ? (
+                  <svg viewBox="0 0 320 210" className="closeup-fx-svg" aria-hidden="true">
+                    <g className="closeup-burst">
+                      <circle cx="132" cy="96" r="4" fill="#9ED69E" />
+                      <circle cx="188" cy="88" r="4.5" fill="#EAC16C" />
+                      <circle cx="154" cy="72" r="3.4" fill="#C2E6B8" />
+                      <circle cx="176" cy="76" r="3.8" fill="#F2CB78" />
                     </g>
-                    <path d="M84 94 H196 L180 156 Q140 168 100 156 Z" fill="#A87832" stroke="#36200D" strokeWidth="2.4" />
-                    <ellipse cx="140" cy="94" rx="56" ry="13" fill="none" stroke="#ECC371" strokeWidth="2.4" />
-                  </g>
-                  <g className="closeup-pestle">
-                    <rect x="132" y="10" width="18" height="84" rx="8" fill="#D6A64E" stroke="#3A220C" strokeWidth="2" />
-                    <ellipse cx="141" cy="88" rx="14" ry="8" fill="#B5822E" stroke="#3A220C" strokeWidth="1.6" />
-                  </g>
-                </svg>
-              ) : (
-                <svg viewBox="0 0 280 200" className="closeup-svg is-wok" aria-hidden="true">
-                  <rect x="36" y="156" width="208" height="22" rx="4" fill="#2A170D" />
-                  <g className="closeup-flames">
-                    <path d="M68 158 Q88 122 108 156 Q128 112 146 156 Q168 116 188 156 Q205 124 220 158 Z" fill="#E85A1B" />
-                    <path d="M86 158 Q106 130 124 156 Q142 124 162 156 Q180 132 198 158 Z" fill="#FFD166" />
-                  </g>
-                  <path d="M46 112 Q140 168 234 112 Z" fill="#2E2724" stroke="#14100E" strokeWidth="2.4" />
-                  <ellipse cx="140" cy="112" rx="94" ry="18" fill="#463C37" stroke="#8C7562" strokeWidth="2" />
-                  {cutscene.method === 'chich-mat' && (
-                    <g className="honey-pour-group">
-                      <path d="M188 20 Q176 48 164 106" stroke="#F0A52B" strokeWidth="7" strokeLinecap="round" fill="none" />
-                      <path d="M188 20 Q176 48 164 106" stroke="#FFE082" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                    <g className="closeup-pestle">
+                      <rect x="150" y="16" width="20" height="86" rx="9" fill="#CFA052" stroke="#2D190A" strokeWidth="2.2" />
+                      <ellipse cx="160" cy="96" rx="15" ry="9" fill="#B5822E" stroke="#2D190A" strokeWidth="1.8" />
                     </g>
-                  )}
-                  <g className={`closeup-toss-herbs ${cutscene.method === 'chich-mat' ? 'to-honey' : 'to-gold'}`}>
-                    <ellipse cx="106" cy="106" rx="14" ry="6" transform="rotate(-14 106 106)" />
-                    <ellipse cx="140" cy="100" rx="15" ry="6.5" transform="rotate(10 140 100)" />
-                    <ellipse cx="172" cy="108" rx="13" ry="5.5" transform="rotate(-8 172 108)" />
-                    <ellipse cx="124" cy="112" rx="12" ry="5" transform="rotate(22 124 112)" />
-                    <ellipse cx="156" cy="114" rx="12" ry="5" transform="rotate(-18 156 114)" />
-                  </g>
-                  <g className="closeup-spatula">
-                    <path d="M76 28 L128 106 L142 98 L88 22 Z" fill="#9E6A36" stroke="#3E2510" strokeWidth="1.8" />
-                  </g>
-                  <g className="closeup-smoke" stroke="rgba(255,244,224,0.75)" strokeWidth="2.5" fill="none" strokeLinecap="round">
-                    <path d="M110 78 Q98 54 112 34" />
-                    <path d="M144 74 Q158 50 142 28" />
-                  </g>
-                </svg>
-              )}
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 320 210" className="closeup-fx-svg" aria-hidden="true">
+                    {cutscene.method === 'chich-mat' && (
+                      <g className="honey-pour-group">
+                        <path d="M214 22 Q196 58 176 118" stroke="#F0A52B" strokeWidth="8" strokeLinecap="round" fill="none" />
+                        <path d="M214 22 Q196 58 176 118" stroke="#FFE599" strokeWidth="3" strokeLinecap="round" fill="none" />
+                      </g>
+                    )}
+                    <g className={`closeup-toss-herbs ${cutscene.method === 'chich-mat' ? 'to-honey' : 'to-gold'}`}>
+                      <ellipse cx="122" cy="118" rx="14" ry="6" transform="rotate(-14 122 118)" />
+                      <ellipse cx="160" cy="110" rx="16" ry="6.5" transform="rotate(10 160 110)" />
+                      <ellipse cx="196" cy="120" rx="13" ry="5.5" transform="rotate(-8 196 120)" />
+                    </g>
+                    <g className="closeup-spatula">
+                      <path d="M88 30 L146 112 L160 104 L100 22 Z" fill="#B57D42" stroke="#2D190A" strokeWidth="2" />
+                    </g>
+                    <g className="closeup-smoke" stroke="rgba(255,244,224,0.82)" strokeWidth="2.8" fill="none" strokeLinecap="round">
+                      <path d="M126 84 Q112 58 128 36" />
+                      <path d="M168 78 Q184 52 164 28" />
+                    </g>
+                  </svg>
+                )}
+              </div>
+
               <div className="closeup-caption">
                 {cutscene.method === 'gia-dap'
-                  ? `Đang giã dập ${cutscene.herbName} trong Cối Đồng cho dậy tinh dầu...`
+                  ? `Đang giã dập ${cutscene.herbName} trong Thuyền Nghiên cho dậy tinh dầu...`
                   : cutscene.method === 'sao-vang'
                   ? `Đang đảo đều sao vàng ${cutscene.herbName} trên Chảo Gang lửa hồng...`
                   : `Đang rưới mật ong rừng & chích thơm ${cutscene.herbName}...`}

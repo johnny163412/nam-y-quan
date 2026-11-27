@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { STORY_CASES, generateProceduralCase } from '../data/cases';
+import { SONG_AN_PAIRS, STORY_CASES, generateProceduralCase, getSeasonalSolarTerm } from '../data/cases';
 import { detectActiveFormulas } from '../data/formulas';
 import { HERB_MAP, HERBS } from '../data/herbs';
 import { apothecaryAudio } from '../engine/audio';
 import {
   assignHerbToSlot,
   computeTreatmentPreview,
+  describeDecoctionTaste,
   emptySlots,
   evaluateCaseSubmission,
   getTyNgoWatch
 } from '../engine/tcmEngine';
 import {
   CaseLedgerEntry,
+  ClassicalFormula,
   DecoctionChoice,
   DiagnosisChoice,
   DosingAdvice,
@@ -46,6 +48,10 @@ interface ClinicDeskProps {
   completedCases: Record<string, { bestScore: number }>;
   caseLedger: CaseLedgerEntry[];
   yDucPoints: number;
+  dayCount: number;
+  currentStreak: number;
+  songAnClearedIds: string[];
+  discoveredFormulas: string[];
   freshHerbIds: string[];
   gardenGrowth: Record<string, number>;
   mentorDismissed: boolean;
@@ -94,6 +100,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   completedCases,
   caseLedger,
   yDucPoints,
+  dayCount,
+  currentStreak,
+  songAnClearedIds,
+  discoveredFormulas,
   freshHerbIds,
   gardenGrowth,
   mentorDismissed,
@@ -141,6 +151,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   // Minimal HUD Overlays & Modals
   const [showDirectoryModal, setShowDirectoryModal] = useState(false);
+  const [activeSongAnId, setActiveSongAnId] = useState<string | null>(null);
   const [showCluesPopover, setShowCluesPopover] = useState(false);
   const [showLedgerModal, setShowLedgerModal] = useState(false);
   const [outcome, setOutcome] = useState<EvaluationResult | null>(null);
@@ -161,6 +172,11 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   const nowHour = new Date().getHours();
   const activeWatch = useMemo(() => getTyNgoWatch(nowHour), [nowHour]);
+  const solarTerm = useMemo(() => getSeasonalSolarTerm(dayCount), [dayCount]);
+  const tasteReading = useMemo(
+    () => describeDecoctionTaste(selectedCase, slots, fire),
+    [selectedCase, slots, fire]
+  );
   const watchLightingClass =
     nowHour >= 5 && nowHour < 11
       ? 'lighting-morning'
@@ -349,6 +365,29 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       const nextOrder: RoleSlot[] = ['quan', 'than', 'ta', 'su'];
       const nextEmpty = nextOrder.find((r) => r !== role && !after[r]);
       if (nextEmpty) setSelectedSlot(nextEmpty);
+    }
+  };
+
+  const handleApplyFormula = (formula: ClassicalFormula) => {
+    const picked = [
+      ...formula.requiredHerbs,
+      ...(formula.optionalAnyHerbs?.slice(0, Math.max(0, 3 - formula.requiredHerbs.length)) ?? [])
+    ].slice(0, 3);
+    const roles: RoleSlot[] = ['quan', 'than', 'ta'];
+    const nextSlots: PrescriptionSlots = emptySlots();
+    picked.forEach((herbId, idx) => {
+      if (roles[idx] && HERB_MAP[herbId]) {
+        nextSlots[roles[idx]] = herbId;
+      }
+    });
+    if (!nextSlots.su) nextSlots.su = 'cam-thao';
+    setSlots(nextSlots);
+    setPacketWrapped(false);
+    setSlotPaoZhi({});
+    setSelectedSlot('ta');
+    apothecaryAudio.playHerbDrop();
+    if (nextSlots.quan && HERB_MAP[nextSlots.quan]) {
+      triggerScoopAnimation(HERB_MAP[nextSlots.quan]!, 'quan');
     }
   };
 
@@ -552,6 +591,14 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
         </nav>
 
         <div className="hud-cluster" style={{ position: 'relative' }}>
+          <span className="yduc-badge-mini" title={`Ngày hành y thứ ${dayCount} · Tiết ${solarTerm.name}: ${solarTerm.climate}`}>
+            Ngày {dayCount} · {solarTerm.name}
+          </span>
+          {currentStreak >= 2 && (
+            <span className="streak-badge-mini" title="Chuỗi chữa khỏi liên tiếp (+5đ Y Đức mỗi bậc)">
+              🔥 x{currentStreak}
+            </span>
+          )}
           <span className="yduc-badge-mini" title="Điểm Y Đức mở khóa Bảo vật Trấn Quán">
             Y Đức {yDucPoints}
           </span>
@@ -665,8 +712,33 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     <div className="stage-case-meta">
                       <h2 className="room-stage-title">{selectedCase.title}</h2>
                       <p className="room-stage-sub">
-                        {activeWatch.branch} ({activeWatch.organ} vượng) · Chuyển buồng bằng mũi tên hai bên hoặc phím <kbd>1</kbd>–<kbd>4</kbd>
+                        {activeWatch.branch} ({activeWatch.organ} vượng) · Tiết {solarTerm.name} ({solarTerm.hint}) · Phím <kbd>1</kbd>–<kbd>4</kbd>
                       </p>
+                      {activeSongAnId && (() => {
+                        const pair = SONG_AN_PAIRS.find((s) => s.id === activeSongAnId);
+                        if (!pair) return null;
+                        const partnerId = selectedCase.id === pair.caseAId ? pair.caseBId : pair.caseAId;
+                        const partnerCase = STORY_CASES.find((c) => c.id === partnerId);
+                        const bothDone =
+                          (completedCases[pair.caseAId]?.bestScore ?? 0) >= 70 &&
+                          (completedCases[pair.caseBId]?.bestScore ?? 0) >= 70;
+                        return (
+                          <div className="songan-active-ribbon">
+                            <span>
+                              <strong>☯ {pair.title}</strong> — {bothDone ? 'Đã hoàn thành Song Án!' : 'Chữa đủ 2 ca đối chứng để nhận +40 Y Đức.'}
+                            </span>
+                            {partnerCase && (
+                              <button
+                                type="button"
+                                className="mini-toggle-chip"
+                                onClick={() => loadPatient(partnerCase, true)}
+                              >
+                                Sang ca đối: {partnerCase.patientName} →
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="wood-speech-bubble stage-speech">
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginBottom: '4px' }}>
@@ -890,10 +962,12 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   alerts={preview.alerts}
                   hasTreatment={hasAssignedTreatment}
                   hasDragonScale={hasDragonScale}
+                  discoveredFormulas={discoveredFormulas}
                   panRefs={panRefs}
                   onChangeDiagnosis={setDiagnosis}
                   onSelectSlot={setSelectedSlot}
                   onAssignHerb={handleAssignHerb}
+                  onApplyFormula={handleApplyFormula}
                 />
 
                 <PaoZhiRig
@@ -1160,6 +1234,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     stampingActive={stampingActive}
                     assignedHerbsText={assignedHerbsSummary.join(', ')}
                     patientName={selectedCase.patientName}
+                    tasteReading={tasteReading}
                     onSelectFire={(nextFire) => {
                       setFire(nextFire);
                       const [lo, hi] = FIRE_TARGET_RANGES[nextFire];
@@ -1259,7 +1334,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
               ))}
             </div>
 
-            <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
               {chapterCases.map((c) => {
                 const done = completedCases[c.id];
                 const isCur = c.id === selectedCase.id;
@@ -1268,7 +1343,10 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     key={c.id}
                     type="button"
                     className={`exam-option-plaque ${isCur ? 'picked' : ''}`}
-                    onClick={() => loadPatient(c, true)}
+                    onClick={() => {
+                      setActiveSongAnId(null);
+                      loadPatient(c, true);
+                    }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
                       <strong>{c.title}</strong>
@@ -1280,6 +1358,46 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   </button>
                 );
               })}
+            </div>
+
+            <div className="songan-directory-box">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <strong style={{ fontFamily: 'var(--font-serif)', color: '#fff3d6', fontSize: '0.92rem' }}>
+                  ☯ Thử Thách Song Án Đồng Bệnh Dị Trị (+40 Y Đức)
+                </strong>
+                <span style={{ fontSize: '0.75rem', color: '#E7B96A' }}>
+                  Đã đạt {songAnClearedIds.length}/{SONG_AN_PAIRS.length}
+                </span>
+              </div>
+              <div className="songan-grid">
+                {SONG_AN_PAIRS.map((pair) => {
+                  const isCleared = songAnClearedIds.includes(pair.id);
+                  const caseA = STORY_CASES.find((c) => c.id === pair.caseAId);
+                  return (
+                    <button
+                      key={pair.id}
+                      type="button"
+                      className={`songan-challenge-btn ${isCleared ? 'cleared' : ''}`}
+                      onClick={() => {
+                        if (!caseA) return;
+                        setActiveChapter(caseA.chapter);
+                        setActiveSongAnId(pair.id);
+                        loadPatient(caseA, true);
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '6px' }}>
+                        <strong>{pair.title}</strong>
+                        <span style={{ fontSize: '0.72rem', color: isCleared ? '#95E3B3' : '#F3CA78' }}>
+                          {isCleared ? '✓ Hoàn thành' : `+${pair.rewardYDuc}đ`}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: '#E4CFA8', marginTop: '2px' }}>
+                        {pair.subtitle}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>

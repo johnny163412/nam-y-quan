@@ -150,21 +150,24 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
     <div>
       {!hideName && (
         <div className="pulse-wrist-stage">
-          <svg
-            viewBox="0 0 340 122"
-            className="pulse-wrist-svg"
-            role="group"
-            aria-label="Cổ tay trên gối gấm và ba ngón Thốn Quan Xích"
-          >
-            {/* Crimson silk pulse pillow */}
-            <rect x="44" y="68" width="244" height="44" rx="18" fill="#7D1916" stroke="#D59E49" strokeWidth="1.8" />
-            <ellipse cx="166" cy="72" rx="110" ry="12" fill="#9E241E" />
-
-            {/* Patient Forearm & Wrist */}
-            <path d="M18 54 Q140 50 264 56 L288 76 Q140 84 18 82 Z" fill="#E3C3A3" stroke="#5A3E28" strokeWidth="1.6" />
-            {/* Radial Artery Glow & Pulse Ripple under Active Finger */}
-            <line x1="78" y1="64" x2="236" y2="65" stroke="#B63C34" strokeWidth="2.4" strokeDasharray="5 3" opacity="0.72" />
-            {FINGER_ZONES.map((fz) => {
+          <div className="pulse-wrist-backdrop">
+            <img
+              src="/art/tools/pulse-pillow.jpg"
+              alt=""
+              className="pulse-pillow-art"
+              aria-hidden="true"
+            />
+            <div className="pulse-pillow-scrim" aria-hidden="true" />
+            <svg
+              viewBox="0 0 340 122"
+              className="pulse-wrist-svg"
+              role="group"
+              aria-label="Cổ tay trên gối gấm và ba ngón Thốn Quan Xích"
+            >
+              {/* Soft translucent wrist silhouette & Radial Artery Glow aligned over the painted silk cushion */}
+              <path d="M18 55 Q140 50 264 56 L288 77 Q140 85 18 82 Z" fill="rgba(232, 198, 164, 0.86)" stroke="#5A3E28" strokeWidth="1.6" />
+              <line x1="78" y1="64" x2="236" y2="65" stroke="#B63C34" strokeWidth="2.4" strokeDasharray="5 3" opacity="0.78" />
+              {FINGER_ZONES.map((fz) => {
               const isAct = activeFinger === fz.id;
               return (
                 <g
@@ -208,6 +211,7 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
               );
             })}
           </svg>
+          </div>
           <div className="wrist-controls-strip">
             <div className="brass-pair-toggle">
               <button

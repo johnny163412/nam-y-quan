@@ -28,7 +28,10 @@ export function createDefaultProgress(): UserProgress {
       'ngai-cuu': 1,
       'la-lot': 1
     },
-    discoveredFormulas: []
+    discoveredFormulas: [],
+    dayCount: 1,
+    currentStreak: 0,
+    songAnClearedIds: []
   };
 }
 

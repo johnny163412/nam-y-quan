@@ -5,6 +5,7 @@ import { KhaoThiYMieu } from './components/KhaoThiYMieu';
 import { TangThuCac } from './components/TangThuCac';
 import { TuDoanTheChat } from './components/TuDoanTheChat';
 import { InkBrushDefs } from './components/svg/InkBrushDefs';
+import { SONG_AN_PAIRS } from './data/cases';
 import { apothecaryAudio } from './engine/audio';
 import { computeRank } from './engine/examEngine';
 import { createDefaultProgress, loadProgress, saveProgress } from './engine/storage';
@@ -77,9 +78,27 @@ export const App: React.FC = () => {
         }
 
         if (result.passed) {
-          const earned = result.totalScore >= 88 ? 25 : 15;
+          const nextStreak = (prev.currentStreak ?? 0) + 1;
+          next.currentStreak = nextStreak;
+          const streakBonus = nextStreak >= 2 ? Math.min(15, nextStreak * 5) : 0;
+          let earned = (result.totalScore >= 88 ? 25 : 15) + streakBonus;
+
+          const existingSongAn = new Set(prev.songAnClearedIds ?? []);
+          for (const pair of SONG_AN_PAIRS) {
+            if (existingSongAn.has(pair.id)) continue;
+            const aOk = (next.completedCases[pair.caseAId]?.bestScore ?? 0) >= 70;
+            const bOk = (next.completedCases[pair.caseBId]?.bestScore ?? 0) >= 70;
+            if (aOk && bOk) {
+              existingSongAn.add(pair.id);
+              earned += pair.rewardYDuc;
+            }
+          }
+          next.songAnClearedIds = Array.from(existingSongAn);
           next.yDucPoints = (prev.yDucPoints ?? 0) + earned;
+        } else {
+          next.currentStreak = 0;
         }
+        next.dayCount = (prev.dayCount ?? 1) + 1;
 
         const ledgerEntry: CaseLedgerEntry = {
           id: `${patientCase.id}-${Date.now()}`,
@@ -177,6 +196,10 @@ export const App: React.FC = () => {
             completedCases={progress.completedCases}
             caseLedger={progress.caseLedger ?? []}
             yDucPoints={progress.yDucPoints ?? 0}
+            dayCount={progress.dayCount ?? 1}
+            currentStreak={progress.currentStreak ?? 0}
+            songAnClearedIds={progress.songAnClearedIds ?? []}
+            discoveredFormulas={progress.discoveredFormulas ?? []}
             freshHerbIds={progress.freshHerbIds ?? []}
             gardenGrowth={progress.gardenGrowth ?? {}}
             mentorDismissed={Boolean(progress.mentorDismissed)}

@@ -330,6 +330,27 @@ export interface UserProgress {
   gardenGrowth?: Record<string, number>;
   discoveredFormulas?: string[];
   savedConstitution?: BodyConstitutionId;
+  dayCount?: number;
+  currentStreak?: number;
+  songAnClearedIds?: string[];
+}
+
+export interface DecoctionTasteReading {
+  aroma: string;
+  flavorNote: string;
+  thermalBalance: string;
+  matchTone: 'balanced' | 'warm' | 'cool' | 'empty';
+  recommendation: string;
+}
+
+export interface SongAnPair {
+  id: string;
+  title: string;
+  subtitle: string;
+  caseAId: string;
+  caseBId: string;
+  rewardYDuc: number;
+  clinicalNote: string;
 }
 
 export type ExamQuestionType = 'tongue' | 'pulse' | 'formula' | 'acupoint';

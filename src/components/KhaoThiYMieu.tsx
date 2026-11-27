@@ -6,6 +6,130 @@ import { MeridianBodyMap } from './MeridianBodyMap';
 import { PulseCanvas } from './PulseCanvas';
 import { TongueMirror } from './svg/TongueMirror';
 
+const RADAR_AXES: { label: string; calc: (p: UserProgress) => number }[] = [
+  {
+    label: 'Thiệt Chẩn',
+    calc: (p) => {
+      const entries = Object.entries(p.mastery).filter(([k]) => k.startsWith('tongue-'));
+      if (entries.length === 0) return 32;
+      const sum = entries.reduce((acc, [, v]) => acc + (v.seen ? v.correct / v.seen : 0), 0);
+      return Math.max(25, Math.min(100, Math.round((sum / entries.length) * 100)));
+    }
+  },
+  {
+    label: 'Mạch Chẩn',
+    calc: (p) => {
+      const entries = Object.entries(p.mastery).filter(([k]) => k.startsWith('pulse-'));
+      if (entries.length === 0) return 32;
+      const sum = entries.reduce((acc, [, v]) => acc + (v.seen ? v.correct / v.seen : 0), 0);
+      return Math.max(25, Math.min(100, Math.round((sum / entries.length) * 100)));
+    }
+  },
+  {
+    label: 'Bát Cương',
+    calc: (p) => {
+      const cleared = Object.values(p.completedCases).filter((c) => c.bestScore >= 70).length;
+      return Math.max(28, Math.min(100, 28 + cleared * 9 + p.proceduralCleared * 6));
+    }
+  },
+  {
+    label: 'Thảo Dược',
+    calc: (p) => {
+      const entries = Object.entries(p.mastery).filter(([k]) => k.startsWith('formula-'));
+      const formulaBonus = (p.discoveredFormulas?.length ?? 0) * 6;
+      if (entries.length === 0) return Math.min(100, 34 + formulaBonus);
+      const sum = entries.reduce((acc, [, v]) => acc + (v.seen ? v.correct / v.seen : 0), 0);
+      return Math.max(28, Math.min(100, Math.round((sum / entries.length) * 85) + formulaBonus));
+    }
+  },
+  {
+    label: 'Kinh Lạc',
+    calc: (p) => {
+      const entries = Object.entries(p.mastery).filter(([k]) => k.startsWith('acupoint-'));
+      if (entries.length === 0) return 30;
+      const sum = entries.reduce((acc, [, v]) => acc + (v.seen ? v.correct / v.seen : 0), 0);
+      return Math.max(25, Math.min(100, Math.round((sum / entries.length) * 100)));
+    }
+  }
+];
+
+const MasteryPentagonRadar: React.FC<{ progress: UserProgress }> = ({ progress }) => {
+  const cx = 130;
+  const cy = 114;
+  const radius = 72;
+  const values = RADAR_AXES.map((ax) => ({ label: ax.label, val: ax.calc(progress) }));
+  const pointFor = (idx: number, ratio: number) => {
+    const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / 5;
+    return [cx + Math.cos(angle) * radius * ratio, cy + Math.sin(angle) * radius * ratio];
+  };
+  const gridRings = [0.35, 0.68, 1];
+  const dataPoints = values.map((v, i) => pointFor(i, v.val / 100).join(',')).join(' ');
+
+  return (
+    <div className="y-mieu-radar-card">
+      <svg viewBox="0 0 260 225" className="pentagon-radar-svg" role="img" aria-label="Đồ hình Ngũ Giác Tinh Thông Y Lý">
+        {gridRings.map((ring) => (
+          <polygon
+            key={ring}
+            points={[0, 1, 2, 3, 4].map((i) => pointFor(i, ring).join(',')).join(' ')}
+            fill="none"
+            stroke="rgba(122, 88, 42, 0.34)"
+            strokeWidth={ring === 1 ? '1.6' : '1'}
+          />
+        ))}
+        {[0, 1, 2, 3, 4].map((i) => {
+          const [px, py] = pointFor(i, 1);
+          return (
+            <line key={i} x1={cx} y1={cy} x2={px} y2={py} stroke="rgba(122, 88, 42, 0.28)" strokeWidth="1" />
+          );
+        })}
+        <polygon
+          points={dataPoints}
+          fill="rgba(166, 38, 32, 0.28)"
+          stroke="#9E241E"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
+        {values.map((v, i) => {
+          const [dx, dy] = pointFor(i, v.val / 100);
+          const [lx, ly] = pointFor(i, 1.24);
+          return (
+            <g key={v.label}>
+              <circle cx={dx} cy={dy} r="3.6" fill="#C59344" stroke="#5A1914" strokeWidth="1.2" />
+              <text
+                x={lx}
+                y={ly + 3}
+                textAnchor="middle"
+                fontSize="10.2"
+                fontWeight="700"
+                fill="#3E2A19"
+              >
+                {v.label} ({v.val}%)
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      <div className="radar-summary-col">
+        <strong style={{ fontFamily: 'var(--font-serif)', color: '#2F1F12', fontSize: '0.98rem' }}>
+          Ngũ Giác Tinh Thông Y Lý
+        </strong>
+        <p className="muted-note" style={{ margin: '4px 0 8px', fontSize: '0.82rem' }}>
+          Tự động cập nhật khi bạn trả lời sát hạch Y Miếu và điều trị các ca lâm sàng tại Y Quán.
+        </p>
+        <div className="radar-mini-bars">
+          {values.map((v) => (
+            <div key={v.label} className="radar-stat-chip">
+              <span>{v.label}</span>
+              <strong>{v.val}%</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface KhaoThiYMieuProps {
   progress: UserProgress;
   onRecordAnswer: (targetKey: string, isCorrect: boolean) => void;
@@ -85,6 +209,8 @@ export const KhaoThiYMieu: React.FC<KhaoThiYMieuProps> = ({
       <p className="muted-note" style={{ marginTop: 0 }}>
         Hệ thống tự động ưu tiên các nội dung Thiệt chẩn, Mạch chẩn, Phối ngũ và Huyệt đạo bạn từng nhầm lẫn để giúp ghi nhớ dài lâu. Đạt từ 3/5 câu trở lên sẽ đủ điều kiện thăng cấp chương mới.
       </p>
+
+      <MasteryPentagonRadar progress={progress} />
 
       {finished ? (
         <div
