@@ -2,14 +2,6 @@ import { AuscultationType, ElementKey } from '../types/tcm';
 
 export type VoiceArchetype = 'elder' | 'lady' | 'youth' | 'merchant';
 
-const PENTATONIC_BY_ELEMENT: Record<ElementKey, number[]> = {
-  moc: [293.66, 329.63, 392.0, 440.0, 523.25, 587.33],
-  hoa: [329.63, 392.0, 440.0, 523.25, 659.25],
-  tho: [261.63, 293.66, 329.63, 392.0, 440.0, 523.25],
-  kim: [246.94, 293.66, 349.23, 392.0, 493.88],
-  thuy: [220.0, 261.63, 293.66, 329.63, 392.0, 440.0]
-};
-
 class ApothecaryAudio {
   private ctx: AudioContext | null = null;
   private enabled = true;
@@ -17,7 +9,6 @@ class ApothecaryAudio {
   private sfxVolume = 0.8;
   private musicVolume = 0.65;
   private activeRoom: 0 | 1 | 2 | 3 = 0;
-  private elementMood: ElementKey = 'tho';
 
   private ambientSource: AudioBufferSourceNode | null = null;
   private ambientFilter: BiquadFilterNode | null = null;
@@ -100,8 +91,8 @@ class ApothecaryAudio {
     }
   }
 
-  setElementMood(element: ElementKey): void {
-    this.elementMood = element;
+  setElementMood(_element: ElementKey): void {
+    // Reserved for future per-element acoustic flourishes
   }
 
   private applyRoomAcousticProfile(): void {
@@ -150,56 +141,6 @@ class ApothecaryAudio {
     } catch {
       return null;
     }
-  }
-
-  private playTraditionalPluck(c: AudioContext, freq: number, useDanBauBend: boolean): void {
-    const now = c.currentTime;
-    const master = c.createGain();
-    master.gain.setValueAtTime(0.0005, now);
-    master.gain.exponentialRampToValueAtTime(0.022 * Math.max(0.15, this.musicVolume), now + 0.03);
-    master.gain.exponentialRampToValueAtTime(0.0004, now + (useDanBauBend ? 2.4 : 1.7));
-    master.connect(c.destination);
-
-    // Fundamental + harmonic overtone for Đàn Tranh / Đàn Bầu warmth
-    const osc1 = c.createOscillator();
-    const osc2 = c.createOscillator();
-    osc1.type = 'triangle';
-    osc2.type = 'sine';
-    osc1.frequency.setValueAtTime(freq, now);
-    osc2.frequency.setValueAtTime(freq * 2, now);
-
-    if (useDanBauBend) {
-      // Characteristic subtle Đàn Bầu pitch glide + vibrato
-      osc1.frequency.exponentialRampToValueAtTime(freq * 1.045, now + 0.35);
-      osc1.frequency.exponentialRampToValueAtTime(freq * 0.995, now + 1.4);
-      const lfo = c.createOscillator();
-      const lfoGain = c.createGain();
-      lfo.frequency.setValueAtTime(4.8, now);
-      lfoGain.gain.setValueAtTime(3.2, now);
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc1.frequency);
-      lfo.start(now);
-      lfo.stop(now + 2.45);
-    }
-
-    const filter = c.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1600, now);
-    filter.frequency.exponentialRampToValueAtTime(520, now + 1.5);
-
-    const g2 = c.createGain();
-    g2.gain.setValueAtTime(0.32, now);
-
-    osc1.connect(filter);
-    osc2.connect(g2);
-    g2.connect(filter);
-    filter.connect(master);
-
-    const dur = useDanBauBend ? 2.45 : 1.75;
-    osc1.start(now);
-    osc2.start(now);
-    osc1.stop(now + dur);
-    osc2.stop(now + dur);
   }
 
   setAmbientEnabled(on: boolean): void {
@@ -259,21 +200,6 @@ class ApothecaryAudio {
       this.ambientSource = src;
       this.ambientFilter = filter;
       this.ambientGain = gain;
-
-      // Plucked Đàn Tranh / Đàn Bầu pentatonic phrase every few seconds
-      this.chimeTimer = window.setInterval(() => {
-        if (!this.ambientActive || this.musicVolume <= 0.02) return;
-        const c = this.getContext(true);
-        if (!c) return;
-        try {
-          const scale = PENTATONIC_BY_ELEMENT[this.elementMood] ?? PENTATONIC_BY_ELEMENT.tho;
-          const freq = scale[Math.floor(Math.random() * scale.length)];
-          const useBend = Math.random() < 0.35;
-          this.playTraditionalPluck(c, freq, useBend);
-        } catch {
-          // Safe no-op
-        }
-      }, 3800);
 
       // Subtle bamboo wind chime (Room 2) or charcoal ember crackle (Room 3)
       this.crackleTimer = window.setInterval(() => {

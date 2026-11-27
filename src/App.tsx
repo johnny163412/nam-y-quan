@@ -343,6 +343,8 @@ export const App: React.FC = () => {
 
       <footer className="disclaimer-footer">
         Nam Y Quán — Tuệ Tâm Đường là sản phẩm giáo dục mô phỏng Y học cổ truyền Việt Nam. Mọi thông tin chỉ phục vụ mục đích học tập, tra cứu văn hóa và không thay thế chẩn đoán hay điều trị của bác sĩ, lương y được cấp phép.
+        <br />
+        Nhạc nền: “Ripples” &amp; “Eastern Thought” — Kevin MacLeod (incompetech.com), cấp phép Creative Commons: By Attribution 4.0 (CC BY 4.0).
       </footer>
     </div>
   );
