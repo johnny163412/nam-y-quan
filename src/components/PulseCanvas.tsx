@@ -53,12 +53,17 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
     switchDepth('phu');
     if (deepenTimer.current) window.clearTimeout(deepenTimer.current);
     deepenTimer.current = window.setTimeout(() => switchDepth('tram'), 800);
+    // release wherever the finger lifts: a small slip off the wrist (or the drawer scrolling under it) must not drop the pulse
+    window.addEventListener('pointerup', endPress, { once: true });
+    window.addEventListener('pointercancel', endPress, { once: true });
   };
-  const endPress = () => {
+  function endPress() {
+    window.removeEventListener('pointerup', endPress);
+    window.removeEventListener('pointercancel', endPress);
     if (deepenTimer.current) window.clearTimeout(deepenTimer.current);
     deepenTimer.current = null;
     setPressing(false);
-  };
+  }
   useEffect(() => () => {
     if (deepenTimer.current) window.clearTimeout(deepenTimer.current);
   }, []);
@@ -211,9 +216,6 @@ export const PulseCanvas: React.FC<PulseCanvasProps> = ({
           <div
             className={`pulse-wrist-backdrop ${pressing ? `is-pressing depth-${depth}` : ''}`}
             onPointerDown={startPress}
-            onPointerUp={endPress}
-            onPointerLeave={endPress}
-            onPointerCancel={endPress}
             onContextMenu={(e) => e.preventDefault()}
           >
             <img
