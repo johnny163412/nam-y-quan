@@ -4,7 +4,7 @@ import CoreGraphics
 import CoreImage
 
 let artifactDir = "/Users/thiagop/.gemini/antigravity/brain/90213e4b-c384-4bc9-b2b5-4be77a632f54"
-let artDir = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan/public/art"
+let artDir = "/Users/thiagop/nam-y-quan/public/art"
 let ciContext = CIContext(options: nil)
 
 func loadCG(_ path: String) -> CGImage {

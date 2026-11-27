@@ -5,7 +5,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-ROOT = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan"
+ROOT = "/Users/thiagop/nam-y-quan"
 OUT_DIR = os.path.join(ROOT, "scripts", "raw", "archival")
 os.makedirs(OUT_DIR, exist_ok=True)
 

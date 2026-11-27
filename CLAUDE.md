@@ -5,7 +5,7 @@
 ## Live & Repo Info
 - **Live Playtest URL:** `https://johnny163412.github.io/nam-y-quan/` (served from orphan `gh-pages` branch)
 - **GitHub Repo:** `https://github.com/johnny163412/nam-y-quan` (public)
-- **Local Path:** `/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan`
+- **Local Path:** `/Users/thiagop/nam-y-quan`
 
 ## Core Architecture (v2.0.1 — Full-Bleed `100dvh` Spatial Diorama)
 - **`src/App.tsx`**: Locks the app into a `100dvh` spatial shell (`app-shell spatial-shell`). Keeps `<ClinicDesk />` permanently mounted underneath; secondary modes (`Tàng Thư Các`, `Khảo Thí Y Miếu`, `Đoán Thể Chất`) open as ancient-scroll overlays on top so closing them returns directly to the active patient. Manages `<TitleGateScreen />`, `<AchievementToast />`, and `<AchievementCabinetModal />` (12 Honor Seals).

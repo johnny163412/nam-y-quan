@@ -2,7 +2,7 @@ import AppKit
 import CoreGraphics
 import Foundation
 
-let root = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan/public/art/meridians"
+let root = "/Users/thiagop/nam-y-quan/public/art/meridians"
 let frontPath = "\(root)/meridian-front.jpg"
 let outPath = "\(root)/meridian-back.jpg"
 

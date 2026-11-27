@@ -3,7 +3,7 @@ import AppKit
 import CoreGraphics
 import CoreImage
 
-let projectRoot = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan"
+let projectRoot = "/Users/thiagop/nam-y-quan"
 let rawDir = "\(projectRoot)/scripts/raw"
 let artDir = "\(projectRoot)/public/art"
 let ciContext = CIContext(options: nil)

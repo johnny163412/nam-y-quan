@@ -3,7 +3,7 @@ import AppKit
 import CoreGraphics
 import CoreImage
 
-let root = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan"
+let root = "/Users/thiagop/nam-y-quan"
 let rawArch = "\(root)/scripts/raw/archival"
 let rawMaster = "\(root)/scripts/raw"
 let artDir = "\(root)/public/art"

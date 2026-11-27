@@ -2,7 +2,7 @@ import AppKit
 import CoreImage
 import Foundation
 
-let root = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan/public/art"
+let root = "/Users/thiagop/nam-y-quan/public/art"
 let brain = "/Users/thiagop/.gemini/antigravity/brain/90213e4b-c384-4bc9-b2b5-4be77a632f54"
 
 let ciCtx = CIContext(options: [.useSoftwareRenderer: false])

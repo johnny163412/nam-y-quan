@@ -2,7 +2,7 @@ import AppKit
 import CoreGraphics
 import Foundation
 
-let outDir = "/Users/thiagop/.gemini/antigravity/scratch/nam-y-quan/public/art/tools"
+let outDir = "/Users/thiagop/nam-y-quan/public/art/tools"
 let S = 512
 
 func makeCtx(_ w: Int = S, _ h: Int = S) -> CGContext {
