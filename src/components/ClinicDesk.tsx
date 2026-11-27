@@ -330,8 +330,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       setJustScoopedRole(role);
       window.setTimeout(() => {
         setJustScoopedRole((cur) => (cur === role ? null : cur));
-      }, 480);
-    }, 420);
+      }, 560);
+    }, 700);
   }, []);
 
   const handleAssignHerb = (role: RoleSlot, herbId: string | null) => {
@@ -883,10 +883,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   justScoopedRole={justScoopedRole}
                   animatingPanRole={animatingPanRole}
                   freshHerbIds={freshHerbIds}
-                  coldHeatBalance={preview.resultingVector.coldHeat}
+                  diagnosis={diagnosis}
+                  initialVector={selectedCase.initialVector}
+                  previewVector={preview.resultingVector}
+                  balanceScore={preview.balanceScore}
+                  alerts={preview.alerts}
                   hasTreatment={hasAssignedTreatment}
                   hasDragonScale={hasDragonScale}
                   panRefs={panRefs}
+                  onChangeDiagnosis={setDiagnosis}
                   onSelectSlot={setSelectedSlot}
                   onAssignHerb={handleAssignHerb}
                 />
@@ -1025,26 +1030,39 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                             </button>
 
                             {isOpen && (
-                              <div className="drawer-open-tray">
-                                <div className="drawer-herb-nest">
-                                  <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} />
-                                </div>
-                                <div className="drawer-tray-actions">
-                                  <button
-                                    type="button"
-                                    className="btn-cinnabar drawer-scoop-btn"
-                                    onClick={(e) => {
+                              <div className="drawer-3d-open-box">
+                                <div
+                                  role="button"
+                                  tabIndex={0}
+                                  className="drawer-cedar-well"
+                                  aria-label={`Nhón ${herb.name} bỏ vào ${ROLE_TITLES[selectedSlot]}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleScoopFromDrawer(herb);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault();
                                       e.stopPropagation();
                                       handleScoopFromDrawer(herb);
-                                    }}
-                                  >
-                                    Bốc vào {ROLE_TITLES[selectedSlot]}
-                                  </button>
-                                  <div className="drawer-sub-actions">
+                                    }
+                                  }}
+                                >
+                                  <div className="cedar-herbs-pile">
+                                    <BotanicalSvg herbId={herb.id} motif={herb.motif} size={52} bare />
+                                  </div>
+                                  <span className="cedar-pinch-cta">
+                                    Nhón bỏ {ROLE_TITLES[selectedSlot]}
+                                  </span>
+                                </div>
+
+                                <div className="drawer-front-ledge">
+                                  <span className="drawer-ledge-name">{herb.name}</span>
+                                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                     <button
                                       type="button"
                                       className="btn-secondary"
-                                      style={{ padding: '2px 7px', fontSize: '0.72rem' }}
+                                      style={{ padding: '1px 6px', fontSize: '0.68rem' }}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         onOpenCodexHerb(herb.id);
@@ -1056,15 +1074,26 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                                       <button
                                         type="button"
                                         className="btn-secondary"
-                                        style={{ padding: '2px 7px', fontSize: '0.72rem' }}
+                                        style={{ padding: '1px 6px', fontSize: '0.68rem' }}
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           handleAssignHerb(assignedRole, null);
                                         }}
                                       >
-                                        Trả hộc
+                                        Trả
                                       </button>
                                     )}
+                                    <button
+                                      type="button"
+                                      className="drawer-close-knob"
+                                      aria-label="Đẩy đóng ngăn thuốc"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleToggleDrawer(herb);
+                                      }}
+                                    >
+                                      ▲
+                                    </button>
                                   </div>
                                 </div>
                               </div>

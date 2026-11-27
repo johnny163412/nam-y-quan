@@ -847,7 +847,7 @@ button {
   border: 4px solid #3c2414;
   outline: 1px solid #6b4628;
   border-radius: 4px;
-  padding: 8px;
+  padding: 8px 8px 68px;
   box-shadow:
     inset 0 3px 12px rgba(0, 0, 0, 0.78),
     0 6px 16px rgba(0, 0, 0, 0.45);
@@ -861,6 +861,7 @@ button {
 
 .wood-drawer {
   position: relative;
+  min-height: 74px;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #4f3420 0%, #382315 58%, #29190e 100%);
@@ -885,14 +886,104 @@ button {
 }
 
 .wood-drawer.is-open {
-  grid-column: span 2;
-  z-index: 20;
-  transform: translateY(4px);
-  border-color: var(--gold-trim);
-  border-top: 5px solid #7d532f;
+  z-index: 36;
+}
+
+/* 3D Pull-Out Cedar Drawer Box (zero layout shift in grid!) */
+.drawer-3d-open-box {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 0;
+  z-index: 38;
+  background: linear-gradient(180deg, #2d1a0d 0%, #1c1008 100%);
+  border: 2px solid var(--gold-trim);
+  border-radius: 4px;
   box-shadow:
-    0 12px 24px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(207, 160, 82, 0.55);
+    0 18px 34px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(207, 160, 82, 0.45);
+  overflow: hidden;
+  animation: drawerSlideOut3D 210ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes drawerSlideOut3D {
+  from {
+    transform: translateY(-10px) scaleY(0.75);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateY(6px) scaleY(1);
+    opacity: 1;
+  }
+}
+
+.drawer-cedar-well {
+  padding: 8px;
+  background: radial-gradient(circle at 50% 45%, #492c17 0%, #2a180c 88%);
+  box-shadow: inset 0 8px 14px rgba(0, 0, 0, 0.65);
+  border-left: 5px solid #6b4527;
+  border-right: 5px solid #6b4527;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.drawer-cedar-well:hover {
+  background: radial-gradient(circle at 50% 45%, #5c381e 0%, #311c0e 88%);
+}
+
+.cedar-herbs-pile {
+  width: 68px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(250, 245, 232, 0.94) 55%, rgba(226, 206, 168, 0.72) 100%);
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.cedar-pinch-cta {
+  display: inline-block;
+  background: linear-gradient(180deg, #a62620 0%, #781915 100%);
+  color: #fff5e0;
+  border: 1px solid #e7b96a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.drawer-front-ledge {
+  background: linear-gradient(180deg, #523520 0%, #362113 100%);
+  border-top: 2px solid #8a5e2c;
+  padding: 4px 7px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+
+.drawer-ledge-name {
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff3d6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-close-knob {
+  background: #24160d;
+  border: 1px solid #8a5e2c;
+  color: #e7b96a;
+  border-radius: 3px;
+  padding: 0 5px;
+  font-size: 0.65rem;
 }
 
 .drawer-face-btn {
@@ -3737,12 +3828,305 @@ button {
   .paozhi-props-stage {
     grid-template-columns: 1fr;
   }
+  .drawer-3d-open-box {
+    left: 0;
+    right: 0;
+  }
+  .dispensary-axes-mini {
+    grid-template-columns: 1fr;
+  }
   .calligraphy-tabs {
     gap: 10px;
   }
   .calligraphy-tab {
     font-size: 0.82rem;
   }
+}
+
+/* ==================== DISPENSARY LIVE BIỆN CHỨNG, HAND SHADOW & CLOSEUP PAO ZHI STAGE ==================== */
+.dispensary-compass-strip {
+  background: linear-gradient(180deg, #322014 0%, #21140c 100%);
+  border: 1.5px solid #8a5e2c;
+  border-radius: 6px;
+  padding: 9px 11px;
+  margin-bottom: 8px;
+  color: #f4e4c4;
+}
+
+.dispensary-diag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 7px;
+}
+
+.diag-quick-pills {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.mini-toggle-chip {
+  background: #472e1c;
+  border: 1px solid #a67838;
+  color: #fff2d4;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.mini-toggle-chip:hover {
+  background: #6b221a;
+  border-color: #f0c26b;
+}
+
+.dispensary-axes-mini {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.mini-axis-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mini-axis-lbl {
+  font-size: 0.71rem;
+  color: #dec89f;
+  font-weight: 600;
+}
+
+.dispensary-verdict {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-left: 3px solid #9e7540;
+  background: rgba(255, 245, 224, 0.08);
+  color: #f2dfc0;
+}
+
+.dispensary-verdict.tone-balanced,
+.dispensary-verdict.tone-good {
+  background: rgba(35, 87, 76, 0.58);
+  border-left-color: #6ce0be;
+  color: #e8fff6;
+}
+
+.dispensary-verdict.tone-warn,
+.dispensary-verdict.tone-critical {
+  background: rgba(166, 38, 32, 0.56);
+  border-left-color: #ff9a92;
+  color: #fff0ee;
+}
+
+.round-scale-dish.dish-align-helpful.is-filled {
+  box-shadow: 0 0 0 2px rgba(74, 184, 152, 0.45), 0 6px 14px rgba(0, 0, 0, 0.38);
+}
+
+.round-scale-dish.dish-align-danger.is-filled {
+  border-color: #df493e;
+  box-shadow: 0 0 0 3px rgba(223, 73, 62, 0.55), 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+.healer-hand-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 65;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.healer-hand-shadow {
+  position: absolute;
+  width: 78px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 8, 4, 0.72) 0%, transparent 72%);
+  pointer-events: none;
+}
+
+/* Close-up Bào Chế Cutscene Overlay */
+.paozhi-closeup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  background: rgba(14, 9, 5, 0.74);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.paozhi-closeup-card {
+  width: 100%;
+  max-width: 340px;
+  background: linear-gradient(180deg, #3b2415 0%, #22140b 100%);
+  border: 2.5px solid var(--gold-trim);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.8);
+  text-align: center;
+}
+
+.closeup-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.closeup-pestle {
+  transform-origin: 141px 60px;
+  animation: pestleHeavySlam 380ms cubic-bezier(0.36, 0, 0.66, 1) 3;
+}
+
+@keyframes pestleHeavySlam {
+  0%, 100% {
+    transform: translateY(-22px) rotate(-6deg);
+  }
+  52% {
+    transform: translateY(10px) rotate(0deg);
+  }
+}
+
+.closeup-mortar-body {
+  animation: mortarImpactShake 380ms ease-in-out 3;
+}
+
+@keyframes mortarImpactShake {
+  0%, 42%, 100% {
+    transform: translateY(0);
+  }
+  58% {
+    transform: translateY(3px);
+  }
+}
+
+.closeup-burst {
+  animation: burstOilMist 380ms ease-out 3;
+}
+
+@keyframes burstOilMist {
+  0%, 45% {
+    transform: translateY(10px) scale(0.7);
+    opacity: 0;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-18px) scale(1.25);
+    opacity: 0;
+  }
+}
+
+.crushed-slices ellipse {
+  animation: slicesCrushOut 1.1s ease forwards;
+}
+
+@keyframes slicesCrushOut {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scaleX(1.22) scaleY(0.74);
+  }
+}
+
+.closeup-flames {
+  transform-origin: 140px 158px;
+  animation: flameFlicker 320ms ease-in-out infinite alternate;
+}
+
+.closeup-spatula {
+  transform-origin: 84px 26px;
+  animation: spatulaStir 540ms ease-in-out 2;
+}
+
+@keyframes spatulaStir {
+  0%, 100% {
+    transform: rotate(-10deg) translateX(0);
+  }
+  50% {
+    transform: rotate(18deg) translateX(18px);
+  }
+}
+
+.closeup-toss-herbs ellipse {
+  transition: fill 0.6s ease;
+}
+
+.closeup-toss-herbs.to-gold ellipse {
+  animation: turnGoldenToast 1.1s ease forwards;
+}
+
+.closeup-toss-herbs.to-honey ellipse {
+  animation: turnHoneyGlaze 1.1s ease forwards;
+}
+
+@keyframes turnGoldenToast {
+  0% {
+    fill: #7C9658;
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-20px);
+  }
+  100% {
+    fill: #D49434;
+    transform: translateY(0);
+  }
+}
+
+@keyframes turnHoneyGlaze {
+  0% {
+    fill: #B68A4A;
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-22px);
+  }
+  100% {
+    fill: #EA9E26;
+    transform: translateY(0);
+  }
+}
+
+.honey-pour-group {
+  animation: honeyStreamFade 1.15s ease forwards;
+}
+
+@keyframes honeyStreamFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.25;
+  }
+}
+
+.closeup-smoke {
+  animation: spoutSteamDrift 1.1s ease-in-out infinite;
+}
+
+.closeup-caption {
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  color: #fff4dd;
 }
 
 @media (max-width: 980px) {
