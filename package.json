@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "art:webp": "for f in $(find public/art -type f \\( -name '*.jpg' -o -name '*.png' \\)); do cwebp -quiet -q 80 -m 6 \"$f\" -o \"${f%.*}.webp\" && rm \"$f\"; done"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.3.4",

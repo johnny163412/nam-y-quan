@@ -3,3 +3,5 @@ dist/
 tsconfig.tsbuildinfo
 .DS_Store
 scripts/raw/
+test-results/
+playwright-report/
