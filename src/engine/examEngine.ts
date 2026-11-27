@@ -138,6 +138,36 @@ export function buildExamBank(): ExamQuestion[] {
       })),
       correctOptionId: 'tuc-tam-ly',
       explanation: 'Túc Tam Lý (ST36) là Hợp huyệt của kinh Vị, nằm dưới đầu gối ngoài 3 thốn — huyệt hàng đầu bổ Tỳ Vị và tăng chính khí.'
+    },
+    {
+      id: 'ex-acupoint-uy-trung',
+      type: 'acupoint',
+      targetKey: 'pt-uy-trung',
+      prompt: 'Định vị trên Đồ hình Mặt Sau: Chọn đúng huyệt ỦY TRUNG (BL40) — "Yêu bối Ủy Trung cầu" chủ trị đau thắt lưng.',
+      subtext: 'Nhấn trực tiếp vào điểm huyệt nằm chính giữa nếp lằn ngang hõm khoeo sau đầu gối.',
+      acupointMapSide: 'back',
+      acupointCandidateIds: ['uy-trung', 'than-du', 'menh-mon', 'kien-tinh'],
+      options: ACUPOINTS.filter((a) => ['uy-trung', 'than-du', 'menh-mon', 'kien-tinh'].includes(a.id)).map((a) => ({
+        id: a.id,
+        label: `${a.name} (${a.code})`
+      })),
+      correctOptionId: 'uy-trung',
+      explanation: 'Ủy Trung (BL40) là Hợp huyệt kinh Bàng Quang nằm chính giữa nếp lằn hõm khoeo sau gối, huyệt đặc hiệu trị đau thắt lưng cấp/mạn.'
+    },
+    {
+      id: 'ex-acupoint-menh-mon',
+      type: 'acupoint',
+      targetKey: 'pt-menh-mon',
+      prompt: 'Định vị trên Đồ hình Mặt Sau: Chọn đúng huyệt MỆNH MÔN (GV4) — cửa ngõ ôn bổ Thận dương và thắt lưng.',
+      subtext: 'Nhấn vào huyệt nằm trên Đốc Mạch, ngay dưới mỏm gai đốt sống thắt lưng L2 (chính giữa cột sống).',
+      acupointMapSide: 'back',
+      acupointCandidateIds: ['menh-mon', 'dai-chuy', 'phe-du', 'tam-du'],
+      options: ACUPOINTS.filter((a) => ['menh-mon', 'dai-chuy', 'phe-du', 'tam-du'].includes(a.id)).map((a) => ({
+        id: a.id,
+        label: `${a.name} (${a.code})`
+      })),
+      correctOptionId: 'menh-mon',
+      explanation: 'Mệnh Môn (GV4) nằm chính giữa cột sống thắt lưng dưới L2 (ngang với Thận Du BL23 hai bên), chủ trị Thận dương hư và lưng gối lạnh buốt.'
     }
   ];
 

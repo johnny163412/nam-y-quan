@@ -2528,6 +2528,47 @@ button {
   animation: qiFlowStream 1.6s linear infinite;
 }
 
+.acupoint-quick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.acupoint-chip {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid #6b4928;
+  background: rgba(247, 238, 219, 0.92);
+  color: #2f231a;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.acupoint-chip:hover {
+  transform: translateY(-1px);
+  border-color: #23574c;
+}
+
+.acupoint-chip.active {
+  background: #23574c;
+  color: #fff6df;
+  border-color: #163d34;
+}
+
+.acupoint-chip.danger {
+  border-color: #a62620;
+  color: #8b1e18;
+  background: rgba(248, 224, 219, 0.9);
+}
+
+.acupoint-chip.active.danger {
+  background: #a62620;
+  color: #fff6df;
+}
+
 @keyframes qiFlowStream {
   from {
     stroke-dashoffset: 26;

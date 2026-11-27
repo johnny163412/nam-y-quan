@@ -45,7 +45,9 @@ const RADAR_AXES: { label: string; calc: (p: UserProgress) => number }[] = [
   {
     label: 'Kinh Lạc',
     calc: (p) => {
-      const entries = Object.entries(p.mastery).filter(([k]) => k.startsWith('acupoint-'));
+      const entries = Object.entries(p.mastery).filter(
+        ([k]) => k.startsWith('pt-') || k.startsWith('acupoint-')
+      );
       if (entries.length === 0) return 30;
       const sum = entries.reduce((acc, [, v]) => acc + (v.seen ? v.correct / v.seen : 0), 0);
       return Math.max(25, Math.min(100, Math.round((sum / entries.length) * 100)));

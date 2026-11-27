@@ -555,9 +555,9 @@ export const STORY_CASES: PatientCase[] = [
     targetDiagnosis: { location: 'bieu', nature: 'han', state: 'thuc', primaryElement: 'moc' },
     keyHerbs: ['que-chi', 'tia-to', 'la-lot', 'sinh-khuong', 'cam-thao'],
     idealQuanHerb: 'que-chi',
-    keyAcupoints: ['phong-tri', 'liet-khuyet', 'hop-coc'],
+    keyAcupoints: ['phong-tri', 'dai-chuy', 'kien-tinh', 'liet-khuyet', 'hop-coc'],
     clinicalExplanation:
-      'Phong Hàn xâm nhập kinh lạc vùng cổ vai gáy ("Thông tắc bất thống, thống tắc bất thông"). Phối hợp "Trong uống ngoài châm": Quế chi làm Quân ôn thông kinh mạch đưa dương khí ra vai tay, Tía tô / Lá lốt làm Thần-Tá khu phong tán hàn, Cam thảo làm Sứ; kết hợp bấm huyệt Phong Trì + Liệt Khuyết (+ Hợp Cốc) mở cửa kinh lạc sau gáy ngay tức thì.',
+      'Phong Hàn xâm nhập kinh lạc vùng cổ vai gáy ("Thông tắc bất thống, thống tắc bất thông"). Phối hợp "Trong uống ngoài châm": Quế chi làm Quân ôn thông kinh mạch đưa dương khí ra vai tay, Tía tô / Lá lốt làm Thần-Tá khu phong tán hàn, Cam thảo làm Sứ; kết hợp bấm bộ huyệt mặt sau Phong Trì + Đại Chùy + Kiên Tỉnh cùng Liệt Khuyết / Hợp Cốc để mở toang kinh lạc cổ vai gáy.',
     realLifeTakeaway:
       'Khi bị cứng cổ vai gáy do gió lạnh, hãy giữ ấm vùng gáy, day nhẹ huyệt Phong Trì (hai hõm sau gáy) và Liệt Khuyết (cổ tay) kết hợp uống nước quế gừng ấm.',
     followUpLetters: {
@@ -626,9 +626,9 @@ export const STORY_CASES: PatientCase[] = [
     targetDiagnosis: { location: 'ly', nature: 'han', state: 'hu', primaryElement: 'tho' },
     keyHerbs: ['tia-to', 'hoai-son', 'lac-tien', 'cam-thao'],
     idealQuanHerb: 'hoai-son',
-    keyAcupoints: ['noi-quan', 'an-duong'],
+    keyAcupoints: ['noi-quan', 'dan-trung', 'an-duong'],
     clinicalExplanation:
-      'BÀI HỌC CẤM KỴ Y GIA: Với thai phụ buồn nôn, tức ngực, đau đầu và khó ngủ, tuyệt đối CẤM dùng huyệt Hợp Cốc (LI4), Tam Âm Giao (SP6) và vị thuốc Cỏ xước / Đan sâm / Ngải cứu liều Quân (gây hoạt huyết co bóp tử cung). Hướng trị an toàn là Hoài sơn + Tía tô (vốn là vị an thai chỉ ẩu nổi tiếng!) kết hợp Lạc tiên, Cam thảo; bên ngoài chỉ bấm nhẹ Nội Quan (PC6 - chống nôn an thần) và Ấn Đường (EX-HN3 - dịu căng thẳng vùng trán).',
+      'BÀI HỌC CẤM KỴ Y GIA: Với thai phụ buồn nôn, tức ngực, đau đầu và khó ngủ, tuyệt đối CẤM dùng huyệt Hợp Cốc (LI4), Tam Âm Giao (SP6), Kiên Tỉnh (GB21) và vị thuốc Cỏ xước / Đan sâm / Ngải cứu liều Quân (gây hoạt huyết hạ hành). Hướng trị an toàn là Hoài sơn + Tía tô (vốn là vị an thai chỉ ẩu nổi tiếng!) kết hợp Lạc tiên, Cam thảo; bên ngoài chỉ bấm nhẹ Nội Quan (PC6 - chống nôn), Đản Trung (CV17 - khoan hung giáng khí) và Ấn Đường (EX-HN3 - an thần vùng trán).',
     realLifeTakeaway:
       'Huyệt Nội Quan (dưới nếp cổ tay 3 ngón tay) là huyệt vàng an toàn giúp giảm buồn nôn ốm nghén và say tàu xe. Ngược lại, phụ nữ mang thai phải tuyệt đối tránh bấm Hợp Cốc và Tam Âm Giao.',
     followUpLetters: {
@@ -696,9 +696,9 @@ export const STORY_CASES: PatientCase[] = [
     targetDiagnosis: { location: 'ly', nature: 'han', state: 'hu', primaryElement: 'thuy' },
     keyHerbs: ['ngai-cuu', 'la-lot', 'co-xuoc', 'ky-tu', 'que-chi'],
     idealQuanHerb: 'ngai-cuu',
-    keyAcupoints: ['than-du', 'khi-hai', 'tuc-tam-ly'],
+    keyAcupoints: ['than-du', 'menh-mon', 'uy-trung', 'thai-khe', 'khi-hai', 'tuc-tam-ly'],
     clinicalExplanation:
-      'Thận Dương hư kiêm Phong Hàn Thấp (Lý - Hư - Hàn ở hạ tiêu): đau lưng mỏi gối lạnh buốt, tiểu đêm nhiều, bộ Xích mạch Trầm Tế Nhược. Cần "Bổ Thận ôn dương, khu phong trừ thấp" — Ngải cứu / Quế chi làm Quân ôn ấm hạ tiêu, Lá lốt làm Thần trừ phong thấp, Cỏ xước làm Tá dẫn thuốc xuống mạnh gân cốt (cùng Kỷ tử bổ Can Thận); kết hợp bấm/cứu huyệt Thận Du (BL23), Khí Hải (CV6) và Túc Tam Lý (ST36).',
+      'Thận Dương hư kiêm Phong Hàn Thấp (Lý - Hư - Hàn ở hạ tiêu): đau lưng mỏi gối lạnh buốt, tiểu đêm nhiều, bộ Xích mạch Trầm Tế Nhược. Cần "Bổ Thận ôn dương, khu phong trừ thấp" — Ngải cứu / Quế chi làm Quân ôn ấm hạ tiêu, Lá lốt làm Thần trừ phong thấp, Cỏ xước làm Tá dẫn thuốc xuống mạnh gân cốt (cùng Kỷ tử bổ Can Thận); kết hợp hơ ngải cứu huyệt Thận Du (BL23) + Mệnh Môn (GV4) cùng day huyệt Ủy Trung (BL40 - "Yêu bối Ủy Trung cầu"), Thái Khê (KI3), Khí Hải (CV6) và Túc Tam Lý (ST36).',
     realLifeTakeaway:
       'Ngâm chân nước ấm nấu lá lốt + gừng + muối hột buổi tối và xoa ấm hai huyệt Thận Du sau thắt lưng giúp cải thiện rất tốt chứng lạnh chân, tiểu đêm và đau nhức gối khi trở trời.',
     followUpLetters: {

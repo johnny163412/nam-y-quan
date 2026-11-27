@@ -107,9 +107,9 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
               />
               {/* Delicate flowing meridian pathways + active Đắc Khí flow */}
               <g stroke="#23574C" strokeWidth="1.1" strokeDasharray="4 3" fill="none" opacity="0.58">
-                <path d="M125 68 C125 112 125 168 125 220" />
+                <path d="M125 68 C125 106 125 138 125 220" />
                 <path d="M102 124 C95 190 94 265 93 333 C92 368 92 392 91 411" />
-                <path d="M148 124 C150 198 148 290 142 377" />
+                <path d="M148 124 C150 198 148 290 142 377 L140 398" />
                 <path d="M84 114 C70 152 60 188 55 226 C51 236 48 240 46 244" />
                 <path d="M166 114 C178 152 186 188 190 218 L195 233" />
               </g>
@@ -121,9 +121,11 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                   fill="none"
                   opacity="0.88"
                 >
-                  <path d="M125 68 C125 112 125 168 125 220" />
+                  <path d="M125 68 C125 106 125 138 125 220" />
                   <path d="M102 124 C95 190 94 265 93 333 C92 368 92 392 91 411" />
+                  <path d="M148 124 C150 198 148 290 142 377 L140 398" />
                   <path d="M84 114 C70 152 60 188 55 226 C51 236 48 240 46 244" />
+                  <path d="M166 114 C178 152 186 188 190 218 L195 233" />
                 </g>
               )}
             </>
@@ -139,10 +141,12 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                 preserveAspectRatio="none"
                 style={{ mixBlendMode: 'multiply' }}
               />
-              {/* Back meridian pathways: Đốc Mạch, Bàng Quang & Tam Tiêu */}
+              {/* Back meridian pathways: Đốc Mạch, Bàng Quang (Back-Shu + Ủy Trung), Đởm & Tam Tiêu */}
               <g stroke="#274B6D" strokeWidth="1.15" strokeDasharray="4 3" fill="none" opacity="0.72">
-                <path d="M125 42 C125 102 125 174 125 236" />
-                <path d="M111 84 C109 124 108 162 108 196 C107 254 105 304 105 352" />
+                <path d="M125 42 C125 76 125 148 125 236" />
+                <path d="M111 84 L109 124 L109 144 L109 164 L109 180 L108 196 C106 254 104 300 101 352" />
+                <path d="M139 84 C142 130 143 185 145 232 C148 272 150 296 151 316 L151 362" />
+                <path d="M125 98 Q140 101 154 105" />
                 <path d="M82 118 C69 154 61 186 56 214" />
               </g>
               {selectedIds.length > 0 && !hideDetails && (
@@ -153,45 +157,67 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
                   fill="none"
                   opacity="0.88"
                 >
-                  <path d="M125 42 C125 102 125 174 125 236" />
-                  <path d="M111 84 C109 124 108 162 108 196 C107 254 105 304 105 352" />
+                  <path d="M125 42 C125 76 125 148 125 236" />
+                  <path d="M111 84 L109 124 L109 144 L109 164 L109 180 L108 196 C106 254 104 300 101 352" />
+                  <path d="M139 84 C142 130 143 185 145 232 C148 272 150 296 151 316 L151 362" />
+                  <path d="M125 98 Q140 101 154 105" />
+                  <path d="M82 118 C69 154 61 186 56 214" />
                 </g>
               )}
             </>
           )}
 
-          {/* Acupoint Nodes & Crisp Unfiltered Labels */}
+          {/* Acupoint Nodes & Crisp Non-Overlapping Labels */}
           {visiblePoints.map((pt) => {
             const isSelected = selectedIds.includes(pt.id);
             const isDanger = isPregnant && pt.pregnancyForbidden;
 
             let labelX = pt.x < 125 ? pt.x - 10 : pt.x + 10;
-            const labelY = pt.y + 3;
+            let labelY = pt.y + 3;
             let anchor: 'start' | 'middle' | 'end' = pt.x < 125 ? 'end' : 'start';
 
-            if (
-              pt.id === 'an-duong' ||
-              pt.id === 'bach-hoi' ||
-              pt.id === 'trung-quan' ||
-              pt.id === 'khi-hai' ||
-              pt.id === 'than-du' ||
-              pt.id === 'tam-am-giao' ||
-              pt.id === 'noi-quan' ||
-              pt.id === 'than-mon'
-            ) {
+            const rightAlignedIds = new Set([
+              'an-duong',
+              'dan-trung',
+              'trung-quan',
+              'khi-hai',
+              'tam-am-giao',
+              'thai-khe',
+              'noi-quan',
+              'than-mon',
+              'bach-hoi',
+              'dai-chuy',
+              'kien-tinh',
+              'menh-mon',
+              'uy-trung'
+            ]);
+            const leftAlignedIds = new Set([
+              'hop-coc',
+              'liet-khuyet',
+              'ngoai-quan',
+              'phong-tri',
+              'phe-du',
+              'tam-du',
+              'can-du',
+              'ty-du',
+              'than-du',
+              'tuc-tam-ly',
+              'thai-xung'
+            ]);
+
+            if (rightAlignedIds.has(pt.id)) {
               labelX = pt.x + 10;
               anchor = 'start';
-            } else if (
-              pt.id === 'hop-coc' ||
-              pt.id === 'liet-khuyet' ||
-              pt.id === 'ngoai-quan' ||
-              pt.id === 'phong-tri' ||
-              pt.id === 'tuc-tam-ly' ||
-              pt.id === 'thai-xung'
-            ) {
+            } else if (leftAlignedIds.has(pt.id)) {
               labelX = pt.x - 10;
               anchor = 'end';
             }
+
+            if (pt.id === 'dai-chuy') labelY = pt.y - 2;
+            if (pt.id === 'kien-tinh') labelY = pt.y + 8;
+            if (pt.id === 'ty-du') labelY = pt.y - 1;
+            if (pt.id === 'than-du') labelY = pt.y + 5;
+            if (pt.id === 'thai-khe') labelY = pt.y + 4;
 
             return (
               <g
@@ -295,7 +321,26 @@ export const MeridianBodyMap: React.FC<MeridianBodyMapProps> = ({
           )}
 
           <div style={{ fontWeight: 700, marginBottom: '6px', fontSize: '0.84rem', color: '#7C1A14' }}>
-            Chạm trực tiếp vào huyệt trên đồ hình lụa ({activeSide === 'front' ? 'Mặt Trước' : 'Mặt Sau'}) — Đã chọn {selectedIds.length} huyệt
+            Chạm trực tiếp vào huyệt trên đồ hình lụa ({activeSide === 'front' ? 'Mặt Trước' : 'Mặt Sau'} · {visiblePoints.length} huyệt) — Đã chọn {selectedIds.length} huyệt
+          </div>
+
+          <div className="acupoint-quick-grid" role="group" aria-label="Danh sách chọn nhanh huyệt đạo">
+            {visiblePoints.map((pt) => {
+              const isSelected = selectedIds.includes(pt.id);
+              const isDanger = isPregnant && pt.pregnancyForbidden;
+              return (
+                <button
+                  key={pt.id}
+                  type="button"
+                  className={`acupoint-chip ${isSelected ? 'active' : ''} ${isDanger ? 'danger' : ''}`}
+                  onClick={() => handleClickPoint(pt)}
+                  aria-pressed={isSelected}
+                  title={`${pt.name} (${pt.code}) — ${pt.meridian}`}
+                >
+                  {pt.name} <span style={{ opacity: 0.72 }}>({pt.code})</span>
+                </button>
+              );
+            })}
           </div>
 
           {inspected ? (

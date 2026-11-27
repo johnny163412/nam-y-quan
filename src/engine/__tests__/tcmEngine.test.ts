@@ -24,9 +24,11 @@ import {
 import { PrescriptionSlots } from '../../types/tcm';
 
 describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
-  it('contains 20 herbs and 14 acupoints across 3 chapters', () => {
+  it('contains 20 herbs and 24 acupoints (12 front, 12 back) across 3 chapters', () => {
     expect(HERBS).toHaveLength(20);
-    expect(ACUPOINTS).toHaveLength(14);
+    expect(ACUPOINTS).toHaveLength(24);
+    expect(ACUPOINTS.filter((a) => a.bodySide === 'front')).toHaveLength(12);
+    expect(ACUPOINTS.filter((a) => a.bodySide === 'back')).toHaveLength(12);
     expect(STORY_CASES).toHaveLength(10);
   });
 
@@ -43,7 +45,7 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(new Set(assigned).size).toBe(assigned.length);
   });
 
-  it('Failure Mode 2: flags critical pregnancy contraindications for LI4, SP6, Cỏ xước, Đan sâm, and Ngải cứu as Quân', () => {
+  it('Failure Mode 2: flags critical pregnancy contraindications for LI4, SP6, GB21, Cỏ xước, Đan sâm, and Ngải cứu as Quân', () => {
     const pregnantCase = STORY_CASES.find((c) => c.id === 'c3-thai-phu-khi-nghich')!;
     expect(pregnantCase.isPregnant).toBe(true);
 
@@ -53,10 +55,10 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       ta: 'dan-sam',
       su: 'cam-thao'
     };
-    const alerts = checkContraindications(pregnantCase, dangerousSlots, ['hop-coc', 'tam-am-giao']);
+    const alerts = checkContraindications(pregnantCase, dangerousSlots, ['hop-coc', 'tam-am-giao', 'kien-tinh']);
     const criticals = alerts.filter((a) => a.severity === 'critical');
 
-    expect(criticals.length).toBe(5);
+    expect(criticals.length).toBe(6);
 
     const evalResult = evaluateCaseSubmission(
       pregnantCase,
@@ -101,15 +103,15 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       },
       'c3-vai-gay-phong-han': {
         slots: { quan: 'que-chi', than: 'tia-to', ta: 'la-lot', su: 'cam-thao' },
-        acupoints: ['phong-tri', 'liet-khuyet']
+        acupoints: ['phong-tri', 'dai-chuy', 'kien-tinh', 'liet-khuyet']
       },
       'c3-thai-phu-khi-nghich': {
         slots: { quan: 'hoai-son', than: 'tia-to', ta: 'lac-tien', su: 'cam-thao' },
-        acupoints: ['noi-quan', 'an-duong']
+        acupoints: ['noi-quan', 'dan-trung', 'an-duong']
       },
       'c3-than-duong-hu-phong-thap': {
         slots: { quan: 'ngai-cuu', than: 'la-lot', ta: 'co-xuoc', su: 'ky-tu' },
-        acupoints: ['than-du', 'khi-hai']
+        acupoints: ['than-du', 'menh-mon', 'uy-trung', 'khi-hai']
       }
     };
 
