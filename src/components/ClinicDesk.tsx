@@ -31,7 +31,6 @@ import {
 import { AmbientParticlesCanvas } from './AmbientParticlesCanvas';
 import { BrassScaleRig } from './BrassScaleRig';
 import { CaseLedgerModal } from './CaseLedgerModal';
-import { ClinicRelicShelf } from './ClinicRelicShelf';
 import { EightPrinciplesCompass } from './EightPrinciplesCompass';
 import { FirstCaseGuideBar } from './FirstCaseGuideBar';
 import { FloatingAtmosphereCanvas } from './FloatingAtmosphereCanvas';
@@ -129,6 +128,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   // Examination state (Spatial 2.0: starts null for open cinematic Tiền Đường view)
   const [activeToolDrawer, setActiveToolDrawer] = useState<TabletopTool | null>(null);
   const [askedIds, setAskedIds] = useState<string[]>([]);
+  const [incenseLitCaseId, setIncenseLitCaseId] = useState<string | null>(null);
   const [clues, setClues] = useState<string[]>([`Chủ chứng: ${STORY_CASES[0].seasonTag}`]);
   const [inspectedAudio, setInspectedAudio] = useState(false);
   const [auscultating, setAuscultating] = useState(false);
@@ -358,12 +358,29 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
     window.setTimeout(() => setAuscultating(false), 900);
   };
 
+  const effectiveMaxInquiries =
+    selectedCase.maxInquiries + (incenseLitCaseId === selectedCase.id ? 1 : 0);
+
   const handleAskQuestion = (qId: string, clueTag: string) => {
     if (askedIds.includes(qId)) return;
-    if (askedIds.length >= selectedCase.maxInquiries) return;
+    if (askedIds.length >= effectiveMaxInquiries) return;
     setAskedIds((prev) => [...prev, qId]);
     addClue(clueTag);
     apothecaryAudio.playBambooTally();
+  };
+
+  const handleLightDeskIncense = () => {
+    if (yDucPoints < 20) {
+      pushCallout(`Cần 20 Y Đức để đặt Đỉnh Trầm Hương (hiện có ${yDucPoints})`, 'gold');
+      return;
+    }
+    apothecaryAudio.playCurtainBell();
+    if (incenseLitCaseId !== selectedCase.id) {
+      setIncenseLitCaseId(selectedCase.id);
+      pushCallout('Thắp Trầm Định Thần · +1 Lượt Hỏi Thẻ Vấn!', 'jade');
+    } else {
+      pushCallout('Hương trầm đang lan tỏa khắp Tiền Đường...', 'gold');
+    }
   };
 
   const triggerScoopAnimation = useCallback((herb: Herb, role: RoleSlot) => {
@@ -813,8 +830,6 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                         Sang Dược Các Bốc Thuốc →
                       </button>
                     </div>
-
-                    {!activeToolDrawer && <ClinicRelicShelf yDucPoints={yDucPoints} />}
                   </div>
                 </div>
 
@@ -828,7 +843,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                           : activeToolDrawer === 'van'
                           ? 'Văn Chẩn — Lắng Nghe Thanh Âm'
                           : activeToolDrawer === 'van-hoi'
-                          ? `Vấn Chẩn — Ống Thẻ Tre (${askedIds.length}/${selectedCase.maxInquiries})`
+                          ? `Vấn Chẩn — Ống Thẻ Tre (${askedIds.length}/${effectiveMaxInquiries})`
                           : activeToolDrawer === 'thiet'
                           ? 'Thiết Chẩn — Gối Bắt Mạch'
                           : 'Đĩa Đồng Bát Quái — Chốt Biện Chứng'}
@@ -885,7 +900,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       {activeToolDrawer === 'van-hoi' && (
                         <div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
-                            Rút thẻ tre hỏi bệnh (còn <strong>{selectedCase.maxInquiries - askedIds.length}</strong> lượt):
+                            Rút thẻ tre hỏi bệnh (còn <strong>{effectiveMaxInquiries - askedIds.length}</strong> lượt):
                           </div>
 
                           <div className="wooden-chat-log" aria-live="polite">
@@ -925,7 +940,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                             {selectedCase.inquiries
                               .filter((q) => !askedIds.includes(q.id))
                               .map((q) => {
-                                const limitReached = askedIds.length >= selectedCase.maxInquiries;
+                                const limitReached = askedIds.length >= effectiveMaxInquiries;
                                 return (
                                   <button
                                     key={q.id}
@@ -981,46 +996,6 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                     </div>
                   </aside>
                 )}
-
-                {/* Tactile Tabletop 5-Instrument Tray resting directly on the wooden desk */}
-                <div className="spatial-tabletop-tray" role="toolbar" aria-label="Khay 5 pháp khí trên bàn khám">
-                  {EXAM_INSTRUMENTS.map((inst) => {
-                    const isOpen = activeToolDrawer === inst.id;
-                    return (
-                      <button
-                        key={inst.id}
-                        type="button"
-                        className={`tabletop-tool-btn ${isOpen ? 'active' : ''}`}
-                        onClick={() => {
-                          setActiveToolDrawer((cur) => (cur === inst.id ? null : inst.id));
-                          apothecaryAudio.playPageTurn();
-                        }}
-                      >
-                        <span className="tabletop-tool-icon" aria-hidden="true">
-                          <AntiqueIcon name={inst.icon} size={18} />
-                        </span>
-                        <span className="tabletop-tool-label">
-                          {inst.id === 'van-hoi'
-                            ? `${inst.label} (${askedIds.length}/${selectedCase.maxInquiries})`
-                            : inst.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    className={`tabletop-tool-btn is-compass ${activeToolDrawer === 'bat-cuong' ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveToolDrawer((cur) => (cur === 'bat-cuong' ? null : 'bat-cuong'));
-                      apothecaryAudio.playPageTurn();
-                    }}
-                  >
-                    <span className="tabletop-tool-icon" aria-hidden="true">
-                      <AntiqueIcon name="yin-yang" size={18} />
-                    </span>
-                    <span className="tabletop-tool-label">Đĩa Bát Quái</span>
-                  </button>
-                </div>
               </div>
             </section>
 
@@ -1481,6 +1456,119 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Physical Tabletop Props & 5-Instrument Tray — rendered OUTSIDE transformed track so fixed centering is 100% exact */}
+      {activeRoom === 0 && (
+        <div className="tien-duong-desk-foreground">
+          {/* Physical Relic 1 on Left Side of Desk: Antique Bronze Incense Burner */}
+          <button
+            type="button"
+            className={`desk-physical-relic relic-incense ${yDucPoints >= 20 ? 'is-unlocked' : 'is-locked'} ${
+              incenseLitCaseId === selectedCase.id ? 'is-lit' : ''
+            }`}
+            onClick={handleLightDeskIncense}
+            title={
+              yDucPoints >= 20
+                ? 'Đỉnh Trầm Hương — Nhấp để thắp trầm định thần (+1 lượt hỏi Thẻ Vấn cho ca này)'
+                : `Đỉnh Trầm Hương — Mở khóa tại 20 Y Đức (hiện có ${yDucPoints})`
+            }
+          >
+            <span className="desk-relic-art-wrap">
+              <img
+                src="./art/tools/bronze-incense-burner.jpg"
+                alt="Đỉnh Trầm Hương đặt trên bàn khám"
+                className="desk-relic-img"
+              />
+              {yDucPoints >= 20 && (
+                <>
+                  <span className="desk-smoke-plume s1" aria-hidden="true" />
+                  <span className="desk-smoke-plume s2" aria-hidden="true" />
+                </>
+              )}
+            </span>
+            <span className="desk-relic-caption">
+              {yDucPoints >= 20
+                ? incenseLitCaseId === selectedCase.id
+                  ? 'Trầm Đang Tỏa (+1 Vấn)'
+                  : 'Thắp Đỉnh Trầm'
+                : 'Đỉnh Trầm (20 YĐ)'}
+            </span>
+          </button>
+
+          {/* Center 5 Tactile Examination Instruments directly on the Wooden Desk */}
+          <div className="spatial-tabletop-tray" role="toolbar" aria-label="Khay 5 pháp khí trên bàn khám">
+            {EXAM_INSTRUMENTS.map((inst) => {
+              const isOpen = activeToolDrawer === inst.id;
+              return (
+                <button
+                  key={inst.id}
+                  type="button"
+                  className={`tabletop-tool-btn ${isOpen ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveToolDrawer((cur) => (cur === inst.id ? null : inst.id));
+                    apothecaryAudio.playPageTurn();
+                  }}
+                >
+                  <span className="tabletop-tool-icon" aria-hidden="true">
+                    <AntiqueIcon name={inst.icon} size={18} />
+                  </span>
+                  <span className="tabletop-tool-label">
+                    {inst.id === 'van-hoi'
+                      ? `${inst.label} (${askedIds.length}/${effectiveMaxInquiries})`
+                      : inst.label}
+                  </span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              className={`tabletop-tool-btn is-compass ${activeToolDrawer === 'bat-cuong' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveToolDrawer((cur) => (cur === 'bat-cuong' ? null : 'bat-cuong'));
+                apothecaryAudio.playPageTurn();
+              }}
+            >
+              <span className="tabletop-tool-icon" aria-hidden="true">
+                <AntiqueIcon name="yin-yang" size={18} />
+              </span>
+              <span className="tabletop-tool-label">Đĩa Bát Quái</span>
+            </button>
+          </div>
+
+          {/* Physical Relic 2 on Right Side of Desk: Jade / Cinnabar Clinic Seal */}
+          <button
+            type="button"
+            className={`desk-physical-relic relic-seal ${hasJadeSeal ? 'is-jade-unlocked' : 'is-wood-active'}`}
+            onClick={() => {
+              apothecaryAudio.playPageTurn();
+              const unlockedList = [
+                yDucPoints >= 20 ? 'Đỉnh Trầm Hương' : null,
+                hasDragonScale ? 'Cân Giao Long' : null,
+                hasBatTrangPot ? 'Siêu Bát Tràng' : null,
+                hasJadeSeal ? 'Ấn Ngọc Bích' : null
+              ].filter(Boolean);
+              pushCallout(
+                unlockedList.length > 0
+                  ? `Bảo vật hiện hữu: ${unlockedList.join(' · ')}`
+                  : 'Tích 20 Y Đức để thỉnh Đỉnh Trầm Hương về bàn khám',
+                hasJadeSeal ? 'jade' : 'gold'
+              );
+            }}
+            title={
+              hasJadeSeal
+                ? 'Ấn Ngọc Bích Trấn Quán (120 Y Đức) — Nhấp xem danh sách bảo vật đang hiện hữu'
+                : 'Ấn Gỗ Tuệ Tâm Đường — Đạt 120 Y Đức sẽ hóa Ấn Ngọc Bích'
+            }
+          >
+            <span className={`desk-seal-block ${hasJadeSeal ? 'is-jade' : ''}`} aria-hidden="true">
+              惠心
+            </span>
+            <span className="desk-relic-caption">
+              {hasJadeSeal ? 'Ấn Ngọc Bích' : 'Ấn Y Quán'}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Unified Floating Bottom 4-Room Dock (Desktop & Mobile) */}
       <nav className="spatial-room-dock" aria-label="Chuyển giữa 4 gian phòng Y Quán">
