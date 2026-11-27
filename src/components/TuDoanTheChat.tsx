@@ -3,6 +3,7 @@ import { ACUPOINT_MAP } from '../data/acupoints';
 import { CONSTITUTIONS, CONSTITUTION_QUESTIONS, evaluateConstitution } from '../data/constitutions';
 import { HERB_MAP } from '../data/herbs';
 import { apothecaryAudio } from '../engine/audio';
+import { downloadConstitutionCardPng } from '../engine/cardExporter';
 import { BodyConstitutionId } from '../types/tcm';
 import { MeridianBodyMap } from './MeridianBodyMap';
 import { BotanicalSvg } from './svg/BotanicalSvg';
@@ -239,7 +240,25 @@ export const TuDoanTheChat: React.FC<TuDoanTheChatProps> = ({
             </div>
           </div>
 
-          <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() =>
+                downloadConstitutionCardPng(
+                  evaluation.primary,
+                  evaluation.secondary ?? null,
+                  evaluation.primary.recommendedHerbIds
+                    .map((hid) => HERB_MAP[hid]?.name)
+                    .filter((n): n is string => Boolean(n)),
+                  evaluation.primary.recommendedAcupointIds
+                    .map((aid) => ACUPOINT_MAP[aid]?.name)
+                    .filter((n): n is string => Boolean(n))
+                )
+              }
+            >
+              Tải Ảnh Thẻ Thể Chất (.PNG)
+            </button>
             <button type="button" className="btn-cinnabar" onClick={handleRestart}>
               Đoán lại cho bản thân hoặc người thân
             </button>

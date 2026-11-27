@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { downloadOutcomeCertificatePng } from '../engine/cardExporter';
 import { EvaluationResult, PatientCase } from '../types/tcm';
 import { GlossaryText } from './GlossaryText';
 import { VillagerPortrait } from './svg/VillagerPortrait';
@@ -18,6 +19,14 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
   onNextCase,
   onOpenLedger
 }) => {
+  const [downloadedPng, setDownloadedPng] = useState(false);
+
+  const handleDownloadCertificate = () => {
+    downloadOutcomeCertificatePng(patientCase, result);
+    setDownloadedPng(true);
+    window.setTimeout(() => setDownloadedPng(false), 2600);
+  };
+
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Y án luận trị">
       <div className="woodblock-sheet modal-scroll sac-phong-frame">
@@ -30,7 +39,10 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
         </div>
 
         <div className="outcome-recovery-stage">
-          <div className="outcome-portrait-box">
+          <div className={`outcome-portrait-box ${result.passed ? 'recovery-aura-portrait' : ''}`}>
+            {result.passed && (
+              <span className="recovery-ribbon-tag">Đã Hồi Phục</span>
+            )}
             <VillagerPortrait
               patientCase={patientCase}
               size="compact"
@@ -164,13 +176,16 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
-          {onOpenLedger ? (
-            <button type="button" className="btn-secondary" onClick={onOpenLedger}>
-              Mở Sổ Lưu Y Án
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button type="button" className="btn-secondary" onClick={handleDownloadCertificate}>
+              {downloadedPng ? 'Đã tải Bằng Khen (.PNG)!' : 'Tải Ảnh Bằng Khen (.PNG)'}
             </button>
-          ) : (
-            <span />
-          )}
+            {onOpenLedger && (
+              <button type="button" className="btn-secondary" onClick={onOpenLedger}>
+                Mở Sổ Lưu Y Án
+              </button>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button type="button" className="btn-secondary" onClick={onClose}>
               Xem lại đơn trên bàn khám

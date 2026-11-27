@@ -32,6 +32,7 @@ import { AmbientParticlesCanvas } from './AmbientParticlesCanvas';
 import { BrassScaleRig } from './BrassScaleRig';
 import { CaseLedgerModal } from './CaseLedgerModal';
 import { EightPrinciplesCompass } from './EightPrinciplesCompass';
+import { FirstCaseGuideBar } from './FirstCaseGuideBar';
 import { GlossaryText } from './GlossaryText';
 import { HerbGardenRoom } from './HerbGardenRoom';
 import { MeridianBodyMap } from './MeridianBodyMap';
@@ -607,6 +608,17 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
       <div className="ambient-lantern-aura" aria-hidden="true" />
       <FloatingJuiceLayer callouts={callouts} />
       {roomTransitioning && <div className="room-transition-veil" aria-hidden="true" />}
+      {!mentorDismissed && (
+        <FirstCaseGuideBar
+          activeRoom={activeRoom}
+          clueCount={clues.length}
+          assignedHerbCount={assignedHerbObjects.length}
+          hasPaoZhi={Object.values(slotPaoZhi).some((m) => m && m !== 'sinh-dung')}
+          selectedAcupointCount={selectedAcupoints.length}
+          onGoRoom={switchRoom}
+          onDismiss={onDismissMentor}
+        />
+      )}
       {/* Minimal Diegetic Floating HUD (Zero Stacked Box Toolbars) */}
       <div className="stage-floating-hud">
         <div className="hud-cluster">

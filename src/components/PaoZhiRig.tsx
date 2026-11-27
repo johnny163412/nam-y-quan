@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HERB_MAP } from '../data/herbs';
+import { apothecaryAudio } from '../engine/audio';
 import { getPaoZhiTransformation } from '../engine/tcmEngine';
 import { PaoZhiMethod, PrescriptionSlots, RoleSlot, SlotPaoZhi } from '../types/tcm';
 import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
@@ -24,9 +25,13 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
   onSelectPaoZhi,
   onWrapAndGo
 }) => {
-  const [cutscene, setCutscene] = useState<{
+  const [craftSession, setCraftSession] = useState<{
     method: 'gia-dap' | 'sao-vang' | 'chich-mat';
     herbName: string;
+    hits: number;
+    sweetHits: number;
+    heatCursor: number;
+    shaking: boolean;
   } | null>(null);
 
   const activeHerbId = slots[selectedSlot];
@@ -38,17 +43,69 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
     animatingPanRole === selectedSlot &&
     (activeMethod === 'sao-vang' || activeMethod === 'chich-mat');
 
+  // Smooth oscillating wok heat needle for 3-4s roasting mini-game
   useEffect(() => {
-    if (!cutscene) return;
-    const t = window.setTimeout(() => setCutscene(null), 1500);
-    return () => window.clearTimeout(t);
-  }, [cutscene]);
+    if (!craftSession || craftSession.method === 'gia-dap') return;
+    let rafId = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const elapsed = (now - start) / 1000;
+      const pos = 50 + Math.sin(elapsed * 2.75) * 44;
+      setCraftSession((cur) => (cur ? { ...cur, heatCursor: pos } : null));
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [craftSession?.method]);
 
-  const triggerPaoZhi = (next: PaoZhiMethod) => {
-    onSelectPaoZhi(selectedSlot, next);
-    if (activeHerb && next !== 'sinh-dung') {
-      setCutscene({ method: next, herbName: activeHerb.name });
+  const finishCraft = (method: 'gia-dap' | 'sao-vang' | 'chich-mat') => {
+    onSelectPaoZhi(selectedSlot, method);
+    setCraftSession(null);
+  };
+
+  const openCraftMiniGame = (next: PaoZhiMethod) => {
+    if (!activeHerb) return;
+    if (next === 'sinh-dung') {
+      onSelectPaoZhi(selectedSlot, 'sinh-dung');
+      return;
     }
+    setCraftSession({
+      method: next,
+      herbName: activeHerb.name,
+      hits: 0,
+      sweetHits: 0,
+      heatCursor: 50,
+      shaking: false
+    });
+  };
+
+  const handleCraftTap = () => {
+    if (!craftSession) return;
+    const isMortar = craftSession.method === 'gia-dap';
+    if (isMortar) {
+      apothecaryAudio.playMortarGrind();
+    } else {
+      apothecaryAudio.playWokSizzle(craftSession.method === 'chich-mat');
+    }
+
+    const inSweetSpot = isMortar || (craftSession.heatCursor >= 34 && craftSession.heatCursor <= 66);
+    const nextHits = craftSession.hits + 1;
+    const nextSweet = craftSession.sweetHits + (inSweetSpot ? 1 : 0);
+
+    if (nextHits >= 3) {
+      finishCraft(craftSession.method);
+      return;
+    }
+
+    setCraftSession({
+      ...craftSession,
+      hits: nextHits,
+      sweetHits: nextSweet,
+      shaking: true
+    });
+    window.setTimeout(() => {
+      setCraftSession((cur) => (cur ? { ...cur, shaking: false } : null));
+    }, 220);
   };
 
   const cycleWokMethod = () => {
@@ -59,7 +116,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
         : activeMethod === 'chich-mat'
         ? 'sinh-dung'
         : 'sao-vang';
-    triggerPaoZhi(next);
+    openCraftMiniGame(next);
   };
 
   return (
@@ -72,7 +129,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
             isGrinding ? 'anim-pounding' : ''
           }`}
           disabled={!activeHerb}
-          onClick={() => triggerPaoZhi(activeMethod === 'gia-dap' ? 'sinh-dung' : 'gia-dap')}
+          onClick={() => openCraftMiniGame(activeMethod === 'gia-dap' ? 'sinh-dung' : 'gia-dap')}
           title="Nhấp vào Thuyền Nghiên để giã dập vị thuốc đang chọn trên cân"
         >
           <span className="prop-art-frame">
@@ -143,51 +200,95 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
         </div>
       )}
 
-      {/* Close-up Live Painterly PaoZhi Cutscene Stage powered by 60fps Volumetric VFX Canvas */}
-      {cutscene &&
+      {/* Interactive 3-4s Tactile PaoZhi Mini-Game powered by 60fps Volumetric VFX Canvas */}
+      {craftSession &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
             className="paozhi-closeup-backdrop"
             role="dialog"
-            aria-label="Cảnh bào chế vị thuốc"
-            onClick={() => setCutscene(null)}
+            aria-modal="true"
+            aria-label="Thao tác bào chế vị thuốc"
+            onClick={() => finishCraft(craftSession.method)}
           >
-            <div className="paozhi-closeup-card" onClick={(e) => e.stopPropagation()}>
-              <div className={`closeup-art-stage is-${cutscene.method}`}>
+            <div
+              className={`paozhi-closeup-card craft-minigame-card ${craftSession.shaking ? 'is-shaking' : ''}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={`closeup-art-stage is-${craftSession.method}`}>
                 <img
                   src={
-                    cutscene.method === 'gia-dap'
+                    craftSession.method === 'gia-dap'
                       ? './art/tools/mortar-closeup.jpg'
                       : './art/tools/wok-closeup.jpg'
                   }
                   alt=""
                   className="closeup-art-img"
                 />
-                {cutscene.method === 'chich-mat' && (
+                {craftSession.method === 'chich-mat' && (
                   <div className="honey-amber-glaze-wash" aria-hidden="true" />
                 )}
                 <div className="closeup-art-vignette" aria-hidden="true" />
                 <ApothecaryVfxCanvas
                   mode={
-                    cutscene.method === 'gia-dap'
+                    craftSession.method === 'gia-dap'
                       ? 'mortar'
-                      : cutscene.method === 'chich-mat'
+                      : craftSession.method === 'chich-mat'
                       ? 'wok-honey'
                       : 'wok-gold'
                   }
-                  intensity={0.95}
-                  burstActive
+                  intensity={0.75 + craftSession.hits * 0.2}
+                  burstActive={craftSession.shaking || craftSession.hits > 0}
                   className="closeup-vfx-canvas"
                 />
+                <div className="craft-beads-badge">
+                  {[0, 1, 2].map((idx) => (
+                    <span
+                      key={idx}
+                      className={`craft-bead ${idx < craftSession.hits ? 'is-lit' : ''}`}
+                    />
+                  ))}
+                  <span style={{ marginLeft: '6px' }}>{craftSession.hits}/3 nhịp</span>
+                </div>
               </div>
 
+              {craftSession.method !== 'gia-dap' && (
+                <div className="wok-timing-bar" aria-label="Thanh nhiệt độ sao chảo">
+                  <div className="wok-sweet-zone" />
+                  <div
+                    className="wok-cursor-pin"
+                    style={{ left: `${craftSession.heatCursor}%` }}
+                  />
+                </div>
+              )}
+
               <div className="closeup-caption">
-                {cutscene.method === 'gia-dap'
-                  ? `Đang giã dập ${cutscene.herbName} trong Thuyền Nghiên cho dậy tinh dầu...`
-                  : cutscene.method === 'sao-vang'
-                  ? `Đang đảo đều sao vàng ${cutscene.herbName} trên Chảo Gang lửa hồng...`
-                  : `Đang rưới mật ong rừng & chích thơm ${cutscene.herbName}...`}
+                {craftSession.method === 'gia-dap'
+                  ? `Giã dập ${craftSession.herbName} trong Thuyền Nghiên — nhấp 3 nhịp để dậy tinh dầu!`
+                  : craftSession.method === 'sao-vang'
+                  ? `Đảo chảo sao vàng ${craftSession.herbName} — nhấp đúng vùng vàng cánh gián (3 nhịp)!`
+                  : `Rưới mật ong rừng & chích thơm ${craftSession.herbName} — đảo đều 3 nhịp!`}
+              </div>
+
+              <div className="craft-minigame-actions">
+                <button
+                  type="button"
+                  className="btn-cinnabar craft-tap-btn"
+                  onClick={handleCraftTap}
+                >
+                  {craftSession.method === 'gia-dap'
+                    ? `Giã Chày! (${craftSession.hits}/3)`
+                    : craftSession.method === 'sao-vang'
+                    ? `Đảo Chảo Vàng! (${craftSession.hits}/3)`
+                    : `Rưới Mật & Đảo Đều! (${craftSession.hits}/3)`}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => finishCraft(craftSession.method)}
+                >
+                  Xong nhanh
+                </button>
               </div>
             </div>
           </div>,
