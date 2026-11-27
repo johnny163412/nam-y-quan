@@ -40,7 +40,7 @@ export const BotanicalSvg: React.FC<BotanicalSvgProps> = ({
   if (herbId && PAINTED_HERB_IDS.has(herbId)) {
     const imgEl = (
       <img
-        src={`/art/herbs/${herbId}.jpg`}
+        src={`./art/herbs/${herbId}.jpg`}
         alt=""
         loading="lazy"
         className="botanical-ink-img"

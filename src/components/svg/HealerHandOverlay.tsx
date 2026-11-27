@@ -26,7 +26,7 @@ const PETAL_OFFSETS = [
 ];
 
 /**
- * Hand-painted transparent ink-and-watercolor healer hand (`/art/tools/healer-hand.png`)
+ * Hand-painted transparent ink-and-watercolor healer hand (`./art/tools/healer-hand.png`)
  * arcing along a smooth 3D parabolic lift from open cedar drawer to suspended brass scale dish,
  * shedding fine golden pollen dust and tumbling herb petals on release.
  */
@@ -150,7 +150,7 @@ export const HealerHandOverlay: React.FC<HealerHandOverlayProps> = ({ scoop, onC
 
         {/* Genuine Hand-Painted Watercolor Healer Hand (Transparent PNG) */}
         <img
-          src="/art/tools/healer-hand.png"
+          src="./art/tools/healer-hand.png"
           alt=""
           className="healer-hand-painted-img"
         />

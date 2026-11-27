@@ -25,7 +25,7 @@ export const PaperFoldOverlay: React.FC<PaperFoldOverlayProps> = ({ visible, her
           <div className="fold-flap flap-left" />
           {/* Painted Red Herb Packet reveals cleanly once the 4 corners fold inward */}
           <img
-            src="/art/tools/red-herb-packet.jpg"
+            src="./art/tools/red-herb-packet.jpg"
             alt="Gói thuốc Giấy Hồng Điều thắt dây gai"
             className="fold-painted-reveal"
           />

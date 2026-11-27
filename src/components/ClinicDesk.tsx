@@ -695,7 +695,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className={`diorama-hero-stage ${curtainParting ? 'curtain-parting' : ''}`}>
                 <img
-                  src="/art/scenes/room-tien-duong.jpg"
+                  src="./art/scenes/room-tien-duong.jpg"
                   alt="Tiền Đường tiệm thuốc Nam nhìn qua rèm trúc"
                   className="room-bg-img"
                 />
@@ -944,7 +944,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className="room-stage-backdrop">
                 <img
-                  src="/art/scenes/room-duoc-cac.jpg"
+                  src="./art/scenes/room-duoc-cac.jpg"
                   alt="Tường Tủ Bách Tử và bàn cân thuốc Nam"
                   className="room-bg-img"
                 />
@@ -1254,7 +1254,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className="room-stage-backdrop">
                 <img
-                  src="/art/scenes/room-noi-cac.jpg"
+                  src="./art/scenes/room-noi-cac.jpg"
                   alt="Nội các châm cứu và bếp than hồng sắc siêu đất nung"
                   className="room-bg-img"
                 />
@@ -1369,7 +1369,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             >
               <div className="room-stage-backdrop">
                 <img
-                  src="/art/scenes/room-hau-vien.jpg"
+                  src="./art/scenes/room-hau-vien.jpg"
                   alt="Hậu viên trồng cây thuốc Nam xanh tươi sau y quán"
                   className="room-bg-img"
                 />

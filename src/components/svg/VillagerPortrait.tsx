@@ -19,16 +19,16 @@ const EXAM_TOOL_META: Record<ExamToolType, { icon: AntiqueIconName; label: strin
 };
 
 const PORTRAIT_IMAGES: Record<string, string> = {
-  'c1-phong-han': '/art/patients/c1-phong-han.jpg',
-  'c1-phong-nhiet': '/art/patients/c1-phong-nhiet.jpg',
-  'c1-thuong-thuc-han': '/art/patients/c1-thuong-thuc-han.jpg',
-  'c2-ty-vi-hu-han': '/art/patients/c2-ty-vi-hu-han.jpg',
-  'c2-can-khi-uat': '/art/patients/c2-can-khi-uat.jpg',
-  'c2-tam-ty-luong-hu': '/art/patients/c2-tam-ty-luong-hu.jpg',
-  'c2-tam-hoa-vuong': '/art/patients/c2-tam-hoa-vuong.jpg',
-  'c3-vai-gay-phong-han': '/art/patients/c3-vai-gay-phong-han.jpg',
-  'c3-thai-phu-khi-nghich': '/art/patients/c3-thai-phu-khi-nghich.jpg',
-  'c3-than-duong-hu-phong-thap': '/art/patients/c3-than-duong-hu-phong-thap.jpg'
+  'c1-phong-han': './art/patients/c1-phong-han.jpg',
+  'c1-phong-nhiet': './art/patients/c1-phong-nhiet.jpg',
+  'c1-thuong-thuc-han': './art/patients/c1-thuong-thuc-han.jpg',
+  'c2-ty-vi-hu-han': './art/patients/c2-ty-vi-hu-han.jpg',
+  'c2-can-khi-uat': './art/patients/c2-can-khi-uat.jpg',
+  'c2-tam-ty-luong-hu': './art/patients/c2-tam-ty-luong-hu.jpg',
+  'c2-tam-hoa-vuong': './art/patients/c2-tam-hoa-vuong.jpg',
+  'c3-vai-gay-phong-han': './art/patients/c3-vai-gay-phong-han.jpg',
+  'c3-thai-phu-khi-nghich': './art/patients/c3-thai-phu-khi-nghich.jpg',
+  'c3-than-duong-hu-phong-thap': './art/patients/c3-than-duong-hu-phong-thap.jpg'
 };
 
 function resolvePortraitSrc(patientCase: PatientCase): string {

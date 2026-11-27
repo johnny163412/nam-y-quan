@@ -76,7 +76,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           title="Nhấp vào Thuyền Nghiên để giã dập vị thuốc đang chọn trên cân"
         >
           <span className="prop-art-frame">
-            <img src="/art/tools/mortar-closeup.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
+            <img src="./art/tools/mortar-closeup.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
             <span className="prop-art-sheen mortar-sheen" aria-hidden="true" />
           </span>
           <div className="prop-label">
@@ -98,7 +98,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           title="Nhấp vào Chảo Gang để đổi: Sao vàng / Chích mật / Để mộc"
         >
           <span className="prop-art-frame">
-            <img src="/art/tools/wok-closeup.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
+            <img src="./art/tools/wok-closeup.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
             {(activeMethod === 'sao-vang' || activeMethod === 'chich-mat') && (
               <span
                 className={`prop-art-glow ${activeMethod === 'chich-mat' ? 'is-honey' : 'is-gold'}`}
@@ -128,7 +128,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           title="Gấp 4 góc Giấy Hồng Điều bọc thang thuốc và mang sang Bếp Sắc"
         >
           <span className="prop-art-frame">
-            <img src="/art/tools/red-herb-packet.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
+            <img src="./art/tools/red-herb-packet.jpg" alt="" className="prop-art-thumb" aria-hidden="true" />
           </span>
           <div className="prop-label">
             <strong>Gói Giấy Hồng Điều →</strong>
@@ -158,8 +158,8 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
                 <img
                   src={
                     cutscene.method === 'gia-dap'
-                      ? '/art/tools/mortar-closeup.jpg'
-                      : '/art/tools/wok-closeup.jpg'
+                      ? './art/tools/mortar-closeup.jpg'
+                      : './art/tools/wok-closeup.jpg'
                   }
                   alt=""
                   className="closeup-art-img"

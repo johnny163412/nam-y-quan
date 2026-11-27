@@ -79,7 +79,7 @@ export const DecoctionStoveModal: React.FC<DecoctionStoveModalProps> = ({
 
         <div className={`stove-scene-frame fire-${fire}`}>
           <img
-            src="/art/tools/decoction-stove.jpg"
+            src="./art/tools/decoction-stove.jpg"
             alt="Siêu đất nung sắc thuốc trên bếp than hồng"
             className="stove-scene-img"
           />

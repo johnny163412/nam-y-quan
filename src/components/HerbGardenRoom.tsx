@@ -211,7 +211,7 @@ export const HerbGardenRoom: React.FC<HerbGardenRoomProps> = ({
       {/* Tactile Garden Prop Rack: Coconut Ladle, Bronze Shears & Woven Basket */}
       <div className="garden-tools-rack">
         <div className="garden-tool-card">
-          <img src="/art/tools/coconut-ladle.jpg" alt="Gáo dừa tưới sương mai" className="garden-tool-thumb" />
+          <img src="./art/tools/coconut-ladle.jpg" alt="Gáo dừa tưới sương mai" className="garden-tool-thumb" />
           <div style={{ flex: 1, minWidth: 0 }}>
             <strong>Gáo Dừa Tưới Sương</strong>
             <div className="muted-note" style={{ fontSize: '0.73rem' }}>Tưới ẩm từng chậu hoặc cả luống</div>
@@ -226,14 +226,14 @@ export const HerbGardenRoom: React.FC<HerbGardenRoomProps> = ({
           </div>
         </div>
         <div className="garden-tool-card">
-          <img src="/art/tools/bronze-shears.jpg" alt="Kéo đồng cắt nhành lá thuốc" className="garden-tool-thumb" />
+          <img src="./art/tools/bronze-shears.jpg" alt="Kéo đồng cắt nhành lá thuốc" className="garden-tool-thumb" />
           <div>
             <strong>Kéo Đồng Hái Lá</strong>
             <div className="muted-note" style={{ fontSize: '0.73rem' }}>Cắt ngọn non giàu tinh dầu khi đạt 3/3</div>
           </div>
         </div>
         <div className={`garden-tool-card basket-card ${basketBounce ? 'is-catching' : ''}`}>
-          <img src="/art/tools/bamboo-basket.jpg" alt="Giỏ mây tre đan đựng lá tươi" className="garden-tool-thumb" />
+          <img src="./art/tools/bamboo-basket.jpg" alt="Giỏ mây tre đan đựng lá tươi" className="garden-tool-thumb" />
           <div style={{ flex: 1, minWidth: 0 }}>
             <strong>Giỏ Mây Tre Đan ({freshHerbIds.length})</strong>
             <div className="garden-basket-inline">
@@ -285,7 +285,7 @@ export const HerbGardenRoom: React.FC<HerbGardenRoomProps> = ({
               <div className="garden-pot-visual">
                 {isWatering && (
                   <div className="garden-ladle-fx" aria-hidden="true">
-                    <img src="/art/tools/coconut-ladle.jpg" alt="" className="ladle-tilt-img" />
+                    <img src="./art/tools/coconut-ladle.jpg" alt="" className="ladle-tilt-img" />
                     <span className="dew-stream s1" />
                     <span className="dew-stream s2" />
                     <span className="dew-stream s3" />
@@ -293,7 +293,7 @@ export const HerbGardenRoom: React.FC<HerbGardenRoomProps> = ({
                 )}
                 {isHarvesting && (
                   <div className="garden-harvest-fx" aria-hidden="true">
-                    <img src="/art/tools/bronze-shears.jpg" alt="" className="shears-snip-img" />
+                    <img src="./art/tools/bronze-shears.jpg" alt="" className="shears-snip-img" />
                     <div className="flying-sprig-fx">
                       <BotanicalSvg herbId={herb.id} motif={herb.motif} size={34} bare />
                     </div>
