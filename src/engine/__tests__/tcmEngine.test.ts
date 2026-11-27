@@ -17,6 +17,7 @@ import {
   describeDecoctionTaste,
   emptySlots,
   evaluateCaseSubmission,
+  getPaoZhiTransformation,
   getTyNgoWatch,
   simulateFiveElements
 } from '../tcmEngine';
@@ -360,5 +361,29 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
     expect(getSeasonalSolarTerm(4).name).toBe('Hạ Thử');
     expect(getSeasonalSolarTerm(7).name).toBe('Thu Táo');
     expect(getSeasonalSolarTerm(10).name).toBe('Đông Hàn');
+  });
+
+  it('transforms real-time eight-principles preview & potency when herbs undergo Pao Zhi (crushing, roasting, honey-frying)', () => {
+    const tyHuCase = STORY_CASES.find((c) => c.id === 'c2-ty-vi-hu-han')!;
+    const testSlots: PrescriptionSlots = { quan: 'hoai-son', than: 'sinh-khuong', ta: null, su: 'cam-thao' };
+
+    const rawPreview = computeTreatmentPreview(tyHuCase, testSlots, []);
+    const craftedPreview = computeTreatmentPreview(tyHuCase, testSlots, [], {
+      quan: 'sao-vang',
+      than: 'gia-dap',
+      su: 'chich-mat'
+    });
+
+    const roastHoaiSon = getPaoZhiTransformation(HERBS.find((h) => h.id === 'hoai-son')!, 'sao-vang');
+    const honeyCamThao = getPaoZhiTransformation(HERBS.find((h) => h.id === 'cam-thao')!, 'chich-mat');
+    const roastBacHa = getPaoZhiTransformation(HERBS.find((h) => h.id === 'bac-ha')!, 'sao-vang');
+
+    expect(roastHoaiSon.statusTone).toBe('ideal');
+    expect(honeyCamThao.deficiencyDelta).toBeGreaterThan(0);
+    expect(roastBacHa.statusTone).toBe('mismatch');
+    expect(craftedPreview.resultingVector.coldHeat).toBeGreaterThan(rawPreview.resultingVector.coldHeat);
+    expect(craftedPreview.resultingVector.deficiencyExcess).toBeGreaterThan(
+      rawPreview.resultingVector.deficiencyExcess
+    );
   });
 });

@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CLASSICAL_FORMULAS } from '../data/formulas';
 import { HERB_MAP } from '../data/herbs';
-import { ELEMENT_CYCLE_ORDER, ELEMENT_SHORT } from '../engine/tcmEngine';
+import {
+  ELEMENT_CYCLE_ORDER,
+  ELEMENT_SHORT,
+  getPaoZhiTransformation
+} from '../engine/tcmEngine';
 import {
   ClassicalFormula,
   ContraindicationAlert,
@@ -9,7 +13,6 @@ import {
   EightPrinciplesVector,
   ElementKey,
   Herb,
-  PaoZhiMethod,
   PrescriptionSlots,
   RoleSlot,
   SlotPaoZhi
@@ -22,13 +25,6 @@ const ROLE_META: { role: RoleSlot; short: string; weight: string }[] = [
   { role: 'ta', short: 'Tá', weight: 'Hỗ trợ' },
   { role: 'su', short: 'Sứ', weight: 'Điều hòa' }
 ];
-
-const PAO_ZHI_BADGE: Record<PaoZhiMethod, string> = {
-  'sinh-dung': '',
-  'gia-dap': 'Giã',
-  'sao-vang': 'Sao',
-  'chich-mat': 'Mật'
-};
 
 interface BrassScaleRigProps {
   slots: PrescriptionSlots;
@@ -115,7 +111,7 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
 
   useEffect(() => {
     velRef.current += slotTorqueKick * 0.65;
-  }, [slots.quan, slots.than, slots.ta, slots.su, justScoopedRole, slotTorqueKick]);
+  }, [slots.quan, slots.than, slots.ta, slots.su, justScoopedRole, slotTorqueKick, slotPaoZhi]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -139,7 +135,7 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
     };
     rafId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafId);
-  }, [targetBeamTilt, slots.quan, slots.than, slots.ta, slots.su, justScoopedRole]);
+  }, [targetBeamTilt, slots.quan, slots.than, slots.ta, slots.su, justScoopedRole, slotPaoZhi]);
 
   const initDist =
     Math.abs(initialVector.exteriorInterior) +
@@ -458,30 +454,35 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
 
               <div className="dish-role-badge">{meta.short}</div>
 
-              {herb ? (
-                <>
-                  <div className="dish-herb-art">
-                    <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} bare />
-                  </div>
-                  <div className="dish-herb-label">{herb.name}</div>
-                  {isFresh && <span className="dish-mini-pill fresh">Tươi</span>}
-                  {PAO_ZHI_BADGE[method] && (
-                    <span className="dish-mini-pill paozhi">{PAO_ZHI_BADGE[method]}</span>
-                  )}
-                  <button
-                    type="button"
-                    className="dish-clear-dot"
-                    title={`Trả ${herb.name} về hộc`}
-                    aria-label={`Bỏ ${herb.name} khỏi đĩa ${meta.short}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAssignHerb(meta.role, null);
-                    }}
-                  >
-                    ×
-                  </button>
-                </>
-              ) : (
+              {herb ? (() => {
+                const craftTf = getPaoZhiTransformation(herb, method);
+                return (
+                  <>
+                    <div className={`dish-herb-art art-craft-${method}`}>
+                      <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} bare />
+                    </div>
+                    <div className="dish-herb-label">{herb.name}</div>
+                    {isFresh && <span className="dish-mini-pill fresh">Tươi</span>}
+                    {craftTf.badgeLabel && (
+                      <span className={`dish-mini-pill paozhi tone-${craftTf.statusTone}`}>
+                        {craftTf.badgeLabel}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="dish-clear-dot"
+                      title={`Trả ${herb.name} về hộc`}
+                      aria-label={`Bỏ ${herb.name} khỏi đĩa ${meta.short}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAssignHerb(meta.role, null);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </>
+                );
+              })() : (
                 <div className="dish-empty-hint">{meta.weight}</div>
               )}
             </div>

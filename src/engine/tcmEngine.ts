@@ -13,13 +13,135 @@ import {
   EvaluationGrade,
   EvaluationResult,
   FireType,
+  Herb,
   PaoZhiMethod,
   PatientCase,
   PrescriptionSlots,
   RoleSlot,
+  SlotPaoZhi,
   TreatmentPreview,
   TyNgoWatch
 } from '../types/tcm';
+
+export interface PaoZhiTransformation {
+  potencyMultiplier: number;
+  coldHeatDelta: number;
+  deficiencyDelta: number;
+  statusTone: 'raw' | 'ideal' | 'synergy' | 'mismatch';
+  badgeLabel: string;
+  effectSummary: string;
+}
+
+const CRUSH_IDEAL_IDS = new Set(['sinh-khuong', 'que-chi', 'dan-sam', 'cat-can', 'co-xuoc']);
+const FRAGILE_LEAF_IDS = new Set(['bac-ha', 'kim-ngan-hoa', 'cuc-hoa', 'tia-to', 'kinh-gioi']);
+const ROAST_IDEAL_IDS = new Set(['hoai-son', 'tran-bi', 'dinh-lang', 'cat-can', 'co-xuoc']);
+const COOLING_HERB_IDS = new Set(['bac-ha', 'kim-ngan-hoa', 'tam-sen', 'cuc-hoa', 'nhan-tran']);
+const HONEY_IDEAL_IDS = new Set(['cam-thao', 'ky-tu', 'dinh-lang', 'hoai-son']);
+const DISPERSING_COOL_IDS = new Set(['bac-ha', 'tia-to', 'kinh-gioi', 'nhan-tran', 'tam-sen']);
+
+export function getPaoZhiTransformation(herb: Herb, method: PaoZhiMethod = 'sinh-dung'): PaoZhiTransformation {
+  if (method === 'gia-dap') {
+    if (CRUSH_IDEAL_IDS.has(herb.id)) {
+      return {
+        potencyMultiplier: 1.24,
+        coldHeatDelta: 0,
+        deficiencyDelta: 0,
+        statusTone: 'ideal',
+        badgeLabel: 'Giã +24% lực',
+        effectSummary: `${herb.name} giã dập phá thớ cứng → tinh dầu & hoạt chất tiết mạnh hơn (+24% dược lực)!`
+      };
+    }
+    if (FRAGILE_LEAF_IDS.has(herb.id)) {
+      return {
+        potencyMultiplier: 0.92,
+        coldHeatDelta: 0,
+        deficiencyDelta: 0,
+        statusTone: 'mismatch',
+        badgeLabel: 'Giã -8% lực',
+        effectSummary: `${herb.name} là lá/hoa mỏng: giã mạnh dễ nát vụn, hao bớt thanh khí giải biểu (-8% lực).`
+      };
+    }
+    return {
+      potencyMultiplier: 1.12,
+      coldHeatDelta: 0,
+      deficiencyDelta: 0,
+      statusTone: 'synergy',
+      badgeLabel: 'Giã +12% lực',
+      effectSummary: `${herb.name} giã tơi giúp nước sắc ngấm nhanh hơn (+12% dược lực).`
+    };
+  }
+
+  if (method === 'sao-vang') {
+    if (ROAST_IDEAL_IDS.has(herb.id)) {
+      return {
+        potencyMultiplier: 1.18,
+        coldHeatDelta: 10,
+        deficiencyDelta: 6,
+        statusTone: 'ideal',
+        badgeLabel: 'Sao +Ấm · Kiện Tỳ',
+        effectSummary: `${herb.name} sao vàng dậy hương thơm, bớt lạnh nê & tăng ấm Tỳ (+10 Độ Ấm, +6 Bổ Tỳ, +18% lực)!`
+      };
+    }
+    if (COOLING_HERB_IDS.has(herb.id)) {
+      return {
+        potencyMultiplier: 0.82,
+        coldHeatDelta: 14,
+        deficiencyDelta: 2,
+        statusTone: 'mismatch',
+        badgeLabel: 'Mất vị mát!',
+        effectSummary: `Cảnh báo: Sao lửa làm ${herb.name} bay tinh dầu mát, giảm mạnh sức Thanh Nhiệt (+14 Độ Ấm).`
+      };
+    }
+    return {
+      potencyMultiplier: 1.06,
+      coldHeatDelta: 10,
+      deficiencyDelta: 6,
+      statusTone: 'synergy',
+      badgeLabel: 'Sao +10 Ấm',
+      effectSummary: `${herb.name} sao vàng giúp tính thuốc ấm dịu, dễ tiêu hóa hơn (+10 Độ Ấm, +6 Bổ Tỳ).`
+    };
+  }
+
+  if (method === 'chich-mat') {
+    if (HONEY_IDEAL_IDS.has(herb.id)) {
+      return {
+        potencyMultiplier: 1.22,
+        coldHeatDelta: 8,
+        deficiencyDelta: 12,
+        statusTone: 'ideal',
+        badgeLabel: 'Chích Mật +Bổ',
+        effectSummary: `${herb.name} tẩm mật ong sao thơm hóa Chích Dược: tăng đại bổ Khí & hòa trung (+12 Bổ Hư, +8 Ấm, +22% lực)!`
+      };
+    }
+    if (DISPERSING_COOL_IDS.has(herb.id)) {
+      return {
+        potencyMultiplier: 0.85,
+        coldHeatDelta: 8,
+        deficiencyDelta: 6,
+        statusTone: 'mismatch',
+        badgeLabel: 'Dễ nê trệ!',
+        effectSummary: `Cảnh báo: Chích mật vào vị phát tán/thanh thấp (${herb.name}) dễ làm nê trệ, giảm sức giải biểu.`
+      };
+    }
+    return {
+      potencyMultiplier: 1.08,
+      coldHeatDelta: 8,
+      deficiencyDelta: 12,
+      statusTone: 'synergy',
+      badgeLabel: 'Mật +12 Bổ',
+      effectSummary: `${herb.name} chích mật ong giúp vị êm dịu, tăng dưỡng ấm & nhuận Phế (+12 Bổ Hư, +8 Độ Ấm).`
+    };
+  }
+
+  return {
+    potencyMultiplier: 1,
+    coldHeatDelta: 0,
+    deficiencyDelta: 0,
+    statusTone: 'raw',
+    badgeLabel: '',
+    effectSummary: `${herb.name} đang dùng Mộc (Sinh dụng): giữ trọn tính vị nguyên bản. Nhấp Cối hoặc Chảo trên bàn để Bào chế.`
+  };
+}
 
 export const ROLE_WEIGHTS: Record<RoleSlot, number> = {
   quan: 1.25,
@@ -151,7 +273,8 @@ export function checkContraindications(
 export function computeTreatmentPreview(
   patientCase: PatientCase,
   slots: PrescriptionSlots,
-  selectedAcupoints: string[]
+  selectedAcupoints: string[],
+  slotPaoZhi?: SlotPaoZhi
 ): TreatmentPreview {
   let ext = patientCase.initialVector.exteriorInterior;
   let ch = patientCase.initialVector.coldHeat;
@@ -166,10 +289,12 @@ export function computeTreatmentPreview(
     const herb = HERB_MAP[herbId];
     if (!herb) return;
 
-    const w = ROLE_WEIGHTS[role];
+    const method: PaoZhiMethod = slotPaoZhi?.[role] ?? 'sinh-dung';
+    const tf = getPaoZhiTransformation(herb, method);
+    const w = ROLE_WEIGHTS[role] * tf.potencyMultiplier;
     ext += herb.vectorEffect.exteriorInterior * w;
-    ch += herb.vectorEffect.coldHeat * w;
-    de += herb.vectorEffect.deficiencyExcess * w;
+    ch += herb.vectorEffect.coldHeat * w + tf.coldHeatDelta * ROLE_WEIGHTS[role];
+    de += herb.vectorEffect.deficiencyExcess * w + tf.deficiencyDelta * ROLE_WEIGHTS[role];
 
     (Object.keys(herb.elementEffect) as ElementKey[]).forEach((el) => {
       const delta = herb.elementEffect[el] ?? 0;
@@ -298,7 +423,12 @@ export function evaluateCaseSubmission(
   selectedAcupoints: string[],
   decoctionChoice?: DecoctionChoice
 ): EvaluationResult {
-  const preview = computeTreatmentPreview(patientCase, slots, selectedAcupoints);
+  const preview = computeTreatmentPreview(
+    patientCase,
+    slots,
+    selectedAcupoints,
+    decoctionChoice?.paoZhi
+  );
   const matchedFormulas = detectActiveFormulas(slots);
   const formulaBonus = Math.min(
     6,
@@ -618,7 +748,8 @@ export function describeDecoctionTaste(
   patientCase: PatientCase,
   slots: PrescriptionSlots,
   fire: FireType,
-  selectedAcupoints: string[] = []
+  selectedAcupoints: string[] = [],
+  slotPaoZhi?: SlotPaoZhi
 ): DecoctionTasteReading {
   const herbs = (Object.values(slots).filter(Boolean) as string[])
     .map((id) => HERB_MAP[id])
@@ -635,8 +766,16 @@ export function describeDecoctionTaste(
   }
 
   const flavorSet = Array.from(new Set(herbs.flatMap((h) => h.flavors)));
-  const preview = computeTreatmentPreview(patientCase, slots, selectedAcupoints);
-  const netThermal = herbs.reduce((acc, h) => acc + h.vectorEffect.coldHeat, 0);
+  const preview = computeTreatmentPreview(patientCase, slots, selectedAcupoints, slotPaoZhi);
+  const paoZhiVals = Object.values(slotPaoZhi ?? {});
+  const hasHoney = paoZhiVals.includes('chich-mat');
+  const hasRoasted = paoZhiVals.includes('sao-vang');
+  const netThermal = (Object.keys(slots) as RoleSlot[]).reduce((acc, r) => {
+    const id = slots[r];
+    if (!id || !HERB_MAP[id]) return acc;
+    const tf = getPaoZhiTransformation(HERB_MAP[id], slotPaoZhi?.[r] ?? 'sinh-dung');
+    return acc + HERB_MAP[id].vectorEffect.coldHeat * tf.potencyMultiplier + tf.coldHeatDelta;
+  }, 0);
   const hasCritical = preview.alerts.some((a) => a.severity === 'critical');
 
   const fireAroma =
@@ -647,7 +786,11 @@ export function describeDecoctionTaste(
       : 'Hương dược dịu hòa quyện hơi ấm (Văn Vũ Hỏa)';
 
   const flavorNote = `Nước thuốc có hậu ${flavorSet.slice(0, 3).join(', ')}${
-    herbs.some((h) => h.id === 'sinh-khuong' || h.id === 'que-chi' || h.id === 'bac-ha')
+    hasHoney
+      ? ', quyện vị ngọt ấm thơm lừng của mật ong chích'
+      : hasRoasted
+      ? ', thơm mùi thuốc sao vàng ấm bụng giảm tanh hăng'
+      : herbs.some((h) => h.id === 'sinh-khuong' || h.id === 'que-chi' || h.id === 'bac-ha')
       ? ', dậy tinh dầu cay thơm nhẹ đầu mũi'
       : herbs.some((h) => h.id === 'tam-sen' || h.id === 'kim-ngan-hoa')
       ? ', thanh mát đắng nhẹ đầu lưỡi'

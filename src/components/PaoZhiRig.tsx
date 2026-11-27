@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HERB_MAP } from '../data/herbs';
+import { getPaoZhiTransformation } from '../engine/tcmEngine';
 import { PaoZhiMethod, PrescriptionSlots, RoleSlot, SlotPaoZhi } from '../types/tcm';
 import { ApothecaryVfxCanvas } from './ApothecaryVfxCanvas';
 
@@ -31,6 +32,7 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
   const activeHerbId = slots[selectedSlot];
   const activeHerb = activeHerbId ? HERB_MAP[activeHerbId] : null;
   const activeMethod: PaoZhiMethod = slotPaoZhi[selectedSlot] ?? 'sinh-dung';
+  const activeTransform = activeHerb ? getPaoZhiTransformation(activeHerb, activeMethod) : null;
   const isGrinding = animatingPanRole === selectedSlot && activeMethod === 'gia-dap';
   const isRoasting =
     animatingPanRole === selectedSlot &&
@@ -134,6 +136,12 @@ export const PaoZhiRig: React.FC<PaoZhiRigProps> = ({
           </div>
         </button>
       </div>
+
+      {activeTransform && (
+        <div className={`paozhi-effect-banner tone-${activeTransform.statusTone}`} role="status">
+          <strong>Bào Chế ({activeHerb?.name}):</strong> {activeTransform.effectSummary}
+        </div>
+      )}
 
       {/* Close-up Live Painterly PaoZhi Cutscene Stage powered by 60fps Volumetric VFX Canvas */}
       {cutscene &&

@@ -174,8 +174,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const activeWatch = useMemo(() => getTyNgoWatch(nowHour), [nowHour]);
   const solarTerm = useMemo(() => getSeasonalSolarTerm(dayCount), [dayCount]);
   const tasteReading = useMemo(
-    () => describeDecoctionTaste(selectedCase, slots, fire),
-    [selectedCase, slots, fire]
+    () => describeDecoctionTaste(selectedCase, slots, fire, selectedAcupoints, slotPaoZhi),
+    [selectedCase, slots, fire, selectedAcupoints, slotPaoZhi]
   );
   const watchLightingClass =
     nowHour >= 5 && nowHour < 11
@@ -246,8 +246,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   );
 
   const preview = useMemo(
-    () => computeTreatmentPreview(selectedCase, slots, selectedAcupoints),
-    [selectedCase, slots, selectedAcupoints]
+    () => computeTreatmentPreview(selectedCase, slots, selectedAcupoints, slotPaoZhi),
+    [selectedCase, slots, selectedAcupoints, slotPaoZhi]
   );
 
   const activeFormulas = useMemo(() => detectActiveFormulas(slots), [slots]);
