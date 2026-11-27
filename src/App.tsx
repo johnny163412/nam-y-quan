@@ -200,7 +200,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app-shell">
+    <div className="app-shell spatial-shell">
       <InkBrushDefs />
       {!enteredClinic && (
         <TitleGateScreen
@@ -223,7 +223,6 @@ export const App: React.FC = () => {
         onSelectTab={(tab) => {
           apothecaryAudio.playPageTurn();
           setActiveTab(tab);
-          window.scrollTo({ top: 0 });
         }}
         progress={progress}
         unlockedAchievementCount={unlockedIds.length}
@@ -252,100 +251,130 @@ export const App: React.FC = () => {
         />
       )}
 
-      <main className="main-stage">
-        {activeTab === 'clinic' && (
-          <ClinicDesk
-            unlockedChapter={progress.unlockedChapter}
-            completedCases={progress.completedCases}
-            caseLedger={progress.caseLedger ?? []}
-            yDucPoints={progress.yDucPoints ?? 0}
-            dayCount={progress.dayCount ?? 1}
-            currentStreak={progress.currentStreak ?? 0}
-            songAnClearedIds={progress.songAnClearedIds ?? []}
-            discoveredFormulas={progress.discoveredFormulas ?? []}
-            freshHerbIds={progress.freshHerbIds ?? []}
-            gardenGrowth={progress.gardenGrowth ?? {}}
-            mentorDismissed={Boolean(progress.mentorDismissed)}
-            onDismissMentor={() =>
-              setProgress((prev) => ({ ...prev, mentorDismissed: true }))
-            }
-            onWaterGardenPlot={(herbId) => {
-              apothecaryAudio.playWaterPour();
-              setProgress((prev) => {
-                const cur = prev.gardenGrowth?.[herbId] ?? 1;
-                return {
-                  ...prev,
-                  gardenGrowth: {
-                    ...(prev.gardenGrowth ?? {}),
-                    [herbId]: Math.min(3, cur + 1)
-                  }
-                };
-              });
-            }}
-            onHarvestGardenPlot={(herbId) => {
-              apothecaryAudio.playHerbDrop();
-              setProgress((prev) => {
-                const existing = prev.freshHerbIds ?? [];
-                return {
-                  ...prev,
-                  freshHerbIds: existing.includes(herbId) ? existing : [...existing, herbId],
-                  gardenGrowth: {
-                    ...(prev.gardenGrowth ?? {}),
-                    [herbId]: 0
-                  }
-                };
-              });
-            }}
-            onCaseEvaluated={handleCaseEvaluated}
-            onOpenCodexHerb={(herbId) => {
-              setCodexHerbId(herbId);
-              setActiveTab('codex');
-            }}
-          />
-        )}
-
-        {activeTab === 'codex' && (
-          <TangThuCac
-            herbNotes={progress.herbNotes}
-            initialHerbId={codexHerbId}
-            discoveredFormulas={progress.discoveredFormulas ?? []}
-            onSaveHerbNote={(herbId, note) =>
-              setProgress((prev) => ({
+      <main className="main-stage spatial-main-stage">
+        <ClinicDesk
+          unlockedChapter={progress.unlockedChapter}
+          completedCases={progress.completedCases}
+          caseLedger={progress.caseLedger ?? []}
+          yDucPoints={progress.yDucPoints ?? 0}
+          dayCount={progress.dayCount ?? 1}
+          currentStreak={progress.currentStreak ?? 0}
+          songAnClearedIds={progress.songAnClearedIds ?? []}
+          discoveredFormulas={progress.discoveredFormulas ?? []}
+          freshHerbIds={progress.freshHerbIds ?? []}
+          gardenGrowth={progress.gardenGrowth ?? {}}
+          mentorDismissed={Boolean(progress.mentorDismissed)}
+          onDismissMentor={() =>
+            setProgress((prev) => ({ ...prev, mentorDismissed: true }))
+          }
+          onWaterGardenPlot={(herbId) => {
+            apothecaryAudio.playWaterPour();
+            setProgress((prev) => {
+              const cur = prev.gardenGrowth?.[herbId] ?? 1;
+              return {
                 ...prev,
-                herbNotes: { ...prev.herbNotes, [herbId]: note }
-              }))
-            }
-          />
-        )}
+                gardenGrowth: {
+                  ...(prev.gardenGrowth ?? {}),
+                  [herbId]: Math.min(3, cur + 1)
+                }
+              };
+            });
+          }}
+          onHarvestGardenPlot={(herbId) => {
+            apothecaryAudio.playHerbDrop();
+            setProgress((prev) => {
+              const existing = prev.freshHerbIds ?? [];
+              return {
+                ...prev,
+                freshHerbIds: existing.includes(herbId) ? existing : [...existing, herbId],
+                gardenGrowth: {
+                  ...(prev.gardenGrowth ?? {}),
+                  [herbId]: 0
+                }
+              };
+            });
+          }}
+          onCaseEvaluated={handleCaseEvaluated}
+          onOpenCodexHerb={(herbId) => {
+            setCodexHerbId(herbId);
+            setActiveTab('codex');
+          }}
+        />
 
-        {activeTab === 'exam' && (
-          <KhaoThiYMieu
-            progress={progress}
-            onRecordAnswer={handleRecordExamAnswer}
-            onPassExamChapter={handlePassExamChapter}
-          />
-        )}
+        {/* Ancient Scroll Overlays for Tàng Thư Các / Khảo Thí Y Miếu / Đoán Thể Chất */}
+        {activeTab !== 'clinic' && (
+          <div
+            className="spatial-scroll-overlay-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Cuộn giấy phụ Y Quán"
+            onClick={() => setActiveTab('clinic')}
+          >
+            <div
+              className="spatial-scroll-overlay-sheet"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="spatial-overlay-bar">
+                <strong>
+                  {activeTab === 'codex'
+                    ? 'Tàng Thư Các — Bản Thảo & Cổ Phương'
+                    : activeTab === 'exam'
+                    ? 'Khảo Thí Y Miếu'
+                    : 'Đoán Thể Chất Dưỡng Sinh'}
+                </strong>
+                <button
+                  type="button"
+                  className="btn-cinnabar"
+                  style={{ padding: '5px 12px', fontSize: '0.8rem' }}
+                  onClick={() => {
+                    apothecaryAudio.playPageTurn();
+                    setActiveTab('clinic');
+                  }}
+                >
+                  ← Quay lại Bàn Khám
+                </button>
+              </div>
 
-        {activeTab === 'constitution' && (
-          <TuDoanTheChat
-            savedConstitution={progress.savedConstitution}
-            onSaveConstitution={(id) =>
-              setProgress((prev) => ({ ...prev, savedConstitution: id }))
-            }
-            onOpenCodexHerb={(herbId) => {
-              setCodexHerbId(herbId);
-              setActiveTab('codex');
-              window.scrollTo({ top: 0 });
-            }}
-          />
+              <div className="spatial-overlay-body">
+                {activeTab === 'codex' && (
+                  <TangThuCac
+                    herbNotes={progress.herbNotes}
+                    initialHerbId={codexHerbId}
+                    discoveredFormulas={progress.discoveredFormulas ?? []}
+                    onSaveHerbNote={(herbId, note) =>
+                      setProgress((prev) => ({
+                        ...prev,
+                        herbNotes: { ...prev.herbNotes, [herbId]: note }
+                      }))
+                    }
+                  />
+                )}
+
+                {activeTab === 'exam' && (
+                  <KhaoThiYMieu
+                    progress={progress}
+                    onRecordAnswer={handleRecordExamAnswer}
+                    onPassExamChapter={handlePassExamChapter}
+                  />
+                )}
+
+                {activeTab === 'constitution' && (
+                  <TuDoanTheChat
+                    savedConstitution={progress.savedConstitution}
+                    onSaveConstitution={(id) =>
+                      setProgress((prev) => ({ ...prev, savedConstitution: id }))
+                    }
+                    onOpenCodexHerb={(herbId) => {
+                      setCodexHerbId(herbId);
+                      setActiveTab('codex');
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </main>
-
-      <footer className="disclaimer-footer">
-        Nam Y Quán — Tuệ Tâm Đường là sản phẩm giáo dục mô phỏng Y học cổ truyền Việt Nam. Mọi thông tin chỉ phục vụ mục đích học tập, tra cứu văn hóa và không thay thế chẩn đoán hay điều trị của bác sĩ, lương y được cấp phép.
-        <br />
-        Nhạc nền: “Ripples” &amp; “Eastern Thought” — Kevin MacLeod (incompetech.com), cấp phép Creative Commons: By Attribution 4.0 (CC BY 4.0).
-      </footer>
     </div>
   );
 };

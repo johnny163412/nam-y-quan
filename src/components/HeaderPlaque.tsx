@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getSeasonalSolarTerm } from '../data/cases';
 import { getTyNgoWatch } from '../engine/tcmEngine';
 import { exportSaveJson, importSaveJson } from '../engine/storage';
 import { UserProgress } from '../types/tcm';
@@ -39,6 +40,8 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
 
   const nowHour = new Date().getHours();
   const activeWatch = getTyNgoWatch(nowHour);
+  const dayCount = progress.dayCount ?? 1;
+  const solarTerm = getSeasonalSolarTerm(dayCount);
 
   const handleDownloadSave = () => {
     const json = exportSaveJson(progress);
@@ -64,48 +67,51 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
   };
 
   return (
-    <header className="header-plaque slim-header">
-      <div className="header-inner slim-header-inner">
+    <header className="header-plaque slim-header spatial-top-hud">
+      <div className="header-inner slim-header-inner spatial-hud-inner">
         <div className="brand-group">
           <div className="rank-seal" title="Ấn hiệu Y gia hiện tại">
             {progress.rank}
           </div>
-          <div>
-            <h1 className="brand-title">Nam Y Quán — Tuệ Tâm Đường</h1>
-            <p className="brand-subtitle">
-              {activeWatch.branch} ({activeWatch.organ} vượng) · Nam dược trị Nam nhân
-            </p>
+          <div className="spatial-brand-meta">
+            <h1 className="brand-title">Nam Y Quán</h1>
+            <span className="spatial-hud-pills">
+              <span className="hud-mini-chip" title={`${activeWatch.branch} (${activeWatch.organ} vượng)`}>
+                Ngày {dayCount} · {solarTerm.name}
+              </span>
+              <span className="hud-mini-chip is-gold" title="Điểm Y Đức mở khóa Bảo Vật Trấn Quán">
+                Y Đức {progress.yDucPoints ?? 0}
+              </span>
+              {(progress.currentStreak ?? 0) >= 2 && (
+                <span className="hud-mini-chip is-flame" title="Chuỗi chữa khỏi liên tiếp">
+                  <AntiqueIcon name="flame" size={11} /> x{progress.currentStreak}
+                </span>
+              )}
+            </span>
           </div>
         </div>
 
-        <nav className="nav-tabs calligraphy-tabs" aria-label="Khu vực chính">
-          <button
-            type="button"
-            className={`calligraphy-tab ${activeTab === 'clinic' ? 'active' : ''}`}
-            onClick={() => onSelectTab('clinic')}
-          >
-            Bàn Khám
-          </button>
+        <nav className="nav-tabs calligraphy-tabs spatial-nav-pills" aria-label="Cuộn giấy phụ">
           <button
             type="button"
             className={`calligraphy-tab ${activeTab === 'codex' ? 'active' : ''}`}
-            onClick={() => onSelectTab('codex')}
+            onClick={() => onSelectTab(activeTab === 'codex' ? 'clinic' : 'codex')}
           >
-            Tàng Thư Các
+            Tàng Thư
           </button>
           <button
             type="button"
             className={`calligraphy-tab ${activeTab === 'exam' ? 'active' : ''}`}
-            onClick={() => onSelectTab('exam')}
+            onClick={() => onSelectTab(activeTab === 'exam' ? 'clinic' : 'exam')}
           >
-            Khảo Thí Y Miếu
+            Y Miếu
           </button>
           <button
             type="button"
             className={`calligraphy-tab ${activeTab === 'constitution' ? 'active' : ''}`}
-            onClick={() => onSelectTab('constitution')}
+            onClick={() => onSelectTab(activeTab === 'constitution' ? 'clinic' : 'constitution')}
           >
-            Đoán Thể Chất
+            Thể Chất
           </button>
         </nav>
 
@@ -117,8 +123,8 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
             aria-label="Mở Tủ Ấn Triện Danh Dự"
             title="Xem 12 Ấn Triện Danh Dự & Sao chép khoe bạn bè"
           >
-            <AntiqueIcon name="star-seal" size={14} />{' '}
-            <span>Ấn Triện ({unlockedAchievementCount}/{totalAchievementCount})</span>
+            <AntiqueIcon name="star-seal" size={13} />{' '}
+            <span>{unlockedAchievementCount}/{totalAchievementCount}</span>
           </button>
           <button
             type="button"
@@ -130,7 +136,7 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
             aria-label="Cài đặt âm thanh và hồ sơ hành y"
             title="Âm thanh, Nhạc cảnh & Sao lưu Hồ sơ"
           >
-            <AntiqueIcon name="brass-cog" size={14} /> <span>Cài đặt</span>
+            <AntiqueIcon name="brass-cog" size={13} /> <span>Cài đặt</span>
           </button>
         </div>
       </div>
@@ -244,6 +250,21 @@ export const HeaderPlaque: React.FC<HeaderPlaqueProps> = ({
                 {statusMsg}
               </div>
             )}
+
+            <div
+              style={{
+                marginTop: '14px',
+                paddingTop: '10px',
+                borderTop: '1px solid rgba(90, 62, 34, 0.25)',
+                fontSize: '0.75rem',
+                color: 'var(--ink-muted)',
+                lineHeight: 1.45
+              }}
+            >
+              Nam Y Quán — Tuệ Tâm Đường là sản phẩm giáo dục mô phỏng Y học cổ truyền Việt Nam, không thay thế chẩn đoán hay điều trị của bác sĩ, lương y được cấp phép.
+              <br />
+              Nhạc nền: “Ripples” &amp; “Eastern Thought” — Kevin MacLeod (incompetech.com), CC BY 4.0.
+            </div>
           </div>
         </div>
       )}

@@ -6768,3 +6768,501 @@ button {
     transform: none !important;
   }
 }
+
+
+/* =====================================================================
+   NAM Y QUÁN 2.0 — FULL-BLEED 100dvh SPATIAL DIORAMA ARCHITECTURE
+   (Eliminates Web-Page Scroll; True Steam/Switch Apothecary Staging)
+   ===================================================================== */
+
+.app-shell.spatial-shell {
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  background: #140c07;
+}
+
+.spatial-main-stage {
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 1. Single Translucent Floating Top HUD (~46px) */
+.header-plaque.spatial-top-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 155;
+  height: 48px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, rgba(28, 17, 10, 0.92), rgba(28, 17, 10, 0.72));
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(224, 178, 98, 0.42);
+  box-shadow: 0 6px 20px rgba(8, 4, 2, 0.45);
+}
+
+.spatial-hud-inner {
+  max-width: 1520px;
+  margin: 0 auto;
+  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.spatial-brand-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.spatial-hud-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-mini-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(250, 238, 210, 0.12);
+  border: 1px solid rgba(224, 178, 98, 0.35);
+  color: #f3e0bc;
+  white-space: nowrap;
+}
+
+.hud-mini-chip.is-gold {
+  background: rgba(214, 158, 56, 0.22);
+  border-color: rgba(242, 198, 106, 0.65);
+  color: #ffe7a8;
+}
+
+.hud-mini-chip.is-flame {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(178, 42, 26, 0.34);
+  border-color: rgba(248, 152, 92, 0.7);
+  color: #ffd7b5;
+}
+
+.spatial-nav-pills .calligraphy-tab {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+/* 2. Floating Subbar (Case Actions + Compact 4-Step Guide) */
+.spatial-floating-subbar {
+  position: fixed;
+  top: 54px;
+  left: 16px;
+  right: 16px;
+  z-index: 95;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.spatial-floating-subbar > * {
+  pointer-events: auto;
+}
+
+.spatial-floating-subbar .onboarding-guide-bar {
+  max-width: 680px;
+  margin-bottom: 0;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, rgba(250, 241, 220, 0.92), rgba(238, 223, 192, 0.9));
+  backdrop-filter: blur(6px);
+}
+
+/* 3. Full-Bleed 100dvh Spatial Rooms */
+.spatial-clinic-stage {
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.spatial-clinic-stage .stage-shell-relative,
+.spatial-clinic-stage .apothecary-room-viewport,
+.spatial-clinic-stage .apothecary-room-track {
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+}
+
+.apothecary-room.spatial-room {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  padding: 0;
+}
+
+.spatial-room-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.spatial-full-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.84) saturate(1.04);
+}
+
+.spatial-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(18, 10, 6, 0.58) 0%, rgba(18, 10, 6, 0.16) 28%, rgba(18, 10, 6, 0.28) 72%, rgba(14, 8, 4, 0.78) 100%),
+    radial-gradient(circle at 50% 45%, transparent 32%, rgba(14, 8, 4, 0.52) 100%);
+  pointer-events: none;
+}
+
+.spatial-room-bg-layer .ambient-particles-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.82;
+}
+
+/* 4. Tiền Đường 2.0 — Open Scenic Patient Stage + Right Floating Inspector + Bottom Tabletop */
+.spatial-room-body {
+  position: relative;
+  z-index: 5;
+  height: 100dvh;
+  width: 100%;
+  max-width: 1460px;
+  margin: 0 auto;
+}
+
+.tien-duong-spatial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 112px 32px 136px;
+}
+
+.tien-duong-spatial.has-open-drawer {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spatial-patient-stage {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  max-width: 820px;
+  width: 100%;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), max-width 0.32s ease;
+}
+
+.tien-duong-spatial.has-open-drawer .spatial-patient-stage {
+  max-width: 50%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.spatial-dialogue-card {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(36, 22, 13, 0.84), rgba(24, 14, 8, 0.88));
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(224, 178, 98, 0.52);
+  box-shadow: 0 18px 42px rgba(8, 4, 2, 0.55);
+}
+
+.spatial-inspector-drawer {
+  width: min(560px, 48%);
+  max-height: calc(100dvh - 246px);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  background: rgba(248, 239, 218, 0.96);
+  backdrop-filter: blur(10px);
+  border: 2px solid #8c5c26;
+  box-shadow: 0 20px 50px rgba(8, 4, 2, 0.65);
+  animation: inspector-slide-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes inspector-slide-in {
+  from { opacity: 0; transform: translateX(26px) scale(0.98); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.spatial-inspector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1.5px solid rgba(90, 62, 34, 0.28);
+  font-family: var(--font-serif);
+  font-size: 0.96rem;
+  color: var(--ink-primary);
+}
+
+.spatial-inspector-scroll {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Tactile Tabletop 5-Instrument Tray resting above bottom room dock */
+.spatial-tabletop-tray {
+  position: fixed;
+  bottom: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(52, 32, 18, 0.94), rgba(30, 18, 10, 0.96));
+  border: 1.5px solid rgba(228, 182, 102, 0.65);
+  box-shadow: 0 12px 30px rgba(8, 4, 2, 0.65);
+}
+
+.tabletop-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(224, 178, 98, 0.32);
+  background: rgba(252, 240, 214, 0.08);
+  color: #f6e4c1;
+  font-family: var(--font-serif);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.tabletop-tool-btn:hover {
+  transform: translateY(-3px);
+  background: rgba(252, 240, 214, 0.18);
+  border-color: rgba(242, 198, 106, 0.85);
+}
+
+.tabletop-tool-btn.active {
+  background: linear-gradient(135deg, #a8231c, #741410);
+  border-color: #f5cd7c;
+  color: #fff6e5;
+  box-shadow: 0 4px 16px rgba(168, 35, 28, 0.55);
+  transform: translateY(-3px);
+}
+
+.tabletop-tool-btn.is-compass {
+  border-color: rgba(242, 198, 106, 0.6);
+  color: #ffe4a3;
+}
+
+/* 5. Rooms 2, 3, 4 Floating Translucent Workspaces over Full-Bleed Art */
+.spatial-room-scrollable {
+  overflow-y: auto;
+  padding: 108px 24px 86px;
+}
+
+.spatial-room .woodblock-sheet {
+  background: rgba(247, 237, 216, 0.93);
+  backdrop-filter: blur(7px);
+  box-shadow: 0 18px 46px rgba(10, 5, 2, 0.52);
+}
+
+/* 6. Unified Bottom 4-Room Dock (Desktop & Mobile) */
+.spatial-room-dock {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(36, 22, 13, 0.95), rgba(20, 12, 7, 0.98));
+  border: 1.5px solid rgba(224, 178, 98, 0.62);
+  box-shadow: 0 10px 28px rgba(6, 3, 1, 0.65);
+}
+
+.spatial-dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d9c29e;
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.spatial-dock-btn:hover {
+  color: #fff2d6;
+  background: rgba(255, 240, 210, 0.1);
+}
+
+.spatial-dock-btn.active {
+  background: linear-gradient(135deg, #a6251d, #731510);
+  border-color: rgba(242, 198, 106, 0.85);
+  color: #fff5e3;
+}
+
+.spatial-dock-roman {
+  font-size: 0.76rem;
+  opacity: 0.88;
+}
+
+/* 7. Ancient Scroll Overlay for Tàng Thư Các / Y Miếu / Đoán Thể Chất */
+.spatial-scroll-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  background: rgba(14, 8, 4, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 58px 18px 20px;
+}
+
+.spatial-scroll-overlay-sheet {
+  width: 100%;
+  max-width: 1220px;
+  max-height: calc(100dvh - 82px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #faf1dc, #efe1c0);
+  border: 2px solid #8c5c26;
+  box-shadow: 0 24px 64px rgba(6, 3, 1, 0.75);
+  overflow: hidden;
+}
+
+.spatial-overlay-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #3a2313, #27170c);
+  border-bottom: 1.5px solid #b58035;
+  color: #f6e1b8;
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+}
+
+.spatial-overlay-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px 20px;
+}
+
+/* 8. Responsive Mobile Adaptations for 2.0 Spatial Shell */
+@media (max-width: 960px) {
+  .tien-duong-spatial {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 104px 12px 148px;
+  }
+
+  .spatial-patient-stage,
+  .tien-duong-spatial.has-open-drawer .spatial-patient-stage {
+    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .spatial-inspector-drawer {
+    width: 100%;
+    max-height: none;
+  }
+
+  .spatial-tabletop-tray {
+    bottom: 58px;
+    max-width: calc(100vw - 16px);
+    overflow-x: auto;
+    padding: 5px 8px;
+    gap: 5px;
+  }
+
+  .tabletop-tool-btn {
+    padding: 6px 10px;
+    font-size: 0.76rem;
+  }
+
+  .spatial-room-dock {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    border-radius: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 5px 6px calc(5px + env(safe-area-inset-bottom, 0px));
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .spatial-dock-btn {
+    flex-direction: column;
+    gap: 1px;
+    padding: 6px 4px;
+    font-size: 0.7rem;
+    border-radius: 6px;
+  }
+
+  .spatial-floating-subbar {
+    flex-direction: column;
+    top: 52px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .spatial-hud-pills {
+    display: none;
+  }
+
+  .spatial-room-scrollable {
+    padding: 108px 10px 84px;
+  }
+}

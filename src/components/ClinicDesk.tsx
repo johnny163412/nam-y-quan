@@ -100,6 +100,7 @@ const FIRE_TARGET_RANGES: Record<FireType, [number, number]> = {
 };
 
 type ExamTab = 'vong' | 'van' | 'van-hoi' | 'thiet';
+type TabletopTool = ExamTab | 'bat-cuong';
 
 export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   unlockedChapter: _unlockedChapter,
@@ -107,7 +108,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   caseLedger,
   yDucPoints,
   dayCount,
-  currentStreak,
+  currentStreak: _currentStreak,
   songAnClearedIds,
   discoveredFormulas,
   freshHerbIds,
@@ -125,8 +126,8 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
   const [activeRoom, setActiveRoom] = useState<0 | 1 | 2 | 3>(0);
   const [curtainParting, setCurtainParting] = useState(false);
 
-  // Examination state
-  const [examTab, setExamTab] = useState<ExamTab>('vong');
+  // Examination state (Spatial 2.0: starts null for open cinematic Tiền Đường view)
+  const [activeToolDrawer, setActiveToolDrawer] = useState<TabletopTool | null>(null);
   const [askedIds, setAskedIds] = useState<string[]>([]);
   const [clues, setClues] = useState<string[]>([`Chủ chứng: ${STORY_CASES[0].seasonTag}`]);
   const [inspectedAudio, setInspectedAudio] = useState(false);
@@ -300,7 +301,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   const loadPatient = (nextCase: PatientCase, withCurtain = true) => {
     setSelectedCase(nextCase);
-    setExamTab('vong');
+    setActiveToolDrawer(null);
     setAskedIds([]);
     setClues([`Chủ chứng: ${nextCase.seasonTag}`]);
     setInspectedAudio(false);
@@ -597,34 +598,15 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
 
   const assignedHerbsSummary = assignedHerbObjects.map((h) => h.name);
 
-  const mentorHint =
-    activeRoom === 0
-      ? 'Mẹo Sư Phụ: Chạm 4 pháp khí tròn trên bàn (Gương · Tai · Tre · Mạch) để thu chứng trạng rồi xoay Đĩa Đồng Bát Quái.'
-      : activeRoom === 1
-      ? 'Mẹo Sư Phụ: Kéo hộc tủ Bách Tử bỏ vào 4 đĩa đồng treo, chạm Cối hoặc Chảo trên bàn để Bào chế rồi Gói Giấy Hồng Điều.'
-      : activeRoom === 2
-      ? 'Mẹo Sư Phụ: Quạt nan chỉnh nhiệt vào vùng sáng, bật Ngải cứu (Chương 3) rồi Dập Ấn Triện giao thuốc.'
-      : 'Mẹo Sư Phụ: Tưới sương sớm & hái lá tươi quanh vườn mang vào Dược Các tăng tinh khiết.';
-
   return (
-    <div className={`clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}>
+    <div className={`clinic-stage spatial-clinic-stage ${watchLightingClass} ${weatherMoodClass} ${stampingActive ? 'stamp-shake' : ''}`}>
       <div className="ambient-lantern-aura" aria-hidden="true" />
       <FloatingAtmosphereCanvas activeRoom={activeRoom} hasIncenseBurner={yDucPoints >= 20} />
       <FloatingJuiceLayer callouts={callouts} />
       {roomTransitioning && <div className="room-transition-veil" aria-hidden="true" />}
-      {!mentorDismissed && (
-        <FirstCaseGuideBar
-          activeRoom={activeRoom}
-          clueCount={clues.length}
-          assignedHerbCount={assignedHerbObjects.length}
-          hasPaoZhi={Object.values(slotPaoZhi).some((m) => m && m !== 'sinh-dung')}
-          selectedAcupointCount={selectedAcupoints.length}
-          onGoRoom={switchRoom}
-          onDismiss={onDismissMentor}
-        />
-      )}
-      {/* Minimal Diegetic Floating HUD (Zero Stacked Box Toolbars) */}
-      <div className="stage-floating-hud">
+
+      {/* Floating Case Action Strip + Compact Onboarding (Overlays top-left cleanly without pushing layout) */}
+      <div className="spatial-floating-subbar">
         <div className="hud-cluster">
           <button
             type="button"
@@ -634,7 +616,7 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
               setShowDirectoryModal(true);
             }}
           >
-            <AntiqueIcon name="scroll" size={14} /> <span>Ca &amp; Sổ Y Án</span>
+            <AntiqueIcon name="scroll" size={13} /> <span>Ca &amp; Sổ Y Án</span>
           </button>
           <button
             type="button"
@@ -642,73 +624,53 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             onClick={handleSpawnProcedural}
             title="Gõ mõ vén rèm đón người bệnh mới"
           >
-            <AntiqueIcon name="bell" size={14} /> <span>Đón Khách</span>
+            <AntiqueIcon name="bell" size={13} /> <span>Đón Khách</span>
           </button>
-        </div>
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className="hud-scroll-btn"
+              onClick={() => {
+                apothecaryAudio.playPageTurn();
+                setShowCluesPopover((v) => !v);
+              }}
+              aria-expanded={showCluesPopover}
+            >
+              <AntiqueIcon name="tally-board" size={13} /> <span>Chứng trạng ({clues.length})</span>
+            </button>
 
-        {/* 4 Round Octagonal Room Medallions Connected by Gold Thread */}
-        <nav className="room-medallions-rail" role="tablist" aria-label="4 khu vực y quán">
-          {ROOM_NODES.map((node) => {
-            const isCurrent = activeRoom === node.idx;
-            return (
-              <button
-                key={node.idx}
-                type="button"
-                role="tab"
-                aria-selected={isCurrent}
-                className={`room-medallion-btn ${isCurrent ? 'active' : ''}`}
-                onClick={() => switchRoom(node.idx)}
-              >
-                <span className="medallion-roman">{node.roman}</span>
-                <span className="medallion-label">{node.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="hud-cluster" style={{ position: 'relative' }}>
-          <span className="yduc-badge-mini" title={`Ngày hành y thứ ${dayCount} · Tiết ${solarTerm.name}: ${solarTerm.climate}`}>
-            Ngày {dayCount} · {solarTerm.name}
-          </span>
-          {currentStreak >= 2 && (
-            <span className="streak-badge-mini" title="Chuỗi chữa khỏi liên tiếp (+5đ Y Đức mỗi bậc)">
-              <AntiqueIcon name="flame" size={13} /> <span>x{currentStreak}</span>
-            </span>
-          )}
-          <span className="yduc-badge-mini" title="Điểm Y Đức mở khóa Bảo vật Trấn Quán">
-            Y Đức {yDucPoints}
-          </span>
-          <button
-            type="button"
-            className="hud-scroll-btn"
-            onClick={() => {
-              apothecaryAudio.playPageTurn();
-              setShowCluesPopover((v) => !v);
-            }}
-            aria-expanded={showCluesPopover}
-          >
-            <AntiqueIcon name="tally-board" size={14} /> <span>Chứng trạng ({clues.length})</span>
-          </button>
-
-          {showCluesPopover && (
-            <div className="floating-clues-popover" role="dialog" aria-label="Sổ tay chứng trạng nhanh">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <strong style={{ fontFamily: 'var(--font-serif)' }}>{selectedCase.patientName}</strong>
-                <span className="muted-note" style={{ fontSize: '0.75rem' }}>
-                  {diagnosis.location === 'bieu' ? 'Biểu' : 'Lý'} / {diagnosis.nature === 'han' ? 'Hàn' : 'Nhiệt'} /{' '}
-                  {diagnosis.state === 'hu' ? 'Hư' : 'Thực'}
-                </span>
-              </div>
-              <div className="clue-list">
-                {clues.map((c, i) => (
-                  <span key={i} className="clue-chip">
-                    <GlossaryText text={c} />
+            {showCluesPopover && (
+              <div className="floating-clues-popover" role="dialog" aria-label="Sổ tay chứng trạng nhanh">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <strong style={{ fontFamily: 'var(--font-serif)' }}>{selectedCase.patientName}</strong>
+                  <span className="muted-note" style={{ fontSize: '0.75rem' }}>
+                    {diagnosis.location === 'bieu' ? 'Biểu' : 'Lý'} / {diagnosis.nature === 'han' ? 'Hàn' : 'Nhiệt'} /{' '}
+                    {diagnosis.state === 'hu' ? 'Hư' : 'Thực'}
                   </span>
-                ))}
+                </div>
+                <div className="clue-list">
+                  {clues.map((c, i) => (
+                    <span key={i} className="clue-chip">
+                      <GlossaryText text={c} />
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
+        {!mentorDismissed && (
+          <FirstCaseGuideBar
+            activeRoom={activeRoom}
+            clueCount={clues.length}
+            assignedHerbCount={assignedHerbObjects.length}
+            hasPaoZhi={Object.values(slotPaoZhi).some((m) => m && m !== 'sinh-dung')}
+            selectedAcupointCount={selectedAcupoints.length}
+            onGoRoom={switchRoom}
+            onDismiss={onDismissMentor}
+          />
+        )}
       </div>
 
       {/* Main Viewport + Potion-Craft Edge Slide Arrows */}
@@ -757,55 +719,44 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
             className="apothecary-room-track four-rooms-track"
             style={{ transform: `translate3d(-${activeRoom * 25}%, 0, 0)` }}
           >
-            {/* ================= ROOM 1: TIỀN ĐƯỜNG TIẾP BỆNH ================= */}
+            {/* ================= ROOM 1: TIỀN ĐƯỜNG 2.0 — FULL-BLEED SPATIAL DIORAMA ================= */}
             <section
-              className={`apothecary-room ${activeRoom === 0 ? 'is-active-room' : ''}`}
+              className={`apothecary-room spatial-room ${activeRoom === 0 ? 'is-active-room' : ''}`}
               aria-label="Buồng 1: Tiền Đường Tiếp Bệnh"
             >
-              <div className={`diorama-hero-stage ${curtainParting ? 'curtain-parting' : ''}`}>
+              <div className={`spatial-room-bg-layer ${curtainParting ? 'curtain-parting' : ''}`} aria-hidden="true">
                 <img
                   src="./art/scenes/room-tien-duong.jpg"
-                  alt="Tiền Đường tiệm thuốc Nam nhìn qua rèm trúc"
-                  className="room-bg-img"
+                  alt=""
+                  className="room-bg-img spatial-full-bg"
                 />
-                <div className="room-ambient-wash" aria-hidden="true" />
+                <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode={watchLightingClass === 'lighting-night' ? 'rain' : 'sunbeams'} />
-                <div className="curtain-veil left" aria-hidden="true" />
-                <div className="curtain-veil right" aria-hidden="true" />
+                <div className="curtain-veil left" />
+                <div className="curtain-veil right" />
+              </div>
 
-                {!mentorDismissed && (
-                  <div className="stage-mentor-ribbon" role="status">
-                    <span>{mentorHint}</span>
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      style={{ padding: '2px 7px', fontSize: '0.72rem' }}
-                      onClick={onDismissMentor}
-                    >
-                      Ẩn
-                    </button>
-                  </div>
-                )}
-
-                <div className="diorama-stage-content">
+              <div className={`spatial-room-body tien-duong-spatial ${activeToolDrawer ? 'has-open-drawer' : ''}`}>
+                {/* Left / Center Cinematic Patient & Speech Stage */}
+                <div className="spatial-patient-stage">
                   <div className="stage-patient-centerpiece">
                     <div className="silk-scroll-mount" aria-hidden="true">
                       <div className="scroll-rod-cap stage-cap" />
                       <VillagerPortrait
                         patientCase={selectedCase}
                         size="stage"
-                        activeExamTool={examTab}
+                        activeExamTool={activeToolDrawer && activeToolDrawer !== 'bat-cuong' ? activeToolDrawer : null}
                         coughing={auscultating}
                       />
                       <div className="scroll-rod-cap stage-cap" />
                     </div>
                   </div>
 
-                  <div className="stage-dialogue-column">
+                  <div className="spatial-dialogue-card">
                     <div className="stage-case-meta">
                       <h2 className="room-stage-title">{selectedCase.title}</h2>
                       <p className="room-stage-sub">
-                        {activeWatch.branch} ({activeWatch.organ} vượng) · Tiết {solarTerm.name} ({solarTerm.hint}) · Phím <kbd>1</kbd>–<kbd>4</kbd>
+                        {activeWatch.branch} ({activeWatch.organ} vượng) · Tiết {solarTerm.name} ({solarTerm.hint})
                       </p>
                       {activeSongAnId && (() => {
                         const pair = SONG_AN_PAIRS.find((s) => s.id === activeSongAnId);
@@ -846,211 +797,253 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                       </div>
                       「 <TypewriterText key={`cc-${selectedCase.id}`} text={selectedCase.chiefComplaint} voice={patientVoice} /> 」
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                        onClick={() => {
+                          apothecaryAudio.playPageTurn();
+                          setActiveToolDrawer((cur) => (cur === 'bat-cuong' ? null : 'bat-cuong'));
+                        }}
+                      >
+                        Chốt Bát Cương ({diagnosis.location === 'bieu' ? 'Biểu' : 'Lý'} · {diagnosis.nature === 'han' ? 'Hàn' : 'Nhiệt'})
+                      </button>
                       <button type="button" className="btn-cinnabar" onClick={() => switchRoom(1)}>
                         Sang Dược Các Bốc Thuốc →
                       </button>
                     </div>
+
+                    {!activeToolDrawer && <ClinicRelicShelf yDucPoints={yDucPoints} />}
                   </div>
                 </div>
-              </div>
 
-              <div className="desk-grid room-inner-grid">
-                {/* 4 Round Instrument Medallions on Desk */}
-                <div className="woodblock-sheet stitched-binding">
-                  <div className="instrument-tray" role="tablist" aria-label="Pháp khí Tứ Chẩn">
-                    {EXAM_INSTRUMENTS.map((inst) => (
+                {/* Right Floating Parchment Inspector Sheet (Slides in when picking up any tabletop tool) */}
+                {activeToolDrawer && (
+                  <aside className="spatial-inspector-drawer woodblock-sheet stitched-binding" aria-label="Bảng pháp khí đang nhấc">
+                    <div className="spatial-inspector-head">
+                      <strong>
+                        {activeToolDrawer === 'vong'
+                          ? 'Vọng Chẩn — Gương Đồng Soi Lưỡi'
+                          : activeToolDrawer === 'van'
+                          ? 'Văn Chẩn — Lắng Nghe Thanh Âm'
+                          : activeToolDrawer === 'van-hoi'
+                          ? `Vấn Chẩn — Ống Thẻ Tre (${askedIds.length}/${selectedCase.maxInquiries})`
+                          : activeToolDrawer === 'thiet'
+                          ? 'Thiết Chẩn — Gối Bắt Mạch'
+                          : 'Đĩa Đồng Bát Quái — Chốt Biện Chứng'}
+                      </strong>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ padding: '3px 9px', fontSize: '0.76rem' }}
+                        onClick={() => {
+                          apothecaryAudio.playPageTurn();
+                          setActiveToolDrawer(null);
+                        }}
+                      >
+                        Hạ xuống ×
+                      </button>
+                    </div>
+
+                    <div className="spatial-inspector-scroll">
+                      {activeToolDrawer === 'vong' && (
+                        <div>
+                          <p style={{ margin: '0 0 10px', fontSize: '0.86rem' }}>
+                            <strong>Thần sắc bên ngoài:</strong>{' '}
+                            <GlossaryText text={selectedCase.visualAppearance} />
+                          </p>
+                          <TongueMirror
+                            tongue={selectedCase.tongue}
+                            onInspectZone={(z) => addClue(`${z.label}: ${z.clueTag}`)}
+                          />
+                        </div>
+                      )}
+
+                      {activeToolDrawer === 'van' && (
+                        <div className="auscultation-box">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                            <strong>Lắng nghe thanh âm &amp; hơi thở:</strong>
+                            <button
+                              type="button"
+                              className="btn-cinnabar"
+                              style={{ padding: '6px 12px', fontSize: '0.82rem' }}
+                              onClick={handlePlayAuscultation}
+                            >
+                              {auscultating ? 'Đang lắng nghe...' : 'Nghe hơi thở & tiếng ho'}
+                            </button>
+                          </div>
+                          <div className={`auscultation-wave ${auscultating ? 'is-playing' : ''}`} aria-hidden="true">
+                            <span /><span /><span /><span /><span /><span /><span /><span />
+                          </div>
+                          <p style={{ margin: '8px 0 0', fontFamily: 'var(--font-serif)', fontSize: '0.94rem' }}>
+                            <GlossaryText text={selectedCase.audioObservation} />
+                          </p>
+                        </div>
+                      )}
+
+                      {activeToolDrawer === 'van-hoi' && (
+                        <div>
+                          <div style={{ fontSize: '0.82rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
+                            Rút thẻ tre hỏi bệnh (còn <strong>{selectedCase.maxInquiries - askedIds.length}</strong> lượt):
+                          </div>
+
+                          <div className="wooden-chat-log" aria-live="polite">
+                            <div className="chat-turn-patient">
+                              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7C1A14', marginBottom: '2px' }}>
+                                {selectedCase.patientName} thưa:
+                              </div>
+                              “<GlossaryText text={selectedCase.chiefComplaint} />”
+                            </div>
+                            {selectedCase.inquiries
+                              .filter((q) => askedIds.includes(q.id))
+                              .map((q) => {
+                                const isLatest = askedIds[askedIds.length - 1] === q.id;
+                                return (
+                                  <React.Fragment key={q.id}>
+                                    <div className="chat-turn-doctor">
+                                      <span className="speaker-seal doctor">Lương Y</span> {q.question}
+                                    </div>
+                                    <div className="chat-turn-patient">
+                                      <span className="speaker-seal patient">{selectedCase.patientName}</span>“
+                                      <TypewriterText
+                                        text={q.answer}
+                                        voice={patientVoice}
+                                        instant={!isLatest}
+                                      />
+                                      ”
+                                      <div style={{ fontSize: '0.78rem', color: 'var(--herbal-jade)', fontWeight: 700, marginTop: '3px' }}>
+                                        Ghi nhận: <GlossaryText text={q.clueTag} />
+                                      </div>
+                                    </div>
+                                  </React.Fragment>
+                                );
+                              })}
+                          </div>
+
+                          <div className="inquiry-grid">
+                            {selectedCase.inquiries
+                              .filter((q) => !askedIds.includes(q.id))
+                              .map((q) => {
+                                const limitReached = askedIds.length >= selectedCase.maxInquiries;
+                                return (
+                                  <button
+                                    key={q.id}
+                                    type="button"
+                                    className="bamboo-tally-btn"
+                                    disabled={limitReached}
+                                    onClick={() => handleAskQuestion(q.id, q.clueTag)}
+                                  >
+                                    <span style={{ color: '#E7B96A', fontWeight: 700 }}>[{q.topic}]</span> {q.question}
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      )}
+
+                      {activeToolDrawer === 'thiet' && (
+                        <PulseCanvas
+                          pulse={selectedCase.pulse}
+                          onDepthInspected={(d) =>
+                            addClue(
+                              d === 'phu'
+                                ? `Phù thủ: ${selectedCase.pulse.phuFinding}`
+                                : `Trầm thủ: ${selectedCase.pulse.tramFinding}`
+                            )
+                          }
+                          onFingerInspected={(_, finding) => addClue(finding)}
+                        />
+                      )}
+
+                      {activeToolDrawer === 'bat-cuong' && (
+                        <div>
+                          <EightPrinciplesCompass
+                            initialVector={selectedCase.initialVector}
+                            previewVector={preview.resultingVector}
+                            balanceScore={preview.balanceScore}
+                            diagnosis={diagnosis}
+                            onChangeDiagnosis={setDiagnosis}
+                            showTreatmentProjection={hasAssignedTreatment}
+                          />
+                          <div style={{ marginTop: '12px' }}>
+                            <button
+                              type="button"
+                              className="btn-cinnabar"
+                              style={{ width: '100%' }}
+                              onClick={() => switchRoom(1)}
+                            >
+                              Sang II. Dược Các &amp; Cân Tiểu Ly →
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </aside>
+                )}
+
+                {/* Tactile Tabletop 5-Instrument Tray resting directly on the wooden desk */}
+                <div className="spatial-tabletop-tray" role="toolbar" aria-label="Khay 5 pháp khí trên bàn khám">
+                  {EXAM_INSTRUMENTS.map((inst) => {
+                    const isOpen = activeToolDrawer === inst.id;
+                    return (
                       <button
                         key={inst.id}
                         type="button"
-                        role="tab"
-                        aria-selected={examTab === inst.id}
-                        className={`instrument-coin-btn ${examTab === inst.id ? 'active' : ''}`}
+                        className={`tabletop-tool-btn ${isOpen ? 'active' : ''}`}
                         onClick={() => {
-                          setExamTab(inst.id);
+                          setActiveToolDrawer((cur) => (cur === inst.id ? null : inst.id));
                           apothecaryAudio.playPageTurn();
                         }}
                       >
-                        <span className="instrument-glyph" aria-hidden="true">
+                        <span className="tabletop-tool-icon" aria-hidden="true">
                           <AntiqueIcon name={inst.icon} size={18} />
                         </span>
-                        <span className="instrument-name">
+                        <span className="tabletop-tool-label">
                           {inst.id === 'van-hoi'
                             ? `${inst.label} (${askedIds.length}/${selectedCase.maxInquiries})`
                             : inst.label}
                         </span>
                       </button>
-                    ))}
-                  </div>
-
-                  <div className="exam-panel">
-                    {examTab === 'vong' && (
-                      <div>
-                        <p style={{ margin: '0 0 10px', fontSize: '0.88rem' }}>
-                          <strong>Thần sắc bên ngoài:</strong>{' '}
-                          <GlossaryText text={selectedCase.visualAppearance} />
-                        </p>
-                        <TongueMirror
-                          tongue={selectedCase.tongue}
-                          onInspectZone={(z) => addClue(`${z.label}: ${z.clueTag}`)}
-                        />
-                      </div>
-                    )}
-
-                    {examTab === 'van' && (
-                      <div className="auscultation-box">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                          <strong>Lắng nghe thanh âm &amp; hơi thở (Văn chẩn):</strong>
-                          <button
-                            type="button"
-                            className="btn-cinnabar"
-                            style={{ padding: '6px 12px', fontSize: '0.84rem' }}
-                            onClick={handlePlayAuscultation}
-                          >
-                            {auscultating ? 'Đang lắng nghe...' : 'Nghe hơi thở & tiếng ho'}
-                          </button>
-                        </div>
-                        <div className={`auscultation-wave ${auscultating ? 'is-playing' : ''}`} aria-hidden="true">
-                          <span /><span /><span /><span /><span /><span /><span /><span />
-                        </div>
-                        <p style={{ margin: '8px 0 0', fontFamily: 'var(--font-serif)', fontSize: '0.96rem' }}>
-                          <GlossaryText text={selectedCase.audioObservation} />
-                        </p>
-                      </div>
-                    )}
-
-                    {examTab === 'van-hoi' && (
-                      <div>
-                        <div style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
-                          Rút thẻ tre hỏi bệnh (còn <strong>{selectedCase.maxInquiries - askedIds.length}</strong> lượt):
-                        </div>
-
-                        <div className="wooden-chat-log" aria-live="polite">
-                          <div className="chat-turn-patient">
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7C1A14', marginBottom: '2px' }}>
-                              {selectedCase.patientName} thưa:
-                            </div>
-                            “<GlossaryText text={selectedCase.chiefComplaint} />”
-                          </div>
-                          {selectedCase.inquiries
-                            .filter((q) => askedIds.includes(q.id))
-                            .map((q) => {
-                              const isLatest = askedIds[askedIds.length - 1] === q.id;
-                              return (
-                                <React.Fragment key={q.id}>
-                                  <div className="chat-turn-doctor">
-                                    <span className="speaker-seal doctor">Lương Y</span> {q.question}
-                                  </div>
-                                  <div className="chat-turn-patient">
-                                    <span className="speaker-seal patient">{selectedCase.patientName}</span>“
-                                    <TypewriterText
-                                      text={q.answer}
-                                      voice={patientVoice}
-                                      instant={!isLatest}
-                                    />
-                                    ”
-                                    <div style={{ fontSize: '0.78rem', color: 'var(--herbal-jade)', fontWeight: 700, marginTop: '3px' }}>
-                                      Ghi nhận: <GlossaryText text={q.clueTag} />
-                                    </div>
-                                  </div>
-                                </React.Fragment>
-                              );
-                            })}
-                        </div>
-
-                        <div className="inquiry-grid">
-                          {selectedCase.inquiries
-                            .filter((q) => !askedIds.includes(q.id))
-                            .map((q) => {
-                              const limitReached = askedIds.length >= selectedCase.maxInquiries;
-                              return (
-                                <button
-                                  key={q.id}
-                                  type="button"
-                                  className="bamboo-tally-btn"
-                                  disabled={limitReached}
-                                  onClick={() => handleAskQuestion(q.id, q.clueTag)}
-                                >
-                                  <span style={{ color: '#E7B96A', fontWeight: 700 }}>[{q.topic}]</span> {q.question}
-                                </button>
-                              );
-                            })}
-                        </div>
-                      </div>
-                    )}
-
-                    {examTab === 'thiet' && (
-                      <PulseCanvas
-                        pulse={selectedCase.pulse}
-                        onDepthInspected={(d) =>
-                          addClue(
-                            d === 'phu'
-                              ? `Phù thủ: ${selectedCase.pulse.phuFinding}`
-                              : `Trầm thủ: ${selectedCase.pulse.tramFinding}`
-                          )
-                        }
-                        onFingerInspected={(_, finding) => addClue(finding)}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Right of Room 1: Rotating Brass Dial Bát Quái */}
-                <div className="woodblock-sheet">
-                  <EightPrinciplesCompass
-                    initialVector={selectedCase.initialVector}
-                    previewVector={preview.resultingVector}
-                    balanceScore={preview.balanceScore}
-                    diagnosis={diagnosis}
-                    onChangeDiagnosis={setDiagnosis}
-                    showTreatmentProjection={hasAssignedTreatment}
-                  />
-
-                  <div style={{ marginTop: '12px' }}>
-                    <button
-                      type="button"
-                      className="btn-cinnabar"
-                      style={{ width: '100%' }}
-                      onClick={() => switchRoom(1)}
-                    >
-                      Sang II. Dược Các &amp; Cân Tiểu Ly →
-                    </button>
-                  </div>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    className={`tabletop-tool-btn is-compass ${activeToolDrawer === 'bat-cuong' ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveToolDrawer((cur) => (cur === 'bat-cuong' ? null : 'bat-cuong'));
+                      apothecaryAudio.playPageTurn();
+                    }}
+                  >
+                    <span className="tabletop-tool-icon" aria-hidden="true">
+                      <AntiqueIcon name="yin-yang" size={18} />
+                    </span>
+                    <span className="tabletop-tool-label">Đĩa Bát Quái</span>
+                  </button>
                 </div>
               </div>
-
-              <ClinicRelicShelf yDucPoints={yDucPoints} />
             </section>
 
-            {/* ================= ROOM 2: DƯỢC CÁC — CÂN ĐĨA TREO & ĐẠO CỤ BÀO CHẾ ================= */}
+            {/* ================= ROOM 2: DƯỢC CÁC 2.0 — FULL-BLEED SPATIAL WORKBENCH ================= */}
             <section
-              className={`apothecary-room ${activeRoom === 1 ? 'is-active-room' : ''}`}
+              className={`apothecary-room spatial-room ${activeRoom === 1 ? 'is-active-room' : ''}`}
               aria-label="Buồng 2: Dược Các và Bào Chế"
             >
-              <div className="room-stage-backdrop">
+              <div className="spatial-room-bg-layer" aria-hidden="true">
                 <img
                   src="./art/scenes/room-duoc-cac.jpg"
-                  alt="Tường Tủ Bách Tử và bàn cân thuốc Nam"
-                  className="room-bg-img"
+                  alt=""
+                  className="room-bg-img spatial-full-bg"
                 />
-                <div className="room-ambient-wash" aria-hidden="true" />
+                <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode="sunbeams" />
-                <div className="room-stage-header">
-                  <div>
-                    <h2 className="room-stage-title">
-                      Dược Các — Cân Tiểu Ly &amp; Bào Chế {hasDragonScale ? '· Cân Giao Long' : ''}
-                    </h2>
-                    <p className="room-stage-sub">
-                      Chạm 4 đĩa đồng treo · Kéo hộc tủ bốc thuốc · Dùng Cối Giã / Chảo Sao ngay trên bàn
-                    </p>
-                  </div>
-                </div>
               </div>
 
-              <div
-                ref={deskRoom2Ref}
-                className={`woodblock-sheet desk-right-col ${draggingHerbId ? 'is-dragging-herb' : ''}`}
-              >
+              <div className="spatial-room-body spatial-room-scrollable">
+                <div
+                  ref={deskRoom2Ref}
+                  className={`woodblock-sheet desk-right-col spatial-translucent-sheet ${draggingHerbId ? 'is-dragging-herb' : ''}`}
+                >
                 {/* Sticky Mini Patient Silk Scroll Strip for Effortless Cross-Room Deduction */}
                 <div className="mini-patient-scroll-strip" aria-label="Tóm tắt bệnh án đang khám">
                   <VillagerPortrait patientCase={selectedCase} size="compact" />
@@ -1339,32 +1332,25 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   </div>
                 </div>
               </div>
+              </div>
             </section>
 
-            {/* ================= ROOM 3: NỘI CÁC, LÒ SẮC SỐNG ĐỘNG & ẤN TRIỆN ================= */}
+            {/* ================= ROOM 3: NỘI CÁC 2.0 — FULL-BLEED KINH LẠC & HỎA LÒ ================= */}
             <section
-              className={`apothecary-room ${activeRoom === 2 ? 'is-active-room' : ''}`}
+              className={`apothecary-room spatial-room ${activeRoom === 2 ? 'is-active-room' : ''}`}
               aria-label="Buồng 3: Nội Các Châm Cứu và Bếp Sắc"
             >
-              <div className="room-stage-backdrop">
+              <div className="spatial-room-bg-layer" aria-hidden="true">
                 <img
                   src="./art/scenes/room-noi-cac.jpg"
-                  alt="Nội các châm cứu và bếp than hồng sắc siêu đất nung"
-                  className="room-bg-img"
+                  alt=""
+                  className="room-bg-img spatial-full-bg"
                 />
-                <div className="room-ambient-wash" aria-hidden="true" />
+                <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode="embers" />
-                <div className="room-stage-header">
-                  <div>
-                    <h2 className="room-stage-title">
-                      Nội Các — Kinh Lạc Đắc Khí &amp; Hỏa Lò {hasBatTrangPot ? '· Siêu Bát Tràng' : ''}
-                    </h2>
-                    <p className="room-stage-sub">
-                      Chạm trực tiếp huyệt đạo trên lụa · Quạt nan bùng lửa &amp; Dập ấn triện Chu Sa
-                    </p>
-                  </div>
-                </div>
               </div>
+
+              <div className="spatial-room-body spatial-room-scrollable">
 
               {/* Sticky Mini Patient Silk Scroll Strip in Room III */}
               <div className="mini-patient-scroll-strip in-room3" aria-label="Tóm tắt bệnh án đang khám">
@@ -1460,61 +1446,56 @@ export const ClinicDesk: React.FC<ClinicDeskProps> = ({
                   ))}
                 </div>
               </div>
+              </div>
             </section>
 
-            {/* ================= ROOM 4: HẬU VIÊN VƯỜN THUỐC NAM ================= */}
+            {/* ================= ROOM 4: HẬU VIÊN 2.0 — FULL-BLEED VƯỜN THUỐC NAM ================= */}
             <section
-              className={`apothecary-room ${activeRoom === 3 ? 'is-active-room' : ''}`}
+              className={`apothecary-room spatial-room ${activeRoom === 3 ? 'is-active-room' : ''}`}
               aria-label="Buồng 4: Hậu Viên Vườn Thuốc Nam"
             >
-              <div className="room-stage-backdrop">
+              <div className="spatial-room-bg-layer" aria-hidden="true">
                 <img
                   src="./art/scenes/room-hau-vien.jpg"
-                  alt="Hậu viên trồng cây thuốc Nam xanh tươi sau y quán"
-                  className="room-bg-img"
+                  alt=""
+                  className="room-bg-img spatial-full-bg"
                 />
-                <div className="room-ambient-wash" aria-hidden="true" />
+                <div className="spatial-bg-vignette" />
                 <AmbientParticlesCanvas mode="garden" />
-                <div className="room-stage-header">
-                  <div>
-                    <h2 className="room-stage-title">Hậu Viên — Vườn Nam Dược Quanh Nhà</h2>
-                    <p className="room-stage-sub">
-                      Tưới sương sớm &amp; hái lá tươi mang vào Dược Các tăng tinh khiết cho thang thuốc
-                    </p>
-                  </div>
-                </div>
               </div>
 
-              <HerbGardenRoom
-                gardenGrowth={gardenGrowth}
-                freshHerbIds={freshHerbIds}
-                onWaterPlot={onWaterGardenPlot}
-                onHarvestPlot={(herbId) => {
-                  onHarvestGardenPlot(herbId);
-                  const herbName = HERB_MAP[herbId]?.name ?? 'Thảo dược';
-                  pushCallout(`+1 ${herbName} Tươi (+2đ Tinh Khiết)`, 'jade');
-                }}
-                onGoToDispensary={() => switchRoom(1)}
-              />
+              <div className="spatial-room-body spatial-room-scrollable">
+                <HerbGardenRoom
+                  gardenGrowth={gardenGrowth}
+                  freshHerbIds={freshHerbIds}
+                  onWaterPlot={onWaterGardenPlot}
+                  onHarvestPlot={(herbId) => {
+                    onHarvestGardenPlot(herbId);
+                    const herbName = HERB_MAP[herbId]?.name ?? 'Thảo dược';
+                    pushCallout(`+1 ${herbName} Tươi (+2đ Tinh Khiết)`, 'jade');
+                  }}
+                  onGoToDispensary={() => switchRoom(1)}
+                />
+              </div>
             </section>
           </div>
         </div>
       </div>
 
-      {/* Fixed Mobile Bottom Room Dock (Thumb-Friendly Navigation on Phones) */}
-      <nav className="mobile-room-dock" aria-label="Chuyển phòng nhanh trên điện thoại">
+      {/* Unified Floating Bottom 4-Room Dock (Desktop & Mobile) */}
+      <nav className="spatial-room-dock" aria-label="Chuyển giữa 4 gian phòng Y Quán">
         {ROOM_NODES.map((node) => {
           const isCurrent = activeRoom === node.idx;
           return (
             <button
-              key={`mob-${node.idx}`}
+              key={`dock-${node.idx}`}
               type="button"
-              className={`mobile-dock-btn ${isCurrent ? 'active' : ''}`}
+              className={`spatial-dock-btn ${isCurrent ? 'active' : ''}`}
               onClick={() => switchRoom(node.idx)}
               aria-current={isCurrent ? 'page' : undefined}
             >
-              <span className="mobile-dock-roman">{node.roman}</span>
-              <span className="mobile-dock-label">{node.label}</span>
+              <span className="spatial-dock-roman">{node.roman}</span>
+              <span className="spatial-dock-label">{node.label}</span>
             </button>
           );
         })}
