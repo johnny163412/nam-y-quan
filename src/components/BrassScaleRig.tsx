@@ -439,31 +439,11 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
               {/* Đề: the cord loop the healer lifts the steelyard by */}
               <path d={`M${PIVOT.x} ${PIVOT.y} L${PIVOT.x} 16`} stroke="#6B4A26" strokeWidth="3" />
               <ellipse cx={PIVOT.x} cy="12" rx="11" ry="9" fill="none" stroke="#6B4A26" strokeWidth="3" />
-              <image
-                href="./art/tools/steelyard-beam.webp"
-                x="0"
-                y={PIVOT.y - 40}
-                width="1200"
-                height="80"
-                transform={`rotate(${springAngle.toFixed(2)} ${PIVOT.x} ${PIVOT.y})`}
-              />
-              {/* Pan on three cords, hanging plumb from the hook */}
-              {[-82, 0, 82].map((dx) => (
-                <line key={dx} x1={hook.x} y1={hook.y} x2={hook.x + dx} y2={hook.y + 128} stroke="#8A6A3E" strokeWidth="2" />
+              {/* Pan on three cords, hanging plumb from the hook behind the ivory beam */}
+              {[-72, 0, 72].map((dx) => (
+                <line key={dx} x1={hook.x} y1={hook.y + 4} x2={hook.x + dx} y2={hook.y + 132} stroke="#8A6A3E" strokeWidth="2" />
               ))}
-              {panHerb && (
-                <foreignObject x={hook.x - 36} y={hook.y + 78} width="72" height="64">
-                  <div className="steelyard-pan-herb">
-                    <BotanicalSvg herbId={panHerb.id} motif={panHerb.motif} size={58} bare />
-                  </div>
-                </foreignObject>
-              )}
-              <image href="./art/tools/steelyard-pan.webp" x={hook.x - 90} y={hook.y + 112} width="180" height="60" />
-              <text x={hook.x} y={hook.y + 196} className="steelyard-pan-label" textAnchor="middle">
-                {panMeta.short}
-                {panHerb ? ` · ${panHerb.name}` : ' · trống'}
-              </text>
-              {/* Quả cân on its cord: drag along the beam (or tap a sao) to balance */}
+              {/* Quả cân cord behind the ivory beam */}
               <g
                 role="slider"
                 tabIndex={0}
@@ -480,9 +460,29 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                   setWeightTien(weightTien + step);
                 }}
               >
-                <line x1={bob.x} y1={bob.y} x2={bob.x} y2={bob.y + 44} stroke="#6B4A26" strokeWidth="2.4" />
+                <line x1={bob.x} y1={bob.y + 4} x2={bob.x} y2={bob.y + 44} stroke="#6B4A26" strokeWidth="2.4" />
                 <image href="./art/tools/steelyard-weight.webp" x={bob.x - 27} y={bob.y + 38} width="54" height="72" />
               </g>
+              <image
+                href="./art/tools/steelyard-beam.webp"
+                x="0"
+                y={PIVOT.y - 40}
+                width="1200"
+                height="80"
+                transform={`rotate(${springAngle.toFixed(2)} ${PIVOT.x} ${PIVOT.y})`}
+              />
+              {panHerb && (
+                <foreignObject x={hook.x - 36} y={hook.y + 78} width="72" height="64">
+                  <div className="steelyard-pan-herb">
+                    <BotanicalSvg herbId={panHerb.id} motif={panHerb.motif} size={58} bare />
+                  </div>
+                </foreignObject>
+              )}
+              <image href="./art/tools/steelyard-pan.webp" x={hook.x - 90} y={hook.y + 112} width="180" height="60" />
+              <text x={hook.x} y={hook.y + 196} className="steelyard-pan-label" textAnchor="middle">
+                {panMeta.short}
+                {panHerb ? ` · ${panHerb.name}` : ' · trống'}
+              </text>
             </svg>
             <div className={`steelyard-reading ${panHerb && isWeighed(panRole) ? 'is-level' : ''}`} role="status">
               {reading}
