@@ -27,6 +27,16 @@ const ROLE_META: { role: RoleSlot; short: string; weight: string; ratioHint: str
   { role: 'su', short: 'Sứ', weight: 'Điều hòa', ratioHint: 'Dẫn kinh ×0.55' }
 ];
 
+/** Teaching doses on the cân tiểu ly: Quân heaviest, Sứ lightest (1 tiền ≈ 3.75 g). */
+const DOSE_TIEN: Record<RoleSlot, number> = { quan: 4, than: 3, ta: 2, su: 1 };
+const GRAM_PER_TIEN = 3.75;
+const MAX_TIEN = 10;
+const WEIGH_TOLERANCE = 0.15;
+// Geometry of steelyard-beam.webp (1200×80): đề pivot at x=200, sao 0…10 tiền from x=260, 86px per tiền.
+const PIVOT = { x: 200, y: 70 };
+const BEAM_X0 = 260;
+const PX_PER_TIEN = 86;
+
 interface BrassScaleRigProps {
   slots: PrescriptionSlots;
   slotPaoZhi: SlotPaoZhi;
@@ -95,24 +105,47 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
   onApplyFormula
 }) => {
   const [showFormulaScroll, setShowFormulaScroll] = useState(false);
-  const targetBeamTilt = hasTreatment ? Math.max(-8.5, Math.min(8.5, previewVector.coldHeat / 12)) : 0;
+  // Cân tiểu ly: the pan (hook x=80) and the sliding quả cân balance about the đề (x=200).
+  const anyFilled = Boolean(slots.quan || slots.than || slots.ta || slots.su);
+  const [caseOpen, setCaseOpen] = useState(anyFilled);
+  useEffect(() => {
+    if (anyFilled) setCaseOpen(true);
+    else setWeights({});
+  }, [anyFilled]);
 
-  // Real damped spring physics for the antique bronze dragon balance beam (60fps RAF)
+  // Quả cân position in tiền, per role + herb, so swapping the herb asks for a fresh weighing.
+  const [weights, setWeights] = useState<Record<string, number>>({});
+  // The pan shows the herb just scooped (selection auto-advances to the next packet) or the packet last touched.
+  const [panRole, setPanRole] = useState<RoleSlot>(selectedSlot);
+  useEffect(() => {
+    if (justScoopedRole) setPanRole(justScoopedRole);
+  }, [justScoopedRole]);
+  const panHerbId = slots[panRole];
+  const panKey = `${panRole}:${panHerbId ?? ''}`;
+  const weightTien = weights[panKey] ?? 0;
+  const targetTien = panHerbId ? DOSE_TIEN[panRole] : 0;
+  const isWeighed = (role: RoleSlot) => {
+    const id = slots[role];
+    return Boolean(id && Math.abs((weights[`${role}:${id}`] ?? 0) - DOSE_TIEN[role]) <= WEIGH_TOLERANCE);
+  };
+  const setWeightTien = (t: number) => {
+    const clamped = Math.max(0, Math.min(MAX_TIEN, Math.round(t * 10) / 10));
+    const snapped = panHerbId && Math.abs(clamped - targetTien) <= WEIGH_TOLERANCE ? targetTien : clamped;
+    setWeights((w) => ({ ...w, [panKey]: snapped }));
+  };
+  // Heavier than the herb → the long arm drops (positive SVG rotation); lighter → the pan drops.
+  const targetBeamTilt = Math.max(-5, Math.min(5, (weightTien - targetTien) * 1.6));
+
+  // Damped spring so the beam swings and settles (60fps RAF)
   const [springAngle, setSpringAngle] = useState(0);
   const angleRef = useRef(0);
   const velRef = useRef(0);
   const targetRef = useRef(targetBeamTilt);
   targetRef.current = targetBeamTilt;
 
-  const slotTorqueKick =
-    (slots.quan ? -2.2 : 0) +
-    (slots.than ? -1.0 : 0) +
-    (slots.ta ? 1.0 : 0) +
-    (slots.su ? 2.2 : 0);
-
   useEffect(() => {
-    velRef.current += slotTorqueKick * 0.65;
-  }, [slots.quan, slots.than, slots.ta, slots.su, justScoopedRole, slotTorqueKick, slotPaoZhi]);
+    if (justScoopedRole) velRef.current -= 1.6; // herb drops into the pan
+  }, [justScoopedRole]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -136,7 +169,34 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
     };
     rafId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafId);
-  }, [targetBeamTilt, slots.quan, slots.than, slots.ta, slots.su, justScoopedRole, slotPaoZhi]);
+  }, [targetBeamTilt, justScoopedRole]);
+
+  const svgRef = useRef<SVGSVGElement>(null);
+  const draggingRef = useRef(false);
+  const tienFromPointer = (e: React.PointerEvent) => {
+    const svg = svgRef.current;
+    const ctm = svg?.getScreenCTM();
+    if (!svg || !ctm) return weightTien;
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return (p.x - BEAM_X0) / PX_PER_TIEN;
+  };
+
+  const rad = (springAngle * Math.PI) / 180;
+  const onBeam = (x: number) => ({
+    x: PIVOT.x + (x - PIVOT.x) * Math.cos(rad),
+    y: PIVOT.y + (x - PIVOT.x) * Math.sin(rad)
+  });
+  const hook = onBeam(80);
+  const bob = onBeam(BEAM_X0 + weightTien * PX_PER_TIEN);
+  const panHerb: Herb | null = panHerbId ? HERB_MAP[panHerbId] : null;
+  const panMeta = ROLE_META.find((m) => m.role === panRole)!;
+  const diff = weightTien - targetTien;
+  let reading: string;
+  if (!panHerb) reading = `Đĩa cân trống: bốc một vị vào gói ${panMeta.short} trước.`;
+  else if (isWeighed(panRole))
+    reading = `Đòn thăng bằng: ${panHerb.name} ${targetTien} tiền (≈ ${(targetTien * GRAM_PER_TIEN).toFixed(1)} g). Gói ${panMeta.short} đã cân.`;
+  else if (diff < 0) reading = `Đòn chúi về phía đĩa: đẩy quả cân ra xa đầu đề.`;
+  else reading = `Đòn vểnh đầu đĩa: kéo quả cân lùi về gần đầu đề.`;
 
   const initDist =
     Math.abs(initialVector.exteriorInterior) +
@@ -153,7 +213,7 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
 
   // Clinical direction verdict banner without leaking hidden textbook solution
   let verdictTone: 'idle' | 'balanced' | 'good' | 'warn' | 'critical' = 'idle';
-  let verdictText = 'Hãy kéo hộc bốc vị thuốc lên 4 đĩa cân để xem chiều hướng Biện Chứng.';
+  let verdictText = 'Hãy kéo hộc bốc vị thuốc vào 4 gói thuốc để xem chiều hướng Biện Chứng.';
   if (hasCritical) {
     verdictTone = 'critical';
     verdictText = `CẢNH BÁO NGƯỢC Y LÝ / CẤM KỴ: ${alerts.find((a) => a.severity === 'critical')?.message ?? 'Có vị thuốc xung khắc nặng với bệnh cơ!'}`;
@@ -238,7 +298,7 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                   type="button"
                   className={`mini-toggle-chip ${showFormulaScroll ? 'is-open' : ''}`}
                   onClick={() => setShowFormulaScroll((v) => !v)}
-                  title="Áp nhanh bài cổ phương đã lĩnh ngộ lên 4 đĩa cân"
+                  title="Áp nhanh bài cổ phương đã lĩnh ngộ vào 4 gói thuốc"
                 >
                   <AntiqueIcon name="scroll" size={14} /> <span>Bốc Cổ Phương</span>
                 </button>
@@ -335,92 +395,103 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
         </div>
       </div>
 
-      {/* Coherent Full-Width Dragon Scale Stand + Aligned Chains + 4 Hanging Pans */}
-      <div className="coherent-scale-assembly">
-        <div className="balance-beam-bar fullwidth-beam" aria-hidden="true">
-          <svg
-            width="100%"
-            height="94"
-            viewBox="0 0 1000 94"
-            preserveAspectRatio="none"
-            className="coherent-scale-svg"
+      {/* E. Hộp cân hình đàn → A. cân tiểu ly over 4 gói giấy dó (chia thang) */}
+      <div className={`coherent-scale-assembly ${caseOpen ? 'case-open' : 'case-closed'}`}>
+        {!caseOpen ? (
+          <button
+            type="button"
+            className="scale-case-closed"
+            onClick={() => setCaseOpen(true)}
+            aria-label="Mở hộp cân tiểu ly"
           >
-            <defs>
-              <linearGradient id="bronzeBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#7A4F1A" />
-                <stop offset="22%" stopColor="#E6BC66" />
-                <stop offset="50%" stopColor="#A6742B" />
-                <stop offset="78%" stopColor="#F0CA7A" />
-                <stop offset="100%" stopColor="#724815" />
-              </linearGradient>
-              <linearGradient id="standPillarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#3E2311" />
-                <stop offset="50%" stopColor="#754925" />
-                <stop offset="100%" stopColor="#2F190B" />
-              </linearGradient>
-              <radialGradient id="fulcrumJewelGrad" cx="42%" cy="38%" r="60%">
-                <stop offset="0%" stopColor="#FFE9A8" />
-                <stop offset="65%" stopColor="#C8933C" />
-                <stop offset="100%" stopColor="#4A2E0D" />
-              </radialGradient>
-            </defs>
-
-            {/* Central Hardwood Pillar & Yin-Yang Calibration Arc */}
-            <rect x="492" y="16" width="16" height="76" rx="3" fill="url(#standPillarGrad)" stroke="#2A1609" strokeWidth="1.5" />
-            <ellipse cx="500" cy="91" rx="68" ry="5" fill="#3A2110" stroke="#A6742B" strokeWidth="1.4" />
-            <path d="M446 32 A56 56 0 0 1 554 32" stroke="rgba(122,84,42,0.52)" strokeWidth="1.8" fill="none" strokeDasharray="3 4" />
-            <text x="436" y="34" fontSize="11" fontWeight="700" fill="#2A4D6E" textAnchor="end">Hàn</text>
-            <text x="500" y="11" fontSize="10.5" fontWeight="700" fill="#5A3918" textAnchor="middle">Quân Bình</text>
-            <text x="564" y="34" fontSize="11" fontWeight="700" fill="#9E2A20" textAnchor="start">Nhiệt</text>
-
-            {/* Tilting Dragon Bronze Crossbar spanning exactly across all 4 column centers (125, 375, 625, 875) */}
-            <g
-              style={{
-                transformOrigin: '500px 38px',
-                transform: `rotate(${springAngle}deg)`
+            <img
+              src={hasDragonScale ? './art/tools/scale-case-long.webp' : './art/tools/scale-case-go.webp'}
+              alt=""
+              draggable={false}
+            />
+            <span className="scale-case-caption">
+              {hasDragonScale ? 'Hộp cân khảm xà cừ rồng' : 'Hộp cân gỗ mít'} · Mở hộp cân tiểu ly
+            </span>
+          </button>
+        ) : (
+          <div className="steelyard-stage">
+            <svg
+              ref={svgRef}
+              className="steelyard-svg"
+              viewBox="-60 -40 1260 290"
+              preserveAspectRatio="xMidYMid meet"
+              onPointerDown={(e) => {
+                if (!panHerb) return;
+                draggingRef.current = true;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                setWeightTien(tienFromPointer(e));
+              }}
+              onPointerMove={(e) => {
+                if (draggingRef.current) setWeightTien(tienFromPointer(e));
+              }}
+              onPointerUp={() => {
+                draggingRef.current = false;
+              }}
+              onPointerCancel={() => {
+                draggingRef.current = false;
               }}
             >
-              {/* Main sculpted crossbar */}
-              <path
-                d="M104 39 Q302 27 500 35 Q698 27 896 39 Q914 38 922 30 Q906 46 888 44 Q696 33 500 41 Q304 33 112 44 Q94 46 78 30 Q86 38 104 39 Z"
-                fill="url(#bronzeBeamGrad)"
-                stroke="#3A220B"
-                strokeWidth="1.6"
+              {/* Đề: the cord loop the healer lifts the steelyard by */}
+              <path d={`M${PIVOT.x} ${PIVOT.y} L${PIVOT.x} 16`} stroke="#6B4A26" strokeWidth="3" />
+              <ellipse cx={PIVOT.x} cy="12" rx="11" ry="9" fill="none" stroke="#6B4A26" strokeWidth="3" />
+              <image
+                href="./art/tools/steelyard-beam.webp"
+                x="0"
+                y={PIVOT.y - 40}
+                width="1200"
+                height="80"
+                transform={`rotate(${springAngle.toFixed(2)} ${PIVOT.x} ${PIVOT.y})`}
               />
-
-              {/* Pointer needle rising from beam center into calibration arc */}
-              <path d="M497 35 L500 13 L503 35 Z" fill="#A62620" stroke="#3A120D" strokeWidth="1" />
-
-              {/* 4 Column-Locked Hanging Hooks & Straight Triangle Chains Dropping Seamlessly into Dishes */}
-              {[125, 375, 625, 875].map((hx, idx) => (
-                <g key={idx}>
-                  <circle cx={hx} cy="42" r="5.5" fill="#2A190C" stroke="#EBC36F" strokeWidth="1.8" />
-                  <g
-                    style={{
-                      transformOrigin: `${hx}px 45px`,
-                      transform: `rotate(${-springAngle * 0.82}deg)`
-                    }}
-                  >
-                    <path
-                      d={`M${hx} 45 L${hx - 34} 94 M${hx} 45 L${hx + 34} 94`}
-                      stroke="#9F702E"
-                      strokeWidth="2.1"
-                      strokeDasharray="4 2"
-                    />
-                    <circle cx={hx} cy="47" r="2.6" fill="#F2C873" />
-                  </g>
-                </g>
+              {/* Pan on three cords, hanging plumb from the hook */}
+              {[-82, 0, 82].map((dx) => (
+                <line key={dx} x1={hook.x} y1={hook.y} x2={hook.x + dx} y2={hook.y + 128} stroke="#8A6A3E" strokeWidth="2" />
               ))}
-            </g>
+              {panHerb && (
+                <foreignObject x={hook.x - 36} y={hook.y + 78} width="72" height="64">
+                  <div className="steelyard-pan-herb">
+                    <BotanicalSvg herbId={panHerb.id} motif={panHerb.motif} size={58} bare />
+                  </div>
+                </foreignObject>
+              )}
+              <image href="./art/tools/steelyard-pan.webp" x={hook.x - 90} y={hook.y + 112} width="180" height="60" />
+              <text x={hook.x} y={hook.y + 196} className="steelyard-pan-label" textAnchor="middle">
+                {panMeta.short}
+                {panHerb ? ` · ${panHerb.name}` : ' · trống'}
+              </text>
+              {/* Quả cân on its cord: drag along the beam (or tap a sao) to balance */}
+              <g
+                role="slider"
+                tabIndex={0}
+                aria-label="Quả cân tiểu ly"
+                aria-valuemin={0}
+                aria-valuemax={MAX_TIEN}
+                aria-valuenow={weightTien}
+                aria-valuetext={`${weightTien.toFixed(1)} tiền`}
+                className="steelyard-bob"
+                onKeyDown={(e) => {
+                  const step = e.key === 'PageUp' ? 1 : e.key === 'PageDown' ? -1 : e.key === 'ArrowRight' ? 0.1 : e.key === 'ArrowLeft' ? -0.1 : 0;
+                  if (!step || !panHerb) return;
+                  e.preventDefault();
+                  setWeightTien(weightTien + step);
+                }}
+              >
+                <line x1={bob.x} y1={bob.y} x2={bob.x} y2={bob.y + 44} stroke="#6B4A26" strokeWidth="2.4" />
+                <image href="./art/tools/steelyard-weight.webp" x={bob.x - 27} y={bob.y + 38} width="54" height="72" />
+              </g>
+            </svg>
+            <div className={`steelyard-reading ${panHerb && isWeighed(panRole) ? 'is-level' : ''}`} role="status">
+              {reading}
+            </div>
+          </div>
+        )}
 
-            {/* Central Brass Fulcrum Medallion */}
-            <circle cx="500" cy="38" r="9" fill="url(#fulcrumJewelGrad)" stroke="#2F1B0A" strokeWidth="1.8" />
-            <circle cx="500" cy="38" r="3" fill="#7C1E16" />
-          </svg>
-        </div>
-
-        {/* 4 Round Hanging Brass Dish Pans Directly Underneath Hooks */}
-        <div className="brass-dishes-row coherent-row">
+        {/* 4 gói giấy dó: chia thang Quân · Thần · Tá · Sứ */}
+        <div className="paper-packets-row">
           {ROLE_META.map((meta) => {
             const herbId = slots[meta.role];
             const herb: Herb | null = herbId ? HERB_MAP[herbId] : null;
@@ -442,19 +513,20 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                 role="button"
                 tabIndex={0}
                 aria-pressed={isSelected}
-                aria-label={`${meta.short} (${meta.weight})${herb ? `: ${herb.name}` : ': Trống'}`}
-                className={`round-scale-dish ${isSelected ? 'is-selected' : ''} ${
+                aria-label={`Gói ${meta.short} (${meta.weight})${herb ? `: ${herb.name}` : ': Trống'}`}
+                className={`paper-packet packet-${meta.role} ${isSelected ? 'is-selected' : ''} ${
                   herb ? 'is-filled' : ''
                 } ${alignClass} ${isDropped ? 'dish-pendulum-drop' : ''} ${
                   isCrafting ? `paozhi-anim-${method}` : ''
                 } dish-tint-${method}`}
-                style={{
-                  transform: `translateY(${((meta.role === 'quan' ? -1.4 : meta.role === 'than' ? -0.6 : meta.role === 'ta' ? 0.6 : 1.4) * springAngle).toFixed(2)}px)`
+                onClick={() => {
+                  setPanRole(meta.role);
+                  onSelectSlot(meta.role);
                 }}
-                onClick={() => onSelectSlot(meta.role)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
+                    setPanRole(meta.role);
                     onSelectSlot(meta.role);
                   }
                 }}
@@ -479,6 +551,11 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                         <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} bare />
                       </div>
                       <div className="dish-herb-label">{herb.name}</div>
+                      {isWeighed(meta.role) ? (
+                        <span className="dish-mini-pill weighed">{DOSE_TIEN[meta.role]} tiền</span>
+                      ) : (
+                        <span className="dish-mini-pill unweighed">Chưa cân</span>
+                      )}
                       {isFresh && <span className="dish-mini-pill fresh">Tươi</span>}
                       {craftTf.badgeLabel && (
                         <span className={`dish-mini-pill paozhi tone-${craftTf.statusTone}`}>
@@ -489,7 +566,7 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                         type="button"
                         className="dish-clear-dot"
                         title={`Trả ${herb.name} về hộc`}
-                        aria-label={`Bỏ ${herb.name} khỏi đĩa ${meta.short}`}
+                        aria-label={`Bỏ ${herb.name} khỏi gói ${meta.short}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           onAssignHerb(meta.role, null);

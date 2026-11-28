@@ -2515,47 +2515,123 @@ button {
 
 .coherent-scale-assembly {
   position: relative;
-  padding: 10px 10px 14px;
+  padding: 8px 10px 14px;
   background: radial-gradient(ellipse at 50% 0%, rgba(246, 232, 200, 0.9), rgba(219, 198, 160, 0.52));
   border: 1.5px solid rgba(122, 84, 42, 0.45);
   border-radius: 6px;
   margin-bottom: 10px;
 }
 
-.balance-beam-bar.fullwidth-beam {
-  margin: 0;
-  line-height: 0;
-}
-
-.coherent-scale-svg {
+/* E. Hộp cân hình đàn (closed) */
+.scale-case-closed {
   display: block;
   width: 100%;
-  height: 94px;
-  overflow: visible;
+  max-width: 760px;
+  margin: 0 auto 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: center;
+}
+.scale-case-closed img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.25s ease;
+}
+.scale-case-closed:hover img,
+.scale-case-closed:focus-visible img {
+  transform: translateY(-3px) rotate(-0.6deg);
+}
+.scale-case-caption {
+  display: inline-block;
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #5a3918;
 }
 
-.brass-dishes-row {
+/* A. Cân tiểu ly lifted out of its case */
+.steelyard-stage {
+  max-width: 760px;
+  margin: 0 auto 6px;
+  animation: steelyardLift 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .steelyard-stage {
+    animation: none;
+  }
+}
+@keyframes steelyardLift {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.steelyard-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: none;
+  cursor: ew-resize;
+}
+.steelyard-bob:focus-visible {
+  outline: 2px solid #c8933c;
+  outline-offset: 3px;
+}
+.steelyard-pan-herb {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.steelyard-pan-label {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 700;
+  fill: #4a2e14;
+}
+.steelyard-reading {
+  margin-top: 2px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #5a3918;
+}
+.steelyard-reading.is-level {
+  color: #23574c;
+}
+
+/* 4 gói giấy dó (chia thang) */
+.paper-packets-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  margin-top: -4px;
+  margin-top: 6px;
 }
 
-.brass-dishes-row.coherent-row {
-  margin-top: -2px;
-}
-
-.round-scale-dish {
+.paper-packet {
   position: relative;
   aspect-ratio: 1 / 1;
   max-width: 148px;
   width: 100%;
   margin: 0 auto;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 32%, #5a3c22 0%, #2b1a0e 85%);
-  border: 2.5px solid #9e7030;
-  outline: 1.5px solid rgba(242, 204, 128, 0.25);
-  color: #f3e0bb;
+  border-radius: 2px;
+  /* giấy dó: warm fibrous sheet, folded corners */
+  background:
+    linear-gradient(135deg, rgba(160, 120, 70, 0.16) 0 12%, transparent 12% 88%, rgba(160, 120, 70, 0.16) 88%),
+    radial-gradient(circle at 30% 25%, #fbf3df 0%, #eedfbf 70%, #e1cca2 100%);
+  border: 1px solid rgba(122, 84, 42, 0.45);
+  box-shadow: 0 3px 8px rgba(60, 36, 14, 0.25);
+  color: #3a2410;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2563,8 +2639,20 @@ button {
   padding: 8px;
   text-align: center;
   cursor: pointer;
-  transform-origin: top center;
-  transition: border-color 0.16s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transform-origin: center;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.paper-packet.packet-quan { transform: rotate(-1.6deg); }
+.paper-packet.packet-than { transform: rotate(1.1deg); }
+.paper-packet.packet-ta { transform: rotate(-0.8deg); }
+.paper-packet.packet-su { transform: rotate(1.5deg); }
+.dish-mini-pill.weighed {
+  background: #23574c;
+  color: #fff6df;
+}
+.dish-mini-pill.unweighed {
+  background: rgba(90, 57, 24, 0.14);
+  color: #5a3918;
 }
 
 .garden-zone-tabs {
@@ -2574,28 +2662,26 @@ button {
   margin-bottom: 10px;
 }
 
-.round-scale-dish.is-selected {
-  border-style: solid;
-  border-color: #f3ca78;
-  box-shadow: 0 0 0 3px rgba(243, 202, 120, 0.28), 0 6px 14px rgba(0, 0, 0, 0.45);
+.paper-packet.is-selected {
+  border-color: #a62620;
+  box-shadow: 0 0 0 3px rgba(166, 38, 32, 0.3), 0 6px 14px rgba(60, 36, 14, 0.35);
 }
 
-.round-scale-dish.is-filled {
+.paper-packet.is-filled {
   border-style: solid;
-  border-color: #d6a44e;
-  background: radial-gradient(circle at 35% 30%, #faf0d8 0%, #d8be8f 85%);
+  border-color: #b98a45;
   color: #24160e;
 }
 
-.round-scale-dish.dish-tint-sao-vang.is-filled {
-  background: radial-gradient(circle at 35% 30%, #f9e6b2 0%, #d4a652 88%);
+.paper-packet.dish-tint-sao-vang.is-filled {
+  background: radial-gradient(circle at 35% 30%, #fbefd2 0%, #e6c788 88%);
 }
 
-.round-scale-dish.dish-tint-chich-mat.is-filled {
-  background: radial-gradient(circle at 35% 30%, #fce5aa 0%, #d48b35 88%);
+.paper-packet.dish-tint-chich-mat.is-filled {
+  background: radial-gradient(circle at 35% 30%, #fcecc8 0%, #e3b36c 88%);
 }
 
-.round-scale-dish.dish-pendulum-drop {
+.paper-packet.dish-pendulum-drop {
   animation: pendulumSpring 560ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -2875,7 +2961,7 @@ button {
   .balance-beam-bar {
     display: none;
   }
-  .brass-dishes-row {
+  .paper-packets-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .paozhi-props-stage {
@@ -2980,11 +3066,11 @@ button {
   color: #fff0ee;
 }
 
-.round-scale-dish.dish-align-helpful.is-filled {
+.paper-packet.dish-align-helpful.is-filled {
   box-shadow: 0 0 0 2px rgba(74, 184, 152, 0.45), 0 6px 14px rgba(0, 0, 0, 0.38);
 }
 
-.round-scale-dish.dish-align-danger.is-filled {
+.paper-packet.dish-align-danger.is-filled {
   border-color: #df493e;
   box-shadow: 0 0 0 3px rgba(223, 73, 62, 0.55), 0 6px 14px rgba(0, 0, 0, 0.45);
 }

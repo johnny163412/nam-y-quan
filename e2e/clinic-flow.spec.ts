@@ -177,3 +177,16 @@ test('a wrong Quân at the desk comes back as the first Khảo Thí question', a
   const key = (await progress(page)).mistakes[0].key;
   await expect.poll(async () => (await progress(page)).mastery?.[key]?.correct ?? 0).toBe(1);
 });
+
+test('cân tiểu ly: the scooped herb lands on the pan; sliding the quả cân to 4 tiền weighs the Quân packet', async ({ page }) => {
+  await enterClinic(page);
+  await goRoom(page, 'Dược Các');
+  await pickHerb(page, 'Tía tô');
+  await expect(page.locator('.steelyard-pan-label')).toHaveText('Quân · Tía tô');
+  const packet = page.locator('.paper-packet.packet-quan');
+  await expect(packet.locator('.dish-mini-pill.unweighed')).toBeVisible();
+  await page.locator('.steelyard-bob').focus();
+  for (let i = 0; i < 4; i++) await page.keyboard.press('PageUp');
+  await expect(packet.locator('.dish-mini-pill.weighed')).toHaveText('4 tiền');
+  await expect(page.locator('.steelyard-reading')).toHaveClass(/is-level/);
+});
