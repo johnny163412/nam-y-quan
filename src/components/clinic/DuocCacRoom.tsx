@@ -40,6 +40,8 @@ export const DuocCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
     chestWrapRef,
     panRefs,
     herbRefs,
+    weights,
+    setWeights,
     watchLight,
     hasDragonScale,
     switchRoom,
@@ -125,6 +127,8 @@ export const DuocCacRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
           hasDragonScale={hasDragonScale}
           discoveredFormulas={discoveredFormulas}
           panRefs={panRefs}
+          weights={weights}
+          setWeights={setWeights}
           onChangeDiagnosis={changeDiagnosis}
           onSelectSlot={setSelectedSlot}
           onAssignHerb={handleAssignHerb}

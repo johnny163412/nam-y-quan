@@ -21,6 +21,7 @@ import {
   evaluateCaseSubmission,
   getPaoZhiTransformation,
   getTyNgoWatch,
+  progressCase,
   simulateFiveElements
 } from '../tcmEngine';
 import { EvaluationResult, PrescriptionSlots } from '../../types/tcm';
@@ -518,5 +519,39 @@ describe('Nam Y Quán — YHCT Core Engine & Data Integrity', () => {
       const fu = planFollowUp(pregnant, fake(40, flipToHeat), 1);
       if (fu?.kind === 'chuyen-the') expect(buildFollowUpCase(fu)!.isPregnant).toBe(true);
     }
+  });
+});
+
+describe('Liều lượng & bệnh chuyển nặng', () => {
+  const c = STORY_CASES.find((x) => x.id === 'c1-phong-han')!;
+  const slots: PrescriptionSlots = { quan: 'tia-to', than: 'kinh-gioi', ta: 'sinh-khuong', su: 'cam-thao' };
+  const brew = { fire: 'vu-hoa', dosing: 'nong-dap-chan' } as const;
+  const run = (doses?: Record<string, number>) =>
+    evaluateCaseSubmission(c, c.targetDiagnosis, slots, [], { ...brew, doses });
+
+  it('weighing every packet to its role dose earns up to +3; half doses act weaker; double doses raise a QUÁ LIỀU caution', () => {
+    const unweighed = run();
+    const exact = run({ quan: 4, than: 3, ta: 2, su: 1 });
+    expect(exact.craftBonusScore! - unweighed.craftBonusScore!).toBe(3);
+    expect(exact.totalScore).toBeGreaterThanOrEqual(unweighed.totalScore);
+
+    const halfQuan = computeTreatmentPreview(c, slots, [], {}, { quan: 2 });
+    const fullQuan = computeTreatmentPreview(c, slots, [], {}, { quan: 4 });
+    expect(Math.abs(halfQuan.resultingVector.coldHeat - c.initialVector.coldHeat))
+      .toBeLessThan(Math.abs(fullQuan.resultingVector.coldHeat - c.initialVector.coldHeat));
+    expect(run({ quan: 2 }).careNotes!.join(' ')).toMatch(/Thiếu liều: Tía tô/);
+
+    const over = run({ quan: 8 });
+    expect(over.alerts.some((a) => a.severity === 'caution' && /QUÁ LIỀU/.test(a.message))).toBe(true);
+    expect(over.totalScore).toBeLessThan(exact.totalScore);
+  });
+
+  it('a patient left waiting gets worse: the same prescription scores lower and the scroll says why', () => {
+    expect(progressCase(c, 0)).toBe(c);
+    const worse = progressCase(c, 2);
+    expect(Math.abs(worse.initialVector.coldHeat)).toBeGreaterThan(Math.abs(c.initialVector.coldHeat));
+    const late = evaluateCaseSubmission(worse, c.targetDiagnosis, slots, [], brew);
+    expect(late.totalScore).toBeLessThan(run().totalScore);
+    expect(late.careNotes!.join(' ')).toMatch(/chuyển nặng hai bậc/);
   });
 });

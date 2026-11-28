@@ -18,6 +18,7 @@ import {
   PatientCase,
   PrescriptionSlots,
   RoleSlot,
+  SlotDoses,
   SlotPaoZhi,
   TreatmentPreview,
   TyNgoWatch
@@ -150,6 +151,69 @@ export const ROLE_WEIGHTS: Record<RoleSlot, number> = {
   su: 0.55
 };
 
+/** Teaching doses on the cân tiểu ly: Quân heaviest, Sứ lightest (1 tiền ≈ 3.75 g). */
+export const DOSE_TIEN: Record<RoleSlot, number> = { quan: 4, than: 3, ta: 2, su: 1 };
+export const GRAM_PER_TIEN = 3.75;
+export const DOSE_TOLERANCE = 0.15;
+/** Above this multiple of the role dose a packet is an overdose (caution alert). */
+const OVERDOSE_RATIO = 1.75;
+/** Below this multiple the packet is noticeably under-dosed (note on the outcome scroll). */
+const UNDERDOSE_RATIO = 0.75;
+
+const ROLE_SHORT: Record<RoleSlot, string> = { quan: 'Quân', than: 'Thần', ta: 'Tá', su: 'Sứ' };
+
+/** Potency scale of a weighed packet: half the dose acts half as strongly. Unweighed packets count as the textbook dose. */
+export function doseMultiplier(role: RoleSlot, tien: number | undefined): number {
+  if (tien === undefined) return 1;
+  return clamp(tien / DOSE_TIEN[role], 0.25, 2);
+}
+
+function doseAlerts(slots: PrescriptionSlots, doses?: SlotDoses): ContraindicationAlert[] {
+  if (!doses) return [];
+  return (Object.keys(slots) as RoleSlot[]).flatMap((role) => {
+    const herb = slots[role] ? HERB_MAP[slots[role]!] : undefined;
+    const tien = doses[role];
+    if (!herb || tien === undefined || tien <= DOSE_TIEN[role] * OVERDOSE_RATIO) return [];
+    return [{
+      severity: 'caution' as const,
+      sourceId: herb.id,
+      sourceName: herb.name,
+      message: `QUÁ LIỀU: ${herb.name} cân ${tien} tiền, gần gấp đôi liều ngôi ${ROLE_SHORT[role]} (${DOSE_TIEN[role]} tiền). Thuốc quá mạnh dễ gây phản ứng, lệch thế quân bình.`
+    }];
+  });
+}
+
+/** Bệnh chuyển nặng: every stage of waiting pushes the Bát Cương vector 15% further from balance. */
+export const PROGRESSION_STAGE_MS = 4 * 60 * 1000;
+export const MAX_PROGRESSION_STAGE = 2;
+
+export function progressCase(patientCase: PatientCase, stage: number): PatientCase {
+  const s = clamp(Math.floor(stage), 0, MAX_PROGRESSION_STAGE);
+  if (s === 0 || patientCase.crisis) return patientCase;
+  const k = 1 + 0.15 * s;
+  const v = patientCase.initialVector;
+  return {
+    ...patientCase,
+    progressionStage: s,
+    initialVector: {
+      exteriorInterior: Math.round(clamp(v.exteriorInterior * k, -100, 100)),
+      coldHeat: Math.round(clamp(v.coldHeat * k, -100, 100)),
+      deficiencyExcess: Math.round(clamp(v.deficiencyExcess * k, -100, 100))
+    }
+  };
+}
+
+/** What the healer sees when the patient has waited too long, by the case's Hàn/Nhiệt and Hư/Thực. */
+export function progressionSign(patientCase: PatientCase, stage: number): string {
+  const { nature, state } = patientCase.targetDiagnosis;
+  const signs = {
+    han: ['Người bệnh rét run hơn, kéo áo co ro, tay chân lạnh dần.', 'Môi tái, rét không dứt, mạch càng khẩn: hàn tà đang lấn sâu.'],
+    nhiet: ['Sốt bốc cao hơn, mặt đỏ, khát nước liên tục.', 'Môi khô nứt, người bứt rứt, nhiệt tà đang thiêu đốt tân dịch.']
+  }[nature];
+  const tail = state === 'hu' ? ' Người mệt lả, nói hụt hơi.' : '';
+  return `${signs[Math.min(stage, 2) - 1]}${tail}`;
+}
+
 export const ELEMENT_LABELS: Record<ElementKey, string> = {
   moc: 'Mộc (Can - Đởm)',
   hoa: 'Hỏa (Tâm - Tiểu Trường)',
@@ -274,7 +338,8 @@ export function computeTreatmentPreview(
   patientCase: PatientCase,
   slots: PrescriptionSlots,
   selectedAcupoints: string[],
-  slotPaoZhi?: SlotPaoZhi
+  slotPaoZhi?: SlotPaoZhi,
+  doses?: SlotDoses
 ): TreatmentPreview {
   let ext = patientCase.initialVector.exteriorInterior;
   let ch = patientCase.initialVector.coldHeat;
@@ -291,10 +356,11 @@ export function computeTreatmentPreview(
 
     const method: PaoZhiMethod = slotPaoZhi?.[role] ?? 'sinh-dung';
     const tf = getPaoZhiTransformation(herb, method);
-    const w = ROLE_WEIGHTS[role] * tf.potencyMultiplier;
+    const roleW = ROLE_WEIGHTS[role] * doseMultiplier(role, doses?.[role]);
+    const w = roleW * tf.potencyMultiplier;
     ext += herb.vectorEffect.exteriorInterior * w;
-    ch += herb.vectorEffect.coldHeat * w + tf.coldHeatDelta * ROLE_WEIGHTS[role];
-    de += herb.vectorEffect.deficiencyExcess * w + tf.deficiencyDelta * ROLE_WEIGHTS[role];
+    ch += herb.vectorEffect.coldHeat * w + tf.coldHeatDelta * roleW;
+    de += herb.vectorEffect.deficiencyExcess * w + tf.deficiencyDelta * roleW;
 
     (Object.keys(herb.elementEffect) as ElementKey[]).forEach((el) => {
       const delta = herb.elementEffect[el] ?? 0;
@@ -334,7 +400,7 @@ export function computeTreatmentPreview(
     Math.abs(resultingVector.deficiencyExcess);
 
   const balanceScore = Math.round(clamp(100 - residualDistance / 2.2, 0, 100));
-  const alerts = checkContraindications(patientCase, slots, selectedAcupoints);
+  const alerts = [...checkContraindications(patientCase, slots, selectedAcupoints), ...doseAlerts(slots, doses)];
 
   return {
     resultingVector,
@@ -447,7 +513,8 @@ export function evaluateCaseSubmission(
     patientCase,
     slots,
     selectedAcupoints,
-    decoctionChoice?.paoZhi
+    decoctionChoice?.paoZhi,
+    decoctionChoice?.doses
   );
   const matchedFormulas = detectActiveFormulas(slots);
   const formulaBonus = Math.min(
@@ -580,6 +647,31 @@ export function evaluateCaseSubmission(
     }
   }
 
+  // Liều lượng: +1 per packet weighed to its role dose (max 3); off-dose packets already act weaker/stronger above.
+  const careNotes: string[] = [];
+  const doses = decoctionChoice?.doses ?? {};
+  const weighedRight: string[] = [];
+  (Object.keys(slots) as RoleSlot[]).forEach((role) => {
+    const herb = slots[role] ? HERB_MAP[slots[role]!] : undefined;
+    const tien = doses[role];
+    if (!herb || tien === undefined) return;
+    if (Math.abs(tien - DOSE_TIEN[role]) <= DOSE_TOLERANCE) weighedRight.push(herb.name);
+    else if (tien < DOSE_TIEN[role] * UNDERDOSE_RATIO)
+      careNotes.push(`Thiếu liều: ${herb.name} chỉ ${tien}/${DOSE_TIEN[role]} tiền ở ngôi ${ROLE_SHORT[role]}, dược lực yếu hẳn.`);
+    else if (tien > DOSE_TIEN[role] * OVERDOSE_RATIO)
+      careNotes.push(`Quá liều: ${herb.name} ${tien}/${DOSE_TIEN[role]} tiền, thuốc mạnh quá đà.`);
+    else careNotes.push(`${herb.name} ${tien}/${DOSE_TIEN[role]} tiền: lệch liều chút ít, dược lực ${tien < DOSE_TIEN[role] ? 'nhẹ' : 'mạnh'} hơn chuẩn.`);
+  });
+  if (weighedRight.length > 0) {
+    craftBonusScore += Math.min(3, weighedRight.length);
+    craftBonusNotes.push(`Cân đúng liều: ${weighedRight.join(', ')}.`);
+  }
+  if (patientCase.progressionStage) {
+    careNotes.push(
+      `Bệnh nhân chờ lâu, bệnh đã chuyển nặng ${patientCase.progressionStage === 1 ? 'một bậc' : 'hai bậc'}: cùng một đơn nhưng khó kéo về quân bình hơn (−${4 * patientCase.progressionStage}đ trị muộn). Bệnh cấp cần khám nhanh, kê sớm.`
+    );
+  }
+
   if (bienChung?.sealed && bienChung.failedAttempts === 0) {
     craftBonusScore += 3;
     craftBonusNotes.push('Sổ Biện Chứng ấn chứng ngay nét mực đầu tiên.');
@@ -590,8 +682,10 @@ export function evaluateCaseSubmission(
   const cautionCount = preview.alerts.filter((a) => a.severity === 'caution').length;
   const safetyPenalty = criticalCount * 35 + cautionCount * 12;
 
+  // Trị muộn: on top of the harder-to-balance vector, each stage of waiting costs 4 points outright.
+  const latePenalty = 4 * (patientCase.progressionStage ?? 0);
   let rawTotal = clamp(
-    diagnosisScore + treatmentScore + decoctionScore + craftBonusScore - safetyPenalty,
+    diagnosisScore + treatmentScore + decoctionScore + craftBonusScore - safetyPenalty - latePenalty,
     0,
     100
   );
@@ -669,6 +763,7 @@ export function evaluateCaseSubmission(
     decoctionFeedback,
     craftBonusScore,
     craftBonusNotes,
+    careNotes,
     followUpLetter,
     summaryFeedback,
     passed: totalScore >= 70 && criticalCount === 0

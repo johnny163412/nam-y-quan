@@ -190,3 +190,11 @@ test('cân tiểu ly: the scooped herb lands on the pan; sliding the quả cân 
   await expect(packet.locator('.dish-mini-pill.weighed')).toHaveText('4 tiền');
   await expect(page.locator('.steelyard-reading')).toHaveClass(/is-level/);
 });
+
+test('a patient left waiting 4 minutes gets worse and the desk shows a "Bệnh chuyển nặng" pill', async ({ page }) => {
+  await page.clock.install();
+  await enterClinic(page);
+  await expect(page.locator('.wait-stage-pill')).toHaveCount(0);
+  await page.clock.runFor(4 * 60 * 1000 + 2000);
+  await expect(page.locator('.wait-stage-pill')).toHaveText('Bệnh chuyển nặng · bậc 1');
+});

@@ -3,7 +3,15 @@ import { STORY_CASES, generateProceduralCase, getSeasonalSolarTerm } from '../..
 import { TY_NGO_WATCHES } from '../../data/acupoints';
 import { apothecaryAudio, VoiceArchetype } from '../../engine/audio';
 import { FloatingCallout } from '../FloatingJuiceLayer';
-import { computeTreatmentPreview, evaluateCaseSubmission, getTyNgoWatch } from '../../engine/tcmEngine';
+import {
+  MAX_PROGRESSION_STAGE,
+  PROGRESSION_STAGE_MS,
+  computeTreatmentPreview,
+  evaluateCaseSubmission,
+  getTyNgoWatch,
+  progressCase,
+  progressionSign
+} from '../../engine/tcmEngine';
 import { planFollowUp } from '../../engine/followUp';
 import { CaseLedgerEntry, DecoctionChoice, EvaluationResult, PatientCase, PendingFollowUp, PrescriptionSlots } from '../../types/tcm';
 import { SOLAR_WEATHER, WATCH_LIGHT } from './clinicConstants';
@@ -199,13 +207,40 @@ export function useClinicDesk(props: ClinicDeskProps) {
     return 'atmo-spring';
   }, [selectedCase]);
 
+  // Bệnh chuyển nặng: the illness worsens one stage per PROGRESSION_STAGE_MS the patient waits, until the stamp.
+  // shortcut: the clock only pauses while the browser tab is hidden, not while a Tàng Thư Các overlay is open.
+  const [waitStage, setWaitStage] = useState(0);
+  const waitElapsedRef = useRef(0);
+  const outcomeRef = useRef(outcome);
+  outcomeRef.current = outcome;
+  useEffect(() => {
+    waitElapsedRef.current = 0;
+    setWaitStage(0);
+    if (selectedCase.crisis) return;
+    const id = window.setInterval(() => {
+      if (document.visibilityState !== 'visible' || outcomeRef.current) return;
+      waitElapsedRef.current += 1000;
+      const stage = Math.min(MAX_PROGRESSION_STAGE, Math.floor(waitElapsedRef.current / PROGRESSION_STAGE_MS));
+      setWaitStage((cur) => (stage > cur ? stage : cur));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [selectedCase.id, selectedCase.crisis]);
+  useEffect(() => {
+    if (waitStage === 0) return;
+    const sign = progressionSign(selectedCase, waitStage);
+    exam.addClue(`Diễn biến: ${sign}`);
+    pushCallout(`Bệnh chuyển nặng: ${sign}`, 'cinnabar');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waitStage]);
+  const activeCase = useMemo(() => progressCase(selectedCase, waitStage), [selectedCase, waitStage]);
+
   const preview = useMemo(() => {
-    const real = computeTreatmentPreview(selectedCase, slots, selectedAcupoints, slotPaoZhi);
-    if (!selectedCase.isDaily) return real;
+    const real = computeTreatmentPreview(activeCase, slots, selectedAcupoints, slotPaoZhi, rx.doses);
+    if (!activeCase.isDaily) return real;
     // Danh Y Hằng Ngày is played blind: the scale and compass stay at the untreated state, but safety alerts still show.
-    const blind = computeTreatmentPreview(selectedCase, { quan: null, than: null, ta: null, su: null }, [], {});
+    const blind = computeTreatmentPreview(activeCase, { quan: null, than: null, ta: null, su: null }, [], {});
     return { ...real, resultingVector: blind.resultingVector, balanceScore: blind.balanceScore };
-  }, [selectedCase, slots, selectedAcupoints, slotPaoZhi]);
+  }, [activeCase, slots, selectedAcupoints, slotPaoZhi, rx.doses]);
 
   const hasAssignedTreatment = hasAssignedHerbs || selectedAcupoints.length > 0;
 
@@ -286,12 +321,13 @@ export function useClinicDesk(props: ClinicDeskProps) {
             cuppingEnabled,
             fanMatched: isFanMatched,
             usedFreshHerbs: usedFresh,
-            hasBatTrangPot
+            hasBatTrangPot,
+            doses: rx.doses
           }
         : undefined;
 
     const res = applyCrisisRules(selectedCase, evaluateCaseSubmission(
-      selectedCase,
+      activeCase,
       diagnosis,
       slots,
       selectedAcupoints,
@@ -420,6 +456,7 @@ export function useClinicDesk(props: ClinicDeskProps) {
     patientVoice,
     weatherMoodClass,
     preview,
+    waitStage,
     hasAssignedTreatment,
     health,
     healthColorVars,

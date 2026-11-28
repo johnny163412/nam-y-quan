@@ -17,6 +17,7 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
   const {
     completedCases,
     selectedCase,
+    waitStage,
     activeRoom,
     curtainParting,
     activeToolDrawer,
@@ -95,7 +96,14 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
 
           <div className="spatial-dialogue-card">
             <div className="stage-case-meta">
-              <h2 className="room-stage-title">{selectedCase.title}</h2>
+              <h2 className="room-stage-title">
+                {selectedCase.title}
+                {waitStage > 0 && !outcome && (
+                  <span className="wait-stage-pill" title="Bệnh nhân chờ lâu, bệnh đã chuyển nặng">
+                    Bệnh chuyển nặng · bậc {waitStage}
+                  </span>
+                )}
+              </h2>
               {selectedCase.crisis && !outcome && (
                 <div className="crisis-referral-bar">
                   <span>Đêm mưa gõ cửa: tự chữa tại quán, hay có dấu hiệu phải chuyển viện?</span>

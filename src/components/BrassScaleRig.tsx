@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CLASSICAL_FORMULAS } from '../data/formulas';
 import { HERB_MAP } from '../data/herbs';
 import {
+  DOSE_TIEN,
+  DOSE_TOLERANCE,
   ELEMENT_CYCLE_ORDER,
+  GRAM_PER_TIEN,
   ELEMENT_SHORT,
   getPaoZhiTransformation
 } from '../engine/tcmEngine';
@@ -27,11 +30,7 @@ const ROLE_META: { role: RoleSlot; short: string; weight: string; ratioHint: str
   { role: 'su', short: 'Sứ', weight: 'Điều hòa', ratioHint: 'Dẫn kinh ×0.55' }
 ];
 
-/** Teaching doses on the cân tiểu ly: Quân heaviest, Sứ lightest (1 tiền ≈ 3.75 g). */
-const DOSE_TIEN: Record<RoleSlot, number> = { quan: 4, than: 3, ta: 2, su: 1 };
-const GRAM_PER_TIEN = 3.75;
 const MAX_TIEN = 10;
-const WEIGH_TOLERANCE = 0.15;
 // Geometry of steelyard-beam.webp (1200×80): đề pivot at x=200, sao 0…10 tiền from x=260, 86px per tiền.
 const PIVOT = { x: 200, y: 70 };
 const BEAM_X0 = 260;
@@ -53,6 +52,8 @@ interface BrassScaleRigProps {
   hasDragonScale: boolean;
   discoveredFormulas: string[];
   panRefs: React.MutableRefObject<Record<RoleSlot, HTMLDivElement | null>>;
+  weights: Record<string, number>;
+  setWeights: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   onChangeDiagnosis: (next: DiagnosisChoice) => void;
   onSelectSlot: (role: RoleSlot) => void;
   onAssignHerb: (role: RoleSlot, herbId: string | null) => void;
@@ -99,6 +100,8 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
   hasDragonScale,
   discoveredFormulas,
   panRefs,
+  weights,
+  setWeights,
   onChangeDiagnosis,
   onSelectSlot,
   onAssignHerb,
@@ -113,8 +116,6 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
     else setWeights({});
   }, [anyFilled]);
 
-  // Quả cân position in tiền, per role + herb, so swapping the herb asks for a fresh weighing.
-  const [weights, setWeights] = useState<Record<string, number>>({});
   // The pan shows the herb just scooped (selection auto-advances to the next packet) or the packet last touched.
   const [panRole, setPanRole] = useState<RoleSlot>(selectedSlot);
   useEffect(() => {
@@ -126,11 +127,11 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
   const targetTien = panHerbId ? DOSE_TIEN[panRole] : 0;
   const isWeighed = (role: RoleSlot) => {
     const id = slots[role];
-    return Boolean(id && Math.abs((weights[`${role}:${id}`] ?? 0) - DOSE_TIEN[role]) <= WEIGH_TOLERANCE);
+    return Boolean(id && Math.abs((weights[`${role}:${id}`] ?? 0) - DOSE_TIEN[role]) <= DOSE_TOLERANCE);
   };
   const setWeightTien = (t: number) => {
     const clamped = Math.max(0, Math.min(MAX_TIEN, Math.round(t * 10) / 10));
-    const snapped = panHerbId && Math.abs(clamped - targetTien) <= WEIGH_TOLERANCE ? targetTien : clamped;
+    const snapped = panHerbId && Math.abs(clamped - targetTien) <= DOSE_TOLERANCE ? targetTien : clamped;
     setWeights((w) => ({ ...w, [panKey]: snapped }));
   };
   // Heavier than the herb → the long arm drops (positive SVG rotation); lighter → the pan drops.
@@ -195,8 +196,11 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
   if (!panHerb) reading = `Đĩa cân trống: bốc một vị vào gói ${panMeta.short} trước.`;
   else if (isWeighed(panRole))
     reading = `Đòn thăng bằng: ${panHerb.name} ${targetTien} tiền (≈ ${(targetTien * GRAM_PER_TIEN).toFixed(1)} g). Gói ${panMeta.short} đã cân.`;
-  else if (diff < 0) reading = `Đòn chúi về phía đĩa: đẩy quả cân ra xa đầu đề.`;
-  else reading = `Đòn vểnh đầu đĩa: kéo quả cân lùi về gần đầu đề.`;
+  else if (weightTien === 0) reading = `Chưa cân: đẩy quả cân tới liều ngôi ${panMeta.short} (${targetTien} tiền) để gói ${panMeta.short} đúng liều.`;
+  else if (diff < 0)
+    reading = `Đòn chúi về phía đĩa: quả cân ở ${weightTien} tiền, gói ${panMeta.short} sẽ THIẾU liều (chuẩn ${targetTien} tiền), dược lực yếu. Đẩy quả cân ra xa đầu đề.`;
+  else
+    reading = `Đòn vểnh đầu đĩa: quả cân ở ${weightTien} tiền, gói ${panMeta.short} sẽ QUÁ liều (chuẩn ${targetTien} tiền), thuốc mạnh quá đà. Kéo quả cân lùi về gần đầu đề.`;
 
   const initDist =
     Math.abs(initialVector.exteriorInterior) +
@@ -551,11 +555,16 @@ export const BrassScaleRig: React.FC<BrassScaleRigProps> = ({
                         <BotanicalSvg herbId={herb.id} motif={herb.motif} size={50} bare />
                       </div>
                       <div className="dish-herb-label">{herb.name}</div>
-                      {isWeighed(meta.role) ? (
-                        <span className="dish-mini-pill weighed">{DOSE_TIEN[meta.role]} tiền</span>
-                      ) : (
-                        <span className="dish-mini-pill unweighed">Chưa cân</span>
-                      )}
+                      {(() => {
+                        const t = weights[`${meta.role}:${herb.id}`] ?? 0;
+                        if (isWeighed(meta.role)) return <span className="dish-mini-pill weighed">{DOSE_TIEN[meta.role]} tiền</span>;
+                        if (!t) return <span className="dish-mini-pill unweighed">Chưa cân</span>;
+                        return (
+                          <span className="dish-mini-pill off-dose">
+                            {t} tiền · {t < DOSE_TIEN[meta.role] ? 'thiếu' : 'thừa'}
+                          </span>
+                        );
+                      })()}
                       {isFresh && <span className="dish-mini-pill fresh">Tươi</span>}
                       {craftTf.badgeLabel && (
                         <span className={`dish-mini-pill paozhi tone-${craftTf.statusTone}`}>

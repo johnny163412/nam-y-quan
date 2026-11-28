@@ -13,7 +13,7 @@
 - **`src/components/ClinicDesk.tsx`**: 4-room horizontal spatial track (`I. Tiền Đường`, `II. Dược Các`, `III. Nội Các & Lò`, `IV. Hậu Viên`) with full-bleed painted room backgrounds (`spatial-room-bg-layer`), 2.5D mouse parallax (`--px`/`--py`), `<FloatingAtmosphereCanvas />`, `<FirstCaseGuideBar />`, and `<FloatingJuiceLayer />`.
   - **Tiền Đường foreground desk (`tien-duong-desk-foreground`)** MUST remain rendered **outside** `.apothecary-room-track` (because CSS `position: fixed` inside a transformed ancestor breaks viewport centering!). It holds the 5 Tứ Chẩn instruments as painted thủy mặc objects resting on the desk (`desk-*.webp` from `scripts/paint_inkwash_props.swift`: `Soi Gương`, `Nghe Thở`, `Thẻ Vấn`, `Gối Mạch`, `Đĩa Bát Quái`) flanked by real clickable desk relics (**Đỉnh Trầm Hương** at ≥ 20 Y Đức grants +1 inquiry turn per case; **Ấn Y Quán / Ấn Ngọc Bích** at ≥ 120 Y Đức).
   - Clicking any instrument slides in the right-side `.spatial-inspector-drawer` without hiding the patient.
-- **`src/components/BrassScaleRig.tsx`**: Dược Các dispensary. A fiddle-shaped scale case (`scale-case-go/long.webp`, dragon inlay at ≥ 25 Y Đức) opens onto a thủy mặc **cân tiểu ly** (`steelyard-beam/pan/weight.webp`, painted by `scripts/paint_inkwash_props.swift`). The scooped herb lands on the pan; sliding the quả cân (drag, tap a sao, or arrow/PageUp keys) to the role dose (Quân 4 · Thần 3 · Tá 2 · Sứ 1 tiền) levels the beam and marks the giấy dó packet as weighed. Weighing is flavour only and does not change scoring.
+- **`src/components/BrassScaleRig.tsx`**: Dược Các dispensary. A fiddle-shaped scale case (`scale-case-go/long.webp`, dragon inlay at ≥ 25 Y Đức) opens onto a thủy mặc **cân tiểu ly** (`steelyard-beam/pan/weight.webp`, painted by `scripts/paint_inkwash_props.swift`). The scooped herb lands on the pan; sliding the quả cân (drag, tap a sao, or arrow/PageUp keys) to the role dose (Quân 4 · Thần 3 · Tá 2 · Sứ 1 tiền) levels the beam and marks the giấy dó packet as weighed. The weighed tiền scales each packet's potency (`doseMultiplier`), +1 per packet at its role dose (max +3), and > 1.75× the dose raises a QUÁ LIỀU caution; unweighed packets count as the textbook dose. Separately, a patient left waiting worsens one stage per 4 minutes (`progressCase`, max 2: vector ×1.15 per stage, −4đ each).
 - **`src/components/PaoZhiRig.tsx`**: Interactive 3-4s tactile mortar-pounding & oscillating-heat wok-roasting mini-game (with instant "Xong nhanh" bypass) powered by `<ApothecaryVfxCanvas />`.
 - **`src/components/MeridianBodyMap.tsx`**: 24 acupoints (12 front, 12 back) on 1:1 aligned front/back watercolor figures (`meridian-front.webp` & `meridian-back.webp`, `500×888`), with glowing animated Qi arcs connecting active acupoints, Moxa (`Ngải cứu`), and Bamboo Cupping (`Giác hơi`).
 - **`src/components/StoveAndSealRig.tsx`**: Direct pointer/touch swipe-to-fan bamboo fan interaction over the terracotta decoction stove + live taste reading + cinnabar/jade seal stamp.
@@ -36,7 +36,7 @@
 # Local dev server
 npm run dev
 
-# Run all 30 unit & integrity tests (data, solvability, contraindications, art existence, zero-emoji check)
+# Run all 32 unit & integrity tests (data, solvability, contraindications, art existence, zero-emoji check)
 npx vitest run
 
 # Type-check + production build

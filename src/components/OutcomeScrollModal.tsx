@@ -226,6 +226,12 @@ export const OutcomeScrollModal: React.FC<OutcomeScrollModalProps> = ({
             </div>
           )}
 
+          {result.careNotes && result.careNotes.length > 0 && (
+            <div className="alert-banner caution care-notes-banner" style={{ marginBottom: '10px' }}>
+              <strong>Liều lượng &amp; Thời gian:</strong> {result.careNotes.join(' · ')}
+            </div>
+          )}
+
           {result.alerts.length > 0 && (
             <div style={{ marginBottom: '12px' }}>
               {result.alerts.map((al, i) => (

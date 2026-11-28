@@ -2655,6 +2655,21 @@ button {
   background: rgba(90, 57, 24, 0.14);
   color: #5a3918;
 }
+.dish-mini-pill.off-dose {
+  background: #8e231d;
+  color: #fff6df;
+}
+.wait-stage-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(142, 35, 29, 0.14);
+  color: #8e231d;
+  font-size: 0.78rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
 
 .garden-zone-tabs {
   display: flex;

@@ -3,7 +3,7 @@ import { detectActiveFormulas } from '../../data/formulas';
 import { HERB_MAP, HERBS } from '../../data/herbs';
 import { apothecaryAudio } from '../../engine/audio';
 import { assignHerbToSlot, emptySlots } from '../../engine/tcmEngine';
-import { ClassicalFormula, Herb, PaoZhiMethod, PrescriptionSlots, RoleSlot, SlotPaoZhi } from '../../types/tcm';
+import { ClassicalFormula, Herb, PaoZhiMethod, PrescriptionSlots, RoleSlot, SlotDoses, SlotPaoZhi } from '../../types/tcm';
 import { ScoopAnimationState } from '../svg/HealerHandOverlay';
 
 type PushCallout = (text: string, tone?: 'gold' | 'jade' | 'cinnabar') => void;
@@ -22,6 +22,8 @@ export function usePrescription(freshHerbIds: string[], pushCallout: PushCallout
   const [packetWrapped, setPacketWrapped] = useState(false);
   const [scoopAnim, setScoopAnim] = useState<ScoopAnimationState | null>(null);
   const [justScoopedRole, setJustScoopedRole] = useState<RoleSlot | null>(null);
+  // Quả cân position in tiền per "role:herbId", so swapping the herb asks for a fresh weighing.
+  const [weights, setWeights] = useState<Record<string, number>>({});
 
   const deskRoom2Ref = useRef<HTMLDivElement | null>(null);
   const chestWrapRef = useRef<HTMLDivElement | null>(null);
@@ -32,6 +34,7 @@ export function usePrescription(freshHerbIds: string[], pushCallout: PushCallout
   const resetPrescription = () => {
     setSlots(emptySlots());
     setSlotPaoZhi({});
+    setWeights({});
     setSelectedSlot('quan');
     setOpenDrawerId(null);
     setHoveredHerb(null);
@@ -49,6 +52,15 @@ export function usePrescription(freshHerbIds: string[], pushCallout: PushCallout
 
   const activeFormulas = useMemo(() => detectActiveFormulas(slots), [slots]);
   const hasAssignedHerbs = Object.values(slots).some(Boolean);
+  // A quả cân left at 0 was never moved: that packet counts as unweighed.
+  const doses = useMemo<SlotDoses>(() => {
+    const out: SlotDoses = {};
+    (Object.keys(slots) as RoleSlot[]).forEach((role) => {
+      const t = slots[role] ? weights[`${role}:${slots[role]}`] : undefined;
+      if (t) out[role] = t;
+    });
+    return out;
+  }, [slots, weights]);
 
   const triggerScoopAnimation = useCallback((herb: Herb, role: RoleSlot) => {
     const container = deskRoom2Ref.current;
@@ -206,6 +218,9 @@ export function usePrescription(freshHerbIds: string[], pushCallout: PushCallout
     setSlots,
     slotPaoZhi,
     setSlotPaoZhi,
+    weights,
+    setWeights,
+    doses,
     animatingPanRole,
     setAnimatingPanRole,
     selectedSlot,

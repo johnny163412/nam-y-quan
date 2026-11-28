@@ -153,6 +153,8 @@ export interface PatientCase {
   };
   /** Set on a tái khám visit: the story case id this patient first came for. */
   followUpOf?: string;
+  /** How far the illness has worsened while the patient waited at the desk (0 = as they walked in). */
+  progressionStage?: number;
   patientName: string;
   patientRole: string;
   age: number;
@@ -201,6 +203,9 @@ export type PaoZhiMethod = 'sinh-dung' | 'gia-dap' | 'sao-vang' | 'chich-mat';
 
 export type SlotPaoZhi = Partial<Record<RoleSlot, PaoZhiMethod>>;
 
+/** Tiền weighed on the cân tiểu ly per packet; a role left out was never weighed (counts as the textbook dose). */
+export type SlotDoses = Partial<Record<RoleSlot, number>>;
+
 export type FireType = 'vu-hoa' | 'van-vu' | 'van-hoa';
 
 export type DosingAdvice = 'nong-dap-chan' | 'am-thoang-gio' | 'am-duong-tang';
@@ -214,6 +219,7 @@ export interface DecoctionChoice {
   fanMatched?: boolean;
   usedFreshHerbs?: string[];
   hasBatTrangPot?: boolean;
+  doses?: SlotDoses;
 }
 
 export interface ClassicalFormula {
@@ -247,6 +253,8 @@ export interface EvaluationResult {
   decoctionFeedback: string;
   craftBonusScore?: number;
   craftBonusNotes?: string[];
+  /** Liều lượng & thời gian: dose and waiting-time remarks for the outcome scroll. */
+  careNotes?: string[];
   followUpLetter?: string;
   summaryFeedback: string;
   passed: boolean;
