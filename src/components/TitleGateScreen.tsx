@@ -38,53 +38,37 @@ export const TitleGateScreen: React.FC<TitleGateScreenProps> = ({
       <div className="title-gate-lantern-glow" aria-hidden="true" />
       <AmbientParticlesCanvas mode="sunbeams" />
 
+      {/* Hanging calligraphy scroll: brush title, lạc khoản seal, two ways in */}
       <div className="title-gate-card">
-        <div className="title-gate-seal" aria-hidden="true">
-          Tuệ Tâm
-        </div>
-        <p className="title-gate-eyebrow">Y học cổ truyền Việt Nam · Mô phỏng Hành Y</p>
-        <h1 className="title-gate-heading">Nam Y Quán</h1>
-        <p className="title-gate-sub">Tuệ Tâm Đường — Nam dược trị Nam nhân</p>
-
-        <div className="title-gate-pillars">
-          <span>Tứ Chẩn Biện Chứng</span>
-          <span>·</span>
-          <span>Cân Tiểu Ly &amp; Bào Chế</span>
-          <span>·</span>
-          <span>24 Huyệt Kinh Lạc</span>
-          <span>·</span>
-          <span>Hỏa Lò &amp; Dược Viên</span>
-        </div>
+        <span className="title-scroll-rod" aria-hidden="true" />
+        <h1 className="title-gate-heading">
+          Nam Y Quán
+          <span className="title-gate-seal" aria-hidden="true">
+            Tuệ
+            <br />
+            Tâm
+          </span>
+        </h1>
+        <p className="title-gate-sub">Tuệ Tâm Đường</p>
+        <p className="title-gate-motto">Nam dược trị Nam nhân</p>
 
         {isReturning && (
-          <div className="title-gate-stats">
-            <span><strong>Ấn hiệu:</strong> {progress.rank}</span>
-            <span>·</span>
-            <span><strong>Đã chữa:</strong> {completedCount} ca</span>
-            <span>·</span>
-            <span><strong>Y Đức:</strong> {progress.yDucPoints ?? 0}</span>
-            <span>·</span>
-            <span><strong>Ấn triện:</strong> {unlockedAchievementCount}/{ACHIEVEMENTS.length}</span>
-          </div>
+          <p className="title-gate-stats">
+            {progress.rank} · {completedCount} ca đã chữa · {progress.yDucPoints ?? 0} Y Đức · {unlockedAchievementCount}/
+            {ACHIEVEMENTS.length} ấn triện
+          </p>
         )}
 
         <div className="title-gate-actions">
-          <button
-            type="button"
-            className="btn-cinnabar title-gate-primary-btn"
-            onClick={() => triggerEnter(true)}
-          >
+          <button type="button" className="btn-cinnabar title-gate-primary-btn" onClick={() => triggerEnter(true)}>
             <AntiqueIcon name="star-seal" size={16} />
-            <span>{isReturning ? 'Tiếp Tục Hành Y (Kèm Nhạc Cổ Phong)' : 'Mở Cửa Y Quán (Kèm Nhạc Cổ Phong)'}</span>
+            <span>{isReturning ? 'Tiếp Tục Hành Y' : 'Mở Cửa Y Quán'}</span>
           </button>
-          <button
-            type="button"
-            className="btn-secondary title-gate-quiet-btn"
-            onClick={() => triggerEnter(false)}
-          >
+          <button type="button" className="title-gate-quiet-btn" onClick={() => triggerEnter(false)}>
             Vào Y Quán (Im lặng)
           </button>
         </div>
+        <span className="title-scroll-rod is-bottom" aria-hidden="true" />
       </div>
     </div>
   );

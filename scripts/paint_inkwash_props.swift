@@ -1,6 +1,7 @@
-// Cân tiểu ly (đẳng tử) + hộp cân hình đàn in thủy mặc: brush ink line, gray/sepia washes
+// Thủy mặc props: cân tiểu ly + hộp cân hình đàn (Dược Các) and the 5 Tứ Chẩn desk objects (Tiền Đường),
+// in thủy mặc: brush ink line, gray/sepia washes
 // with pooled edges, dry-brush breaks and hatching, on transparent PNG.
-// Run: swift scripts/paint_steelyard.swift && npm run art:webp
+// Run: swift scripts/paint_inkwash_props.swift && npm run art:webp
 // Geometry is fixed: BrassScaleRig.tsx assumes beam 1200×80 (đề x=200, sao 0…10 tiền from x=260, 86px/tiền),
 // pan 360×120, weight 120×160, case 1200×240.
 import AppKit
@@ -345,8 +346,229 @@ func paintCase(dragon: Bool) {
   savePNG(ctx, dragon ? "scale-case-long.png" : "scale-case-go.png")
 }
 
+
+// MARK: - Tứ Chẩn desk objects, 260×220 each, resting on the table (soft ink shadow underneath).
+let DW = 260, DH = 220
+let CINNABAR: RGB = (0.66, 0.16, 0.11)
+let BAMBOO: RGB = (0.78, 0.70, 0.42)
+let BAMBOO_D: RGB = (0.42, 0.38, 0.18)
+
+func deskShadow(_ ctx: CGContext, _ r: CGRect, seed: CGFloat) {
+  wash(ctx, ellipse(r), GRAY, alpha: 0.22, layers: 2, jitter: 4, seed: seed)
+}
+
+/// Vọng chẩn: hand mirror of bronze propped on a small rosewood stand.
+func paintDeskMirror() {
+  let ctx = makeCtx(DW, DH)
+  deskShadow(ctx, CGRect(x: 40, y: 182, width: 190, height: 26), seed: 200)
+  let stand = CGMutablePath()
+  stand.move(to: CGPoint(x: 92, y: 196)); stand.addLine(to: CGPoint(x: 168, y: 196))
+  stand.addLine(to: CGPoint(x: 156, y: 176)); stand.addLine(to: CGPoint(x: 104, y: 176)); stand.closeSubpath()
+  wash(ctx, stand, WOOD, alpha: 0.9, jitter: 0.8, seed: 201)
+  shade(ctx, stand, WOOD_D, from: CGPoint(x: 0, y: 176), to: CGPoint(x: 0, y: 196), alpha: 0.6)
+  inkLine(ctx, stand, width: 1.8, seed: 202)
+  let handle = CGPath(roundedRect: CGRect(x: 121, y: 140, width: 18, height: 44), cornerWidth: 6, cornerHeight: 6, transform: nil)
+  wash(ctx, handle, BRASS, alpha: 0.9, jitter: 0.6, seed: 203)
+  shade(ctx, handle, BRASS_D, from: CGPoint(x: 121, y: 0), to: CGPoint(x: 139, y: 0), alpha: 0.7)
+  inkLine(ctx, handle, width: 1.6, seed: 204)
+  let disc = ellipse(CGRect(x: 66, y: 16, width: 128, height: 132))
+  wash(ctx, disc, BRASS, alpha: 0.9, jitter: 1.2, seed: 205)
+  shade(ctx, disc, BRASS_D, from: CGPoint(x: 80, y: 30), to: CGPoint(x: 190, y: 146), alpha: 0.8)
+  hatch(ctx, disc, region: CGRect(x: 150, y: 70, width: 50, height: 80), angle: 1.0, spacing: 3.5, alpha: 0.35, seed: 206)
+  inkLine(ctx, disc, width: 2.6, seed: 207)
+  // lotus-scroll rim: small ink loops round the border
+  for k in 0..<16 {
+    let a = CGFloat(k) / 16 * .pi * 2
+    let c = CGPoint(x: 130 + cos(a) * 56, y: 82 + sin(a) * 58)
+    let loop = ellipse(CGRect(x: c.x - 4, y: c.y - 3, width: 8, height: 6))
+    inkLine(ctx, loop, width: 0.9, seed: 210 + CGFloat(k), dry: 0.3, alpha: 0.55)
+  }
+  let face = ellipse(CGRect(x: 84, y: 34, width: 92, height: 96))
+  wash(ctx, face, (0.80, 0.78, 0.70), alpha: 0.95, jitter: 0.8, seed: 230)
+  shade(ctx, face, GRAY, from: CGPoint(x: 100, y: 40), to: CGPoint(x: 170, y: 128), alpha: 0.5)
+  inkLine(ctx, face, width: 1.6, seed: 231)
+  let glint = CGMutablePath(); glint.move(to: CGPoint(x: 104, y: 58)); glint.addQuadCurve(to: CGPoint(x: 132, y: 46), control: CGPoint(x: 112, y: 46))
+  ctx.addPath(glint); ctx.setStrokeColor(col((1, 0.98, 0.92), 0.8)); ctx.setLineWidth(5); ctx.strokePath()
+  savePNG(ctx, "desk-vong-mirror.png")
+}
+
+/// Bamboo segment with nodes between two points (thickness w).
+func bambooTube(_ ctx: CGContext, from a: CGPoint, to b: CGPoint, w: CGFloat, nodes: Int, seed: CGFloat) {
+  let ang = atan2(b.y - a.y, b.x - a.x)
+  let len = hypot(b.x - a.x, b.y - a.y)
+  ctx.saveGState()
+  ctx.translateBy(x: a.x, y: a.y); ctx.rotate(by: ang)
+  let body = CGPath(roundedRect: CGRect(x: 0, y: -w / 2, width: len, height: w), cornerWidth: w * 0.3, cornerHeight: w * 0.3, transform: nil)
+  wash(ctx, body, BAMBOO, alpha: 0.9, jitter: 0.8, seed: seed)
+  shade(ctx, body, BAMBOO_D, from: CGPoint(x: 0, y: -w / 2), to: CGPoint(x: 0, y: w / 2), alpha: 0.6)
+  hatch(ctx, body, region: CGRect(x: 0, y: w * 0.15, width: len, height: w), angle: 0.3, spacing: 4, alpha: 0.3, seed: seed + 1)
+  inkLine(ctx, body, width: 2, seed: seed + 2)
+  for n in 1...nodes {
+    let x = len * CGFloat(n) / CGFloat(nodes + 1)
+    let ring = CGMutablePath(); ring.move(to: CGPoint(x: x, y: -w / 2)); ring.addQuadCurve(to: CGPoint(x: x, y: w / 2), control: CGPoint(x: x + 4, y: 0))
+    inkLine(ctx, ring, width: 2.2, seed: seed + 3 + CGFloat(n), dry: 0.05)
+  }
+  ctx.restoreGState()
+}
+
+/// Văn chẩn: a bamboo listening tube resting on a folded cloth.
+func paintDeskListenTube() {
+  let ctx = makeCtx(DW, DH)
+  deskShadow(ctx, CGRect(x: 26, y: 160, width: 210, height: 34), seed: 300)
+  let cloth = CGMutablePath()
+  cloth.move(to: CGPoint(x: 40, y: 176)); cloth.addLine(to: CGPoint(x: 150, y: 196)); cloth.addLine(to: CGPoint(x: 226, y: 160))
+  cloth.addLine(to: CGPoint(x: 118, y: 142)); cloth.closeSubpath()
+  wash(ctx, cloth, (0.86, 0.82, 0.70), alpha: 0.85, jitter: 2, seed: 301)
+  inkLine(ctx, cloth, width: 1.4, seed: 302, dry: 0.3, alpha: 0.6)
+  bambooTube(ctx, from: CGPoint(x: 52, y: 150), to: CGPoint(x: 206, y: 96), w: 26, nodes: 2, seed: 310)
+  // flared ear cup at the far end
+  let cup = ellipse(CGRect(x: 192, y: 70, width: 34, height: 50))
+  wash(ctx, cup, BAMBOO, alpha: 0.9, jitter: 0.6, seed: 320)
+  let mouth = ellipse(CGRect(x: 200, y: 80, width: 18, height: 30))
+  wash(ctx, mouth, WOOD_D, alpha: 0.85, jitter: 0.5, seed: 321)
+  inkLine(ctx, cup, width: 2, seed: 322); inkLine(ctx, mouth, width: 1.2, seed: 323)
+  // a sound ripple, three dry ink arcs
+  for k in 0..<3 {
+    let r = 16 + CGFloat(k) * 11
+    let arc = CGMutablePath(); arc.addArc(center: CGPoint(x: 212, y: 92), radius: r, startAngle: -0.9, endAngle: 0.5, clockwise: false)
+    inkLine(ctx, arc, width: 1.4, seed: 330 + CGFloat(k), dry: 0.35, alpha: 0.5 - CGFloat(k) * 0.12)
+  }
+  savePNG(ctx, "desk-van-tube.png")
+}
+
+/// Vấn chẩn: a bamboo slip cup (ống thẻ) with question slips, one cinnabar-tipped.
+func paintDeskSlipCup() {
+  let ctx = makeCtx(DW, DH)
+  deskShadow(ctx, CGRect(x: 60, y: 184, width: 150, height: 26), seed: 400)
+  var r = RNG(s: 401)
+  for k in 0..<8 {
+    let x = 98 + CGFloat(k) * 9 + (r.next() - 0.5) * 4
+    let top = 14 + r.next() * 40
+    let tilt = (CGFloat(k) - 3.5) * 3
+    let slip = CGMutablePath()
+    slip.move(to: CGPoint(x: x - 4, y: 110)); slip.addLine(to: CGPoint(x: x - 4 + tilt, y: top))
+    slip.addLine(to: CGPoint(x: x + 4 + tilt, y: top)); slip.addLine(to: CGPoint(x: x + 4, y: 110)); slip.closeSubpath()
+    wash(ctx, slip, BAMBOO, alpha: 0.85, jitter: 0.4, seed: 410 + CGFloat(k))
+    inkLine(ctx, slip, width: 1.2, seed: 420 + CGFloat(k), dry: 0.1, alpha: 0.75)
+    if k == 5 {
+      let tip = CGPath(rect: CGRect(x: x - 4 + tilt * 0.95, y: top, width: 8, height: 12), transform: nil)
+      wash(ctx, tip, CINNABAR, alpha: 0.95, jitter: 0.3, seed: 430)
+    }
+  }
+  let cup = CGMutablePath()
+  cup.move(to: CGPoint(x: 84, y: 92)); cup.addLine(to: CGPoint(x: 90, y: 194))
+  cup.addQuadCurve(to: CGPoint(x: 176, y: 194), control: CGPoint(x: 133, y: 206))
+  cup.addLine(to: CGPoint(x: 182, y: 92)); cup.addQuadCurve(to: CGPoint(x: 84, y: 92), control: CGPoint(x: 133, y: 104))
+  wash(ctx, cup, BAMBOO, alpha: 0.92, jitter: 0.8, seed: 440)
+  shade(ctx, cup, BAMBOO_D, from: CGPoint(x: 90, y: 0), to: CGPoint(x: 182, y: 0), alpha: 0.75)
+  hatch(ctx, cup, region: CGRect(x: 150, y: 90, width: 40, height: 110), angle: 1.3, spacing: 3.5, alpha: 0.35, seed: 441)
+  inkLine(ctx, cup, width: 2.4, seed: 442)
+  let rim = ellipse(CGRect(x: 84, y: 84, width: 98, height: 18))
+  inkLine(ctx, rim, width: 2, seed: 443)
+  let node = CGMutablePath(); node.move(to: CGPoint(x: 88, y: 150)); node.addQuadCurve(to: CGPoint(x: 178, y: 150), control: CGPoint(x: 133, y: 162))
+  inkLine(ctx, node, width: 2.2, seed: 444, dry: 0.05)
+  // the character 問 (vấn) brushed on the cup
+  ctx.saveGState()
+  let attrs: [NSAttributedString.Key: Any] = [.font: NSFont(name: "Songti SC", size: 30) ?? NSFont.systemFont(ofSize: 30),
+                                              .foregroundColor: NSColor(red: 0.13, green: 0.09, blue: 0.06, alpha: 0.82)]
+  let str = NSAttributedString(string: "問", attributes: attrs)
+  NSGraphicsContext.saveGraphicsState()
+  NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: true)
+  str.draw(at: NSPoint(x: 118, y: 108))
+  NSGraphicsContext.restoreGraphicsState()
+  ctx.restoreGState()
+  savePNG(ctx, "desk-vanhoi-slips.png")
+}
+
+/// Thiết chẩn: cinnabar brocade pulse pillow with tassels.
+func paintDeskPulsePillow() {
+  let ctx = makeCtx(DW, DH)
+  deskShadow(ctx, CGRect(x: 22, y: 160, width: 222, height: 36), seed: 500)
+  let pillow = CGMutablePath()
+  pillow.move(to: CGPoint(x: 40, y: 120))
+  pillow.addCurve(to: CGPoint(x: 220, y: 116), control1: CGPoint(x: 90, y: 74), control2: CGPoint(x: 170, y: 70))
+  pillow.addCurve(to: CGPoint(x: 214, y: 168), control1: CGPoint(x: 236, y: 132), control2: CGPoint(x: 232, y: 158))
+  pillow.addCurve(to: CGPoint(x: 46, y: 172), control1: CGPoint(x: 160, y: 186), control2: CGPoint(x: 100, y: 188))
+  pillow.addCurve(to: CGPoint(x: 40, y: 120), control1: CGPoint(x: 28, y: 160), control2: CGPoint(x: 26, y: 134))
+  pillow.closeSubpath()
+  wash(ctx, pillow, CINNABAR, alpha: 0.92, jitter: 1.5, seed: 501)
+  shade(ctx, pillow, (0.30, 0.06, 0.04), from: CGPoint(x: 0, y: 90), to: CGPoint(x: 0, y: 184), alpha: 0.7)
+  hatch(ctx, pillow, region: CGRect(x: 30, y: 150, width: 210, height: 40), angle: -0.4, spacing: 4, alpha: 0.35, seed: 502)
+  // gold brocade roundels
+  for (x, y) in [(84.0, 120.0), (132.0, 108.0), (180.0, 120.0), (108.0, 150.0), (158.0, 150.0)] as [(CGFloat, CGFloat)] {
+    let ro = ellipse(CGRect(x: x - 11, y: y - 8, width: 22, height: 16))
+    inkLine(ctx, ro, width: 1.1, seed: x + y, dry: 0.2, alpha: 0.5)
+    ctx.addPath(ro); ctx.setStrokeColor(col(BRASS, 0.75)); ctx.setLineWidth(1.4); ctx.strokePath()
+  }
+  inkLine(ctx, pillow, width: 2.6, seed: 503)
+  for (x, y, d) in [(40.0, 146.0, -1.0), (218.0, 142.0, 1.0)] as [(CGFloat, CGFloat, CGFloat)] {
+    for k in 0..<5 {
+      let t = CGMutablePath(); t.move(to: CGPoint(x: x, y: y))
+      t.addQuadCurve(to: CGPoint(x: x + d * (10 + CGFloat(k) * 3), y: y + 26 + CGFloat(k) * 2), control: CGPoint(x: x + d * 4, y: y + 14))
+      inkLine(ctx, t, width: 1.2, seed: 520 + CGFloat(k) + x, dry: 0.15, alpha: 0.75)
+    }
+    ctx.setFillColor(col(BRASS, 0.95)); ctx.fillEllipse(in: CGRect(x: x - 4, y: y - 4, width: 8, height: 8))
+  }
+  savePNG(ctx, "desk-thiet-pillow.png")
+}
+
+/// Đĩa đồng Bát Quái: bronze disc seen at an angle, eight trigrams round a Thái Cực.
+func paintDeskBaguaDisc() {
+  let ctx = makeCtx(DW, DH)
+  deskShadow(ctx, CGRect(x: 26, y: 150, width: 214, height: 44), seed: 600)
+  let cx: CGFloat = 130, cy: CGFloat = 112, rx: CGFloat = 104, ry: CGFloat = 64
+  let edge = ellipse(CGRect(x: cx - rx, y: cy - ry + 10, width: rx * 2, height: ry * 2))
+  wash(ctx, edge, BRASS_D, alpha: 0.9, jitter: 0.8, seed: 601)
+  inkLine(ctx, edge, width: 2.2, seed: 602)
+  let top = ellipse(CGRect(x: cx - rx, y: cy - ry, width: rx * 2, height: ry * 2))
+  wash(ctx, top, BRASS, alpha: 0.92, jitter: 1, seed: 603)
+  shade(ctx, top, BRASS_D, from: CGPoint(x: cx - 60, y: cy - 50), to: CGPoint(x: cx + 90, y: cy + 60), alpha: 0.6)
+  inkLine(ctx, top, width: 2.4, seed: 604)
+  for f in [0.78, 0.42] as [CGFloat] {
+    let ring = ellipse(CGRect(x: cx - rx * f, y: cy - ry * f, width: rx * 2 * f, height: ry * 2 * f))
+    inkLine(ctx, ring, width: 1.3, seed: 610 + f * 10, dry: 0.2, alpha: 0.65)
+  }
+  // Tiên thiên trigrams: 1 = solid (dương), 0 = broken (âm); top line first.
+  let trigrams: [[Int]] = [[1, 1, 1], [0, 1, 1], [1, 0, 1], [0, 0, 1], [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]]
+  for (k, tg) in trigrams.enumerated() {
+    let a = CGFloat(k) / 8 * .pi * 2 - .pi / 2
+    let mx = cx + cos(a) * rx * 0.6, my = cy + sin(a) * ry * 0.6
+    ctx.saveGState(); ctx.translateBy(x: mx, y: my); ctx.scaleBy(x: 1, y: ry / rx); ctx.rotate(by: a + .pi / 2)
+    for (li, bit) in tg.enumerated() {
+      let y = CGFloat(li - 1) * 5
+      if bit == 1 {
+        ctx.move(to: CGPoint(x: -9, y: y)); ctx.addLine(to: CGPoint(x: 9, y: y))
+      } else {
+        ctx.move(to: CGPoint(x: -9, y: y)); ctx.addLine(to: CGPoint(x: -2, y: y))
+        ctx.move(to: CGPoint(x: 2, y: y)); ctx.addLine(to: CGPoint(x: 9, y: y))
+      }
+      ctx.setStrokeColor(col(INK, 0.85)); ctx.setLineWidth(2.6); ctx.strokePath()
+    }
+    ctx.restoreGState()
+  }
+  // Thái Cực at the centre
+  ctx.saveGState(); ctx.translateBy(x: cx, y: cy); ctx.scaleBy(x: 1, y: ry / rx)
+  let R: CGFloat = 24
+  let yin = CGMutablePath()
+  yin.addArc(center: .zero, radius: R, startAngle: -.pi / 2, endAngle: .pi / 2, clockwise: false)
+  yin.addArc(center: CGPoint(x: 0, y: R / 2), radius: R / 2, startAngle: .pi / 2, endAngle: -.pi / 2, clockwise: false)
+  yin.addArc(center: CGPoint(x: 0, y: -R / 2), radius: R / 2, startAngle: .pi / 2, endAngle: -.pi / 2, clockwise: true)
+  ctx.setFillColor(col((0.93, 0.88, 0.74), 0.95)); ctx.fillEllipse(in: CGRect(x: -R, y: -R, width: R * 2, height: R * 2))
+  ctx.addPath(yin); ctx.setFillColor(col(INK, 0.88)); ctx.fillPath()
+  ctx.setFillColor(col(INK, 0.88)); ctx.fillEllipse(in: CGRect(x: -3, y: -R / 2 - 3, width: 6, height: 6))
+  ctx.setFillColor(col((0.93, 0.88, 0.74), 1)); ctx.fillEllipse(in: CGRect(x: -3, y: R / 2 - 3, width: 6, height: 6))
+  ctx.addEllipse(in: CGRect(x: -R, y: -R, width: R * 2, height: R * 2)); ctx.setStrokeColor(col(INK, 0.85)); ctx.setLineWidth(1.6); ctx.strokePath()
+  ctx.restoreGState()
+  savePNG(ctx, "desk-batquai-disc.png")
+}
+
 paintBeam()
 paintPan()
 paintWeight()
 paintCase(dragon: false)
 paintCase(dragon: true)
+paintDeskMirror()
+paintDeskListenTube()
+paintDeskSlipCup()
+paintDeskPulsePillow()
+paintDeskBaguaDisc()

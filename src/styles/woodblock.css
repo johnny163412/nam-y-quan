@@ -24,6 +24,7 @@
   --brass-soft: rgba(156, 107, 36, 0.16);
   --border-ink: #382417;
   --font-serif: 'Noto Serif', 'Times New Roman', Georgia, serif;
+  --font-brush: 'Comforter Brush', 'Noto Serif', cursive;
   --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
 }
 
@@ -4621,95 +4622,102 @@ button {
 .title-gate-card {
   position: relative;
   z-index: 4;
-  max-width: 600px;
+  max-width: 440px;
   width: 100%;
   text-align: center;
-  padding: 32px 28px 28px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, rgba(248, 239, 218, 0.94), rgba(236, 221, 190, 0.95));
-  border: 2px solid #9c6b30;
-  box-shadow:
-    0 24px 60px rgba(8, 4, 2, 0.72),
-    inset 0 0 0 4px rgba(139, 90, 38, 0.22);
+  padding: 34px 30px 30px;
+  /* xuan paper scroll hanging between two rods */
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 250, 236, 0.5), transparent 70%),
+    linear-gradient(180deg, rgba(246, 236, 212, 0.96), rgba(234, 218, 186, 0.96));
+  box-shadow: 0 26px 60px rgba(8, 4, 2, 0.7);
   color: var(--ink-primary);
 }
 
+.title-scroll-rod {
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  top: -9px;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #6b3f1d, #3a200e 60%, #22120a);
+  box-shadow: 0 4px 10px rgba(8, 4, 2, 0.55);
+}
+.title-scroll-rod.is-bottom {
+  top: auto;
+  bottom: -9px;
+}
+
+.title-gate-heading {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  font-family: var(--font-brush);
+  font-weight: 400;
+  font-size: clamp(4rem, 15vw, 5.6rem);
+  line-height: 1;
+  color: #1f140c;
+  text-shadow: 0 1px 0 rgba(255, 250, 236, 0.6);
+}
+
+/* lạc khoản: the cinnabar seal stamped beside the brushwork */
 .title-gate-seal {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 12px;
+  position: absolute;
+  right: -34px;
+  bottom: 6px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 0.82rem;
-  line-height: 1.1;
-  color: #f9efe0;
-  background: linear-gradient(145deg, #a8231c, #741410);
-  border: 2px solid #e7b96a;
-  border-radius: 6px;
-  box-shadow: 0 6px 14px rgba(96, 18, 14, 0.4);
-  transform: rotate(-4deg);
-}
-
-.title-gate-eyebrow {
-  margin: 0 0 4px;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #7c4d21;
-  font-weight: 700;
-}
-
-.title-gate-heading {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 4.5vw, 2.8rem);
-  color: #2c190c;
-  letter-spacing: 0.04em;
-  line-height: 1.1;
+  font-size: 0.52rem;
+  line-height: 1.05;
+  color: #fbeedd;
+  background: #a8231c;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1.5px rgba(251, 238, 221, 0.7);
+  transform: rotate(-6deg);
 }
 
 .title-gate-sub {
-  margin: 6px 0 14px;
-  font-family: var(--font-serif);
-  font-size: 1.05rem;
-  font-style: italic;
-  color: #6b261c;
+  margin: 4px 0 0;
+  font-family: var(--font-brush);
+  font-size: 2rem;
+  line-height: 1.1;
+  color: #8e231d;
 }
 
-.title-gate-pillars {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 10px;
-  font-size: 0.8rem;
-  color: #4f3722;
-  font-weight: 600;
-  padding: 10px 12px;
-  border-top: 1px solid rgba(114, 78, 42, 0.28);
-  border-bottom: 1px solid rgba(114, 78, 42, 0.28);
-  margin-bottom: 16px;
+.title-gate-motto {
+  margin: 6px 0 22px;
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: #6a4a2c;
+}
+.title-gate-motto::before,
+.title-gate-motto::after {
+  content: '';
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  margin: 0 10px;
+  vertical-align: middle;
+  background: rgba(106, 74, 44, 0.45);
 }
 
 .title-gate-stats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 10px;
-  font-size: 0.8rem;
+  margin: -10px 0 18px;
+  font-size: 0.76rem;
   color: #2f4d3b;
-  background: rgba(34, 82, 58, 0.08);
-  border: 1px solid rgba(34, 82, 58, 0.24);
-  border-radius: 4px;
-  padding: 7px 12px;
-  margin-bottom: 16px;
 }
 
 .title-gate-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -4718,15 +4726,26 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
-  font-size: 0.98rem;
+  padding: 11px 24px;
+  font-size: 1rem;
   width: 100%;
-  max-width: 390px;
+  max-width: 280px;
 }
 
 .title-gate-quiet-btn {
+  padding: 4px 10px;
+  border: none;
+  background: none;
+  font-family: var(--font-serif);
   font-size: 0.82rem;
-  padding: 6px 16px;
+  color: #5a3918;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(90, 57, 24, 0.4);
+  cursor: pointer;
+}
+.title-gate-quiet-btn:hover {
+  color: #8e231d;
 }
 
 /* 7. Honor Seals (12 Ấn Triện Danh Dự) Toast & Cabinet Modal */
@@ -4969,7 +4988,7 @@ button {
   }
 
   .title-gate-card {
-    padding: 22px 16px 20px;
+    padding: 28px 18px 24px;
   }
 }
 
@@ -5695,49 +5714,77 @@ button {
   transform: translateX(-50%);
   z-index: 120;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(52, 32, 18, 0.94), rgba(30, 18, 10, 0.96));
-  border: 1.5px solid rgba(228, 182, 102, 0.65);
-  box-shadow: 0 12px 30px rgba(8, 4, 2, 0.65);
+  align-items: flex-end;
+  gap: 6px;
+  padding: 0 4px;
 }
 
+/* Each Tứ Chẩn instrument is a painted object resting on the desk; the paper tag names it. */
 .tabletop-tool-btn {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 7px;
-  padding: 7px 13px;
-  border-radius: 999px;
-  border: 1px solid rgba(224, 178, 98, 0.32);
-  background: rgba(252, 240, 214, 0.08);
-  color: #f6e4c1;
-  font-family: var(--font-serif);
-  font-size: 0.84rem;
-  font-weight: 700;
+  gap: 2px;
+  width: 96px;
+  padding: 0;
+  border: none;
+  background: none;
   cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tabletop-tool-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(8px 10px 7px rgba(6, 3, 1, 0.5));
+  transition: filter 0.22s ease, transform 0.22s ease;
+}
+
+.tabletop-tool-label {
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
   white-space: nowrap;
-  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  padding: 1px 8px;
+  border-radius: 2px;
+  background: rgba(246, 236, 212, 0.9);
+  color: #3a2410;
+  box-shadow: 0 2px 6px rgba(8, 4, 2, 0.45);
 }
 
-.tabletop-tool-btn:hover {
-  transform: translateY(-3px);
-  background: rgba(252, 240, 214, 0.18);
-  border-color: rgba(242, 198, 106, 0.85);
+.tabletop-tool-btn:hover,
+.tabletop-tool-btn:focus-visible {
+  transform: translateY(-6px);
+}
+.tabletop-tool-btn:hover .tabletop-tool-art,
+.tabletop-tool-btn:focus-visible .tabletop-tool-art {
+  filter: drop-shadow(10px 16px 10px rgba(6, 3, 1, 0.45)) drop-shadow(0 0 10px rgba(255, 196, 110, 0.45));
+}
+.tabletop-tool-btn:focus-visible {
+  outline: none;
+}
+.tabletop-tool-btn:focus-visible .tabletop-tool-label {
+  outline: 2px solid #f5cd7c;
 }
 
+/* Picked up: lifted off the desk, lamp-lit, tag turns cinnabar */
 .tabletop-tool-btn.active {
-  background: linear-gradient(135deg, #a8231c, #741410);
-  border-color: #f5cd7c;
+  transform: translateY(-12px) rotate(-3deg);
+}
+.tabletop-tool-btn.active .tabletop-tool-art {
+  filter: drop-shadow(14px 22px 12px rgba(6, 3, 1, 0.4)) drop-shadow(0 0 14px rgba(255, 196, 110, 0.6));
+}
+.tabletop-tool-btn.active .tabletop-tool-label {
+  background: #a8231c;
   color: #fff6e5;
-  box-shadow: 0 4px 16px rgba(168, 35, 28, 0.55);
-  transform: translateY(-3px);
 }
 
-.tabletop-tool-btn.is-compass {
-  border-color: rgba(242, 198, 106, 0.6);
-  color: #ffe4a3;
+@media (prefers-reduced-motion: reduce) {
+  .tabletop-tool-btn,
+  .tabletop-tool-art {
+    transition: none;
+  }
 }
 
 /* 5. Rooms 2, 3, 4 Floating Translucent Workspaces over Full-Bleed Art */
@@ -5872,14 +5919,17 @@ button {
   .spatial-tabletop-tray {
     bottom: 58px;
     max-width: calc(100vw - 16px);
-    overflow-x: auto;
-    padding: 5px 8px;
-    gap: 5px;
+    padding: 0;
+    gap: 1px;
   }
 
   .tabletop-tool-btn {
-    padding: 6px 10px;
-    font-size: 0.76rem;
+    width: 58px;
+  }
+
+  .tabletop-tool-label {
+    font-size: 0.56rem;
+    padding: 1px 3px;
   }
 
   .spatial-room-dock {
@@ -6484,9 +6534,6 @@ button {
 .tien-duong-desk-foreground .desk-relic-art-wrap,
 .tien-duong-desk-foreground .desk-seal-block {
   filter: drop-shadow(9px 12px 9px rgba(6, 3, 1, 0.55));
-}
-.tien-duong-desk-foreground .spatial-tabletop-tray {
-  box-shadow: 14px 16px 30px rgba(8, 4, 2, 0.6), inset 0 1px 0 rgba(255, 214, 150, 0.12);
 }
 
 /* =====================================================================

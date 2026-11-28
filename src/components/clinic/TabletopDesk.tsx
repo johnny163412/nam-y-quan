@@ -1,7 +1,20 @@
 import React from 'react';
 import { apothecaryAudio } from '../../engine/audio';
-import { AntiqueIcon } from '../svg/AntiqueIcons';
 import { EXAM_INSTRUMENTS, TabletopTool } from './clinicConstants';
+
+const TOOL_ART: Record<TabletopTool, { art: string; title: string }> = {
+  vong: { art: './art/tools/desk-vong-mirror.webp', title: 'Vọng Chẩn: gương đồng soi lưỡi, nhìn sắc mặt' },
+  van: { art: './art/tools/desk-van-tube.webp', title: 'Văn Chẩn: ống trúc nghe hơi thở, tiếng nói' },
+  'van-hoi': { art: './art/tools/desk-vanhoi-slips.webp', title: 'Vấn Chẩn: rút thẻ tre để hỏi bệnh' },
+  thiet: { art: './art/tools/desk-thiet-pillow.webp', title: 'Thiết Chẩn: gối bắt mạch' },
+  'bat-cuong': { art: './art/tools/desk-batquai-disc.webp', title: 'Đĩa đồng Bát Quái: chốt biện chứng' }
+};
+
+const DESK_TOOLS = [...EXAM_INSTRUMENTS, { id: 'bat-cuong' as const, label: 'Đĩa Bát Quái' }].map((t) => ({
+  id: t.id as TabletopTool,
+  label: t.label,
+  ...TOOL_ART[t.id as TabletopTool]
+}));
 
 interface TabletopDeskProps {
   yDucPoints: number;
@@ -63,44 +76,28 @@ export const TabletopDesk: React.FC<TabletopDeskProps> = ({
         </span>
       </button>
 
-      {/* Center 5 Tactile Examination Instruments directly on the Wooden Desk */}
-      <div className="spatial-tabletop-tray" role="toolbar" aria-label="Khay 5 pháp khí trên bàn khám">
-        {EXAM_INSTRUMENTS.map((inst) => {
-          const isOpen = activeToolDrawer === inst.id;
+      {/* The 5 Tứ Chẩn instruments as painted objects resting on the desk */}
+      <div className="spatial-tabletop-tray" role="toolbar" aria-label="5 pháp khí trên bàn khám">
+        {DESK_TOOLS.map((tool) => {
+          const isOpen = activeToolDrawer === tool.id;
           return (
             <button
-              key={inst.id}
+              key={tool.id}
               type="button"
-              className={`tabletop-tool-btn ${isOpen ? 'active' : ''}`}
+              className={`tabletop-tool-btn tool-${tool.id} ${isOpen ? 'active' : ''}`}
+              title={tool.title}
               onClick={() => {
-                onToggleTool(inst.id);
+                onToggleTool(tool.id);
                 apothecaryAudio.playPageTurn();
               }}
             >
-              <span className="tabletop-tool-icon" aria-hidden="true">
-                <AntiqueIcon name={inst.icon} size={18} />
-              </span>
+              <img src={tool.art} alt="" className="tabletop-tool-art" draggable={false} />
               <span className="tabletop-tool-label">
-                {inst.id === 'van-hoi'
-                  ? `${inst.label} (${askedCount}/${maxInquiries})`
-                  : inst.label}
+                {tool.id === 'van-hoi' ? `${tool.label} (${askedCount}/${maxInquiries})` : tool.label}
               </span>
             </button>
           );
         })}
-        <button
-          type="button"
-          className={`tabletop-tool-btn is-compass ${activeToolDrawer === 'bat-cuong' ? 'active' : ''}`}
-          onClick={() => {
-            onToggleTool('bat-cuong');
-            apothecaryAudio.playPageTurn();
-          }}
-        >
-          <span className="tabletop-tool-icon" aria-hidden="true">
-            <AntiqueIcon name="yin-yang" size={18} />
-          </span>
-          <span className="tabletop-tool-label">Đĩa Bát Quái</span>
-        </button>
       </div>
 
       {/* Physical Relic 2 on Right Side of Desk: Jade / Cinnabar Clinic Seal */}
