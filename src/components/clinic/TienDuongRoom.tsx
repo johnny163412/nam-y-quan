@@ -64,7 +64,11 @@ export const TienDuongRoom: React.FC<{ ctx: ClinicCtx }> = ({ ctx }) => {
         <div className="spatial-bg-vignette" />
         {solarWeather !== 'rain' && <AmbientParticlesCanvas key={solarWeather} mode={solarWeather} />}
         {hoanhPhi.length > 0 && (
-          <div className="hoanh-phi-plaque" title={`Hoành phi tạ ơn: ${hoanhPhi.join(' · ')}`}>
+          <div
+            className="hoanh-phi-plaque"
+            style={{ backgroundImage: "url('./art/tools/hoanh-phi-plaque.webp')" }}
+            title={`Hoành phi tạ ơn: ${hoanhPhi.join(' · ')}`}
+          >
             {hoanhPhi[hoanhPhi.length - 1]}
           </div>
         )}

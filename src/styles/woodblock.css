@@ -7040,11 +7040,15 @@ button {
   background: rgba(158, 38, 28, 0.22); font-size: 0.84rem; font-weight: 600; color: #F3D3B4;
 }
 .hoanh-phi-plaque {
-  position: absolute; top: 12%; left: 50%; transform: translateX(-50%); z-index: 2;
-  padding: 6px 28px; font-family: var(--font-serif); font-weight: 700; letter-spacing: 0.18em;
-  font-size: clamp(0.9rem, 1.6vw, 1.3rem); color: #E7B96A; white-space: nowrap;
-  background: linear-gradient(180deg, #3b2414, #23140a); border: 3px double #B88438; border-radius: 3px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 0 10px rgba(231, 185, 106, 0.18);
+  position: absolute; top: 10%; left: 50%; transform: translateX(-50%); z-index: 2;
+  padding: 20px 44px; font-family: var(--font-serif); font-weight: 700; letter-spacing: 0.16em;
+  font-size: clamp(0.86rem, 1.45vw, 1.18rem); color: #F9E3A6; white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(34, 8, 4, 0.85);
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border: none;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.55));
 }
 .teacher-review { margin: 0 0 12px; padding: 8px 12px; border: 1.5px solid #5A3E28; border-radius: 3px; background: var(--paper-highlight); }
 .teacher-review summary { cursor: pointer; font-family: var(--font-serif); font-weight: 700; }

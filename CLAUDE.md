@@ -26,7 +26,7 @@
 ## Strict Project Conventions & Guardrails
 1. **Zero OS Unicode Emojis:** A unit test in `src/engine/__tests__/tcmEngine.test.ts` strictly enforces **zero** system Unicode pictographic emojis across all `src/` UI files. Always use `<AntiqueIcon name="..." />` from `src/components/svg/AntiqueIcons.tsx` instead.
 2. **Relative Asset Paths Only:** `vite.config.ts` uses `base: './'`. Always reference assets in `public/` using `./art/...` and `./audio/...` (never leading `/art/`), or they will 404 on GitHub Pages `/nam-y-quan/`.
-3. **Art Cohesion:** All illustrations in `public/art/` follow a warm Vietnamese hand-inked watercolor & rice-paper aesthetic (no flat modern vector/clipart).
+3. **Art Cohesion & STRICT NO-VECTOR-ART RULE:** All illustrations in `public/art/` follow a warm Vietnamese hand-inked watercolor & rice-paper aesthetic. **NEVER hand-draw illustrations, tools, plaques, maps, or props using inline `<svg>` or procedural Swift/CoreGraphics/Canvas scripts** (do NOT re-run `scripts/paint_inkwash_props.swift` — those 10 assets have been replaced with hand-painted watercolor art). If a new visual asset is needed, wire an `<img src="./art/..." />` tag and ask the user to generate the hand-painted watercolor `.webp` via Antigravity's image generator.
 4. **WebP Art Only:** `public/art/` ships `.webp` only (the Swift scripts in `scripts/` still emit `.jpg`/`.png`). After regenerating art, run `npm run art:webp` (needs `cwebp`) to convert and remove the originals; a test fails if any `./art/` path referenced in `src/` is missing.
 5. **All 20 herbs, 20 garden plots, and 3 chapters** are intentionally unlocked for playtesting.
 6. **Preserve 100% Vietnamese UI copy** with authentic TCM terminology.
